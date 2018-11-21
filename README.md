@@ -1,5 +1,5 @@
 # Symbol project
-[![Available on NuGet https://www.nuget.org/packages/Symbol/](https://img.shields.io/nuget/v/Symbol.Common.svg?style=flat-square)](https://www.nuget.org/packages/Symbol/)
+[![Available on NuGet https://www.nuget.org/packages/Symbol/](https://img.shields.io/nuget/v/Symbol.svg?style=flat)](https://www.nuget.org/packages/Symbol/)
 
 ## Use
 
