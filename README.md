@@ -1,9 +1,9 @@
 # Symbol project
-[![Available on NuGet https://www.nuget.org/packages?q=Symbol](https://img.shields.io/nuget/v/Symbol.Common.svg?style=flat-square)](https://www.nuget.org/packages?q=Symbol)
+[![Available on NuGet https://www.nuget.org/packages/Symbol/](https://img.shields.io/nuget/v/Symbol.Common.svg?style=flat-square)](https://www.nuget.org/packages/Symbol/)
 
 ## Use
 
-* Official releases are on [NuGet](https://www.nuget.org/packages?q=Symbol).
+* Official releases are on [NuGet](https://www.nuget.org/packages/Symbol/).
 
 
 ## Contribute
