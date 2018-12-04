@@ -6,7 +6,6 @@
 using System;
 using System.Reflection;
 
-
 /// <summary>
 /// 用于在设置常量的特性
 /// </summary>
@@ -15,19 +14,16 @@ using System.Reflection;
 [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = true)]
 public class ConstAttribute : Attribute {
 
-    #region fields
-    private static readonly string _textKey = "Text";
-    #endregion
 
     #region properties
     /// <summary>
     /// 常量名称
     /// </summary>
-    public string Key { get; set; }
+    public string Key { get; protected set; }
     /// <summary>
     /// 常量值
     /// </summary>
-    public string Value { get; set; }
+    public string Value { get; protected set; }
     #endregion
 
     #region ctor
@@ -36,7 +32,7 @@ public class ConstAttribute : Attribute {
     /// </summary>
     /// <param name="value">常量值</param>
     public ConstAttribute(string value)
-        : this(_textKey, value) {
+        : this("Text", value) {
     }
     /// <summary>
     /// 标识一个常量
@@ -44,7 +40,7 @@ public class ConstAttribute : Attribute {
     /// <param name="key">常量名称</param>
     /// <param name="value">常量值</param>
     public ConstAttribute(string key, string value) {
-        Key = key;
+        Key = string.IsNullOrEmpty(key) ? "Text" : key;
         Value = value;
     }
     #endregion
@@ -57,55 +53,59 @@ public static class ConstAttributeExtensions {
 
     #region fields
     private static readonly ConstAttribute[] _empty = new ConstAttribute[0];
-    private static readonly string _textKey = "Text";
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<ICustomAttributeProvider, Symbol.Collections.Generic.NameValueCollection<string>> _list = new System.Collections.Concurrent.ConcurrentDictionary<ICustomAttributeProvider, Symbol.Collections.Generic.NameValueCollection<string>>();
+
     #endregion
 
     #region methods
 
-    #region GetAttributes
-    private static ConstAttribute[] GetAttributes(ICustomAttributeProvider provider) {
+    #region GetValues
 
-        ConstAttribute[] result = (ConstAttribute[])provider.GetCustomAttributes(typeof(ConstAttribute), true);
-        if (result != null && result.Length > 0)
-            return result;
-        Type type = provider as Type;
-        if (type != null) {
-#if NETDNX
-            if(type.GetTypeInfo().IsInterface)
-                return _empty;
-#else
-            if (type.IsInterface)
-                return _empty;
-#endif
-            foreach (Type @interface in type.GetInterfaces()) {
-#if NETDNX
-                result = GetAttributes(@interface.GetTypeInfo());
-#else
-                result = GetAttributes(@interface);
-#endif
-                if (@result.Length > 0)
-                    return @result;
-            }
+    static Symbol.Collections.Generic.NameValueCollection<string> GetValues(ICustomAttributeProvider provider) {
+        Symbol.Collections.Generic.NameValueCollection<string> list;
+        if (!_list.TryGetValue(provider, out list)) {
+            ThreadHelper.Block(_list, () => {
+                if (!_list.TryGetValue(provider, out list)) {
+                    list = new Symbol.Collections.Generic.NameValueCollection<string>(StringComparer.OrdinalIgnoreCase);
+                    GetValues(provider, list, true);
+                    _list.TryAdd(provider, list);
+                }
+            });
         }
-
-        MemberInfo member = provider as MemberInfo;
-        if (member == null)
-            return _empty;
-        if (member.DeclaringType != null) {
-            foreach (Type @interface in member.DeclaringType.GetInterfaces()) {
-                MemberInfo[] members = @interface.GetMember(member.Name);
-                if (members == null || members.Length == 0)
-                    continue;
-                foreach (MemberInfo m in members) {
-                    result = (ConstAttribute[])m.GetCustomAttributes(typeof(ConstAttribute), true);
-                    if (result != null && result.Length > 0)
-                        return result;
+        return list;
+    }
+    static void GetValues(ICustomAttributeProvider provider, Symbol.Collections.Generic.NameValueCollection<string> list, bool inherit) {
+        if (inherit) {
+            {
+                Type type = provider as Type;
+                if (type != null) {
+                    foreach (Type p in type.GetInterfaces()) {
+                        GetValues(p, list, false);
+                    }
+                }
+            }
+            {
+                MemberInfo member = provider as MemberInfo;
+                if (member != null && member.DeclaringType != null) {
+                    foreach (Type p in member.DeclaringType.GetInterfaces()) {
+                        MemberInfo[] members = p.GetMember(member.Name);
+                        if (members == null || members.Length == 0)
+                            continue;
+                        foreach (MemberInfo m in members) {
+                            GetValues(m, list, false);
+                        }
+                    }
                 }
             }
         }
-
-        return _empty;
-
+        {
+            var attributes = provider.GetCustomAttributes(typeof(ConstAttribute), true);
+            if (attributes != null) {
+                foreach (ConstAttribute p in attributes) {
+                    list[p.Key] = p.Value;
+                }
+            }
+        }
     }
     #endregion
 
@@ -117,58 +117,86 @@ public static class ConstAttributeExtensions {
     /// <returns>返回此常量名称对应的值，如果不存在，返回 string.Empty</returns>
     public static string Const(
 #if !net20
-        this 
+        this
 #endif
         ICustomAttributeProvider provider) {
-        return Const(provider, _textKey);
+        return Const(provider, "Text");
     }
     /// <summary>
     /// 获取常量标识值
     /// </summary>
     /// <param name="provider">可获取特性的对象</param>
-    /// <param name="key">常名称</param>
+    /// <param name="key">常量名称</param>
     /// <returns>返回此常量名称对应的值，如果不存在，返回 string.Empty</returns>
     public static string Const(
 #if !net20
-        this 
+        this
 #endif
         ICustomAttributeProvider provider, string key) {
-        foreach (ConstAttribute item in GetAttributes(provider)) {
-            if (item.Key == key)
-                return item.Value;
-        }
-        return string.Empty;
+        var list = GetValues(provider);
+        return list[string.IsNullOrEmpty(key) ? "Text" : key] ?? "";
     }
-    #endregion
-#if netcore
-    #region Const
+
     /// <summary>
-    /// 获取常量标识值，常量名称为：Text
+    /// 获取常量标识值
     /// </summary>
-    /// <param name="provider">可获取特性的对象</param>
+    /// <param name="instance">包含特性的实例</param>
     /// <returns>返回此常量名称对应的值，如果不存在，返回 string.Empty</returns>
     public static string Const(
-        this 
-        System.Type provider) {
-        return Const(provider, _textKey);
+#if !net20
+        this
+#endif
+        object instance) {
+        return Const(instance, null, null);
     }
     /// <summary>
     /// 获取常量标识值
     /// </summary>
-    /// <param name="provider">可获取特性的对象</param>
-    /// <param name="key">常名称</param>
+    /// <param name="instance">包含特性的实例</param>
+    /// <param name="keyOrMemberName">常量名称或成员名称</param>
     /// <returns>返回此常量名称对应的值，如果不存在，返回 string.Empty</returns>
     public static string Const(
-        this 
-        System.Type provider, string key) {
-        foreach (ConstAttribute item in GetAttributes(provider.GetTypeInfo())) {
-            if (item.Key == key)
-                return item.Value;
+#if !net20
+        this
+#endif
+        object instance, string keyOrMemberName) {
+        return Const(instance, keyOrMemberName, null);
+    }
+    /// <summary>
+    /// 获取常量标识值
+    /// </summary>
+    /// <param name="instance">包含特性的实例</param>
+    /// <param name="memberName">成员名称</param>
+    /// <param name="key">常量名称</param>
+    /// <returns>返回此常量名称对应的值，如果不存在，返回 string.Empty</returns>
+    public static string Const(
+#if !net20
+        this
+#endif
+        object instance, string memberName, string key) {
+        var provider = instance as ICustomAttributeProvider;
+        if (provider == null) {
+            var type = instance.GetType();
+            if (string.IsNullOrEmpty(memberName)) {
+                provider = type;
+            } else {
+                var members = type.GetMember(memberName);
+                if (members == null || members.Length == 0) {
+                    provider = type;
+                    if (string.IsNullOrEmpty(key))
+                        key = memberName;
+                } else {
+                    provider = members[0];
+                }
+            }
         }
-        return string.Empty;
+        var list = GetValues(provider);
+        return list[string.IsNullOrEmpty(key) ? "Text" : key] ?? "";
     }
     #endregion
-#endif
+
+
+
 
     #endregion
 }

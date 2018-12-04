@@ -15,11 +15,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("© symbolspace All rights reserved.")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("symbolspace .net library")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("3.2.0.1")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("3.2.0.1")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("4.0.0.1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("4.0.0.1")]
 [assembly: System.Reflection.AssemblyProductAttribute("Symbol")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Symbol")]
-[assembly: System.Reflection.AssemblyVersionAttribute("3.2.0.1")]
+[assembly: System.Reflection.AssemblyVersionAttribute("4.0.0.1")]
 [assembly: System.Resources.NeutralResourcesLanguageAttribute("zh-CN")]
 
 // 由 MSBuild WriteCodeFragment 类生成。

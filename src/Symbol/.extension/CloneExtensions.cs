@@ -123,7 +123,4 @@ public static class CloneExtensions {
 
     #endregion
 
-
-    #region types
-    #endregion
 }

@@ -2,6 +2,7 @@
  *  author：symbolspace
  *  e-mail：symbolspace@outlook.com
  */
+using System;
 using System.Reflection;
 
 namespace Symbol {
@@ -9,9 +10,8 @@ namespace Symbol {
     /// Attribute 扩展类
     /// </summary>
     public static class AttributeExtensions {
-
         #region fields
-        private static readonly System.Collections.Generic.Dictionary<string, System.Collections.IList> _list_key = new System.Collections.Generic.Dictionary<string, System.Collections.IList>();
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, System.Collections.IList> _list_key = new System.Collections.Concurrent.ConcurrentDictionary<string, System.Collections.IList>();
         #endregion
 
         #region methods
@@ -98,16 +98,12 @@ namespace Symbol {
         /// <param name="type"></param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
-        public static object GetCustomAttribute(
+        public static Attribute GetCustomAttribute(
 #if !net20
             this
 #endif
             System.Type customAttributeProvider, System.Type type, bool inherit = true) {
-#if netcore
-            return GetCustomAttribute((System.Reflection.ICustomAttributeProvider)customAttributeProvider.GetTypeInfo(), type, inherit);
-#else
-        return GetCustomAttribute((System.Reflection.ICustomAttributeProvider)customAttributeProvider, type, inherit);
-#endif
+            return GetCustomAttribute((System.Reflection.ICustomAttributeProvider)customAttributeProvider, type, inherit);
         }
         /// <summary>
         /// 获取自定义Attribute中的第一个对象
@@ -130,13 +126,13 @@ namespace Symbol {
         /// <param name="type"></param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
-        public static object GetCustomAttribute(
+        public static Attribute GetCustomAttribute(
 #if !net20
             this
 #endif
             System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit = true) {
             var list = GetCustomAttributes(customAttributeProvider, type, inherit);
-            return list.Count == 0 ? null : list[0];
+            return list.Count == 0 ? null : (Attribute)list[0];
         }
         #endregion
         #region GetCustomAttributes
@@ -167,11 +163,7 @@ namespace Symbol {
             this
 #endif
             System.Type customAttributeProvider, System.Type type, bool inherit = true) {
-#if netcore
-            return GetCustomAttributes((System.Reflection.ICustomAttributeProvider)customAttributeProvider.GetTypeInfo(), type, inherit);
-#else
-        return GetCustomAttributes((System.Reflection.ICustomAttributeProvider)customAttributeProvider, type, inherit);
-#endif
+            return GetCustomAttributes((System.Reflection.ICustomAttributeProvider)customAttributeProvider, type, inherit);
         }
         /// <summary>
         /// 获取自定义Attribute列表
@@ -213,7 +205,7 @@ namespace Symbol {
                             if (item.GetType() == type || TypeExtensions.IsInheritFrom(item.GetType(), type))
                                 list.Add(item);
                         }
-                        _list_key.Add(key, list);
+                        _list_key.TryAdd(key, list);
                     }
                 });
             }

@@ -1513,7 +1513,7 @@ public static class LinqHelper {
         IOrderedEnumerable<TElement> ThenByDescending<TKey>(LinqHelperFunc<TElement, TKey> keySelector, IComparer<TKey> comparer);
     }
     #endregion
-    #region Ordered classes
+    #region Ordered types
     abstract class OrderedEnumerable<TElement> : Queryable<TElement>, IOrderedEnumerable<TElement> {
         // Fields
         internal IEnumerable<TElement> source;

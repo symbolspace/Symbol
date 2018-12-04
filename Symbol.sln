@@ -14,7 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "file", "file", "{8ACAA298-C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A50E1220-69A1-44FF-9CD3-41701686EE7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Symbol", "src\Symbol\Symbol.csproj", "{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol", "src\Symbol\Symbol.csproj", "{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.Data", "src\Symbol.Data\Symbol.Data.csproj", "{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,12 +28,17 @@ Global
 		{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0} = {542F968D-365B-4EE5-942A-34084516813D}
+		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335} = {542F968D-365B-4EE5-942A-34084516813D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {068486BB-8127-4F5C-82A1-C1CEA8BC1B63}
