@@ -67,6 +67,7 @@ public static class EnumExtensions {
     #endregion
 
     #region ToValues
+
     /// <summary>
     /// 将当前枚举的值，变成数组，通常用于多值的枚举。比如将 Abc.A | Abc.B 变成Abc[]{ Abc.A,Abc.B }。
     /// </summary>
@@ -77,7 +78,7 @@ public static class EnumExtensions {
 #if !net20
         this
 #endif
-        T value) where T : struct {
+        Enum value) where T : struct {
         var list = new System.Collections.Generic.List<T>();
         long values = TypeExtensions.Convert<long>(value);
         foreach (T item in Enum.GetValues(typeof(T))) {
@@ -93,35 +94,34 @@ public static class EnumExtensions {
     /// <summary>
     /// 将当前枚举的值，变成名称数组（特性），通常用于多值的枚举。比如将 Abc.A | Abc.B 变成Abc[]{ Abc.A,Abc.B }。
     /// </summary>
-    /// <typeparam name="T">任意枚举类型。</typeparam>
     /// <param name="value">当前枚举值。</param>
     /// <returns>返回一个值的数组。</returns>
-    public static string[] ToNames<T>(
+    public static string[] ToNames(
 #if !net20
         this
 #endif
-        T value) where T : struct {
+        Enum value) {
         return ToNames(value, false);
     }
     /// <summary>
     /// 将当前枚举的值，变成名称数组，通常用于多值的枚举。比如将 Abc.A | Abc.B 变成Abc[]{ Abc.A,Abc.B }。
     /// </summary>
-    /// <typeparam name="T">任意枚举类型。</typeparam>
     /// <param name="value">当前枚举值。</param>
     /// <param name="defineName">是否为定义名称，为false时表示特性名称。</param>
     /// <returns>返回一个值的数组。</returns>
-    public static string[] ToNames<T>(
+    public static string[] ToNames(
 #if !net20
         this
 #endif
-        T value, bool defineName) where T : struct {
+        Enum value, bool defineName) {
         var list = new System.Collections.Generic.List<string>();
         long values = TypeExtensions.Convert<long>(value);
-        foreach (T item in Enum.GetValues(typeof(T))) {
+        var type = value.GetType();
+        foreach (Enum item in Enum.GetValues(type)) {
             long p = TypeExtensions.Convert<long>(item);
             if ((values & p) == p) {
                 string name;
-                if (defineName || string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(typeof(T).GetField(item.ToString()))))
+                if (defineName || string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(type.GetField(item.ToString()))))
                     name = item.ToString();
                 list.Add(name);
             }
@@ -134,35 +134,34 @@ public static class EnumExtensions {
     /// <summary>
     /// 将当前枚举的值，变成名称串（特性），通常用于多值的枚举。比如将 Abc.A | Abc.B 变成Abc[]{ Abc.A,Abc.B }。
     /// </summary>
-    /// <typeparam name="T">任意枚举类型。</typeparam>
     /// <param name="value">当前枚举值。</param>
     /// <returns>返回一个值的数组。</returns>
-    public static string ToName<T>(
+    public static string ToName(
 #if !net20
         this
 #endif
-        T value) where T : struct {
+        Enum value) {
         return ToName(value, false);
     }
     /// <summary>
     /// 将当前枚举的值，变成名称串，通常用于多值的枚举。比如将 Abc.A | Abc.B 变成Abc[]{ Abc.A,Abc.B }。
     /// </summary>
-    /// <typeparam name="T">任意枚举类型。</typeparam>
     /// <param name="value">当前枚举值。</param>
     /// <param name="defineName">是否为定义名称，为false时表示特性名称。</param>
     /// <returns>返回一个值的数组。</returns>
-    public static string ToName<T>(
+    public static string ToName(
 #if !net20
         this
 #endif
-        T value, bool defineName) where T : struct {
+        Enum value, bool defineName) {
         string text = "";
         long values = TypeExtensions.Convert<long>(value);
-        foreach (T item in Enum.GetValues(typeof(T))) {
+        var type = value.GetType();
+        foreach (Enum item in Enum.GetValues(type)) {
             long p = TypeExtensions.Convert<long>(item);
             if ((values & p) == p) {
                 string name;
-                if (defineName || string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(typeof(T).GetField(item.ToString()))))
+                if (defineName || string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(type.GetField(item.ToString()))))
                     name = item.ToString();
                 if (text.Length > 0)
                     text += defineName ? "," : "，";
@@ -174,25 +173,25 @@ public static class EnumExtensions {
     /// <summary>
     /// 将当前枚举的值，变成名称串，通常用于多值的枚举。比如将 Abc.A | Abc.B 变成Abc[]{ Abc.A,Abc.B }。
     /// </summary>
-    /// <typeparam name="T">任意枚举类型。</typeparam>
     /// <param name="value">当前枚举值。</param>
     /// <param name="key">指定属性名称。</param>
     /// <returns>返回一个值的数组。</returns>
-    public static string ToName<T>(
+    public static string ToName(
 #if !net20
         this
 #endif
-        T value, string key) where T : struct {
+        Enum value, string key) {
         if (string.IsNullOrEmpty(key))
             key = "Text";
 
         string text = "";
         long values = TypeExtensions.Convert<long>(value);
-        foreach (T item in Enum.GetValues(typeof(T))) {
+        var type = value.GetType();
+        foreach (Enum item in Enum.GetValues(type)) {
             long p = TypeExtensions.Convert<long>(item);
             if ((values & p) == p) {
                 string name;
-                if (string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(typeof(T).GetField(item.ToString()), key)))
+                if (string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(type.GetField(item.ToString()), key)))
                     name = item.ToString();
                 if (text.Length > 0)
                     text += key == "Text" ? "，" : ",";
@@ -207,32 +206,31 @@ public static class EnumExtensions {
     /// <summary>
     /// 获取某一个特定的属性值。
     /// </summary>
-    /// <typeparam name="T">任意枚举类型。</typeparam>
     /// <param name="value">当前枚举值。</param>
     /// <param name="key">属性名称。</param>
     /// <returns>返回属性的值，未找到时，将是string.Empty。</returns>
-    public static string GetProperty<T>(
+    public static string GetProperty(
 #if !net20
         this
 #endif
-        T value, string key) where T : struct {
+        Enum value, string key) {
 
         if (string.IsNullOrEmpty(key))
             key = "Text";
 
         long values = TypeExtensions.Convert<long>(value);
-        foreach (T item in Enum.GetValues(typeof(T))) {
+        var type = value.GetType();
+        foreach (Enum item in Enum.GetValues(type)) {
             long p = TypeExtensions.Convert<long>(item);
             if ((values & p) == p) {
                 string name;
-                if (!string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(typeof(T).GetField(item.ToString()), key)))
+                if (!string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(type.GetField(item.ToString()), key)))
                     return name;
             }
         }
         return "";
     }
     #endregion
-
 
     #endregion
 

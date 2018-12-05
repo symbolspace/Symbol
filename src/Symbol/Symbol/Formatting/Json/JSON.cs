@@ -2698,7 +2698,7 @@ namespace Symbol.Formatting.Json {
                 getters.Add(new Getters() {
                     Getter = (p) => {
                         var value = g(p);
-                        return value == null ? "" : EnumExtensions.ToName(TypeExtensions.Convert<long>(value));
+                        return value == null ? "" : EnumExtensions.ToName((Enum)value);
                     },
                     LowerCaseName = parameterInfo.Name.ToLower() + "text",
                     Name = parameterInfo.Name + "Text",
