@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol", "src\Symbol\Symbol
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.Data", "src\Symbol.Data\Symbol.Data.csproj", "{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Symbol.Cloud", "src\Symbol.Cloud\Symbol.Cloud.csproj", "{69FE3B7E-426E-480B-AA7F-E52D466409BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69FE3B7E-426E-480B-AA7F-E52D466409BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69FE3B7E-426E-480B-AA7F-E52D466409BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69FE3B7E-426E-480B-AA7F-E52D466409BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69FE3B7E-426E-480B-AA7F-E52D466409BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -39,6 +45,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0} = {542F968D-365B-4EE5-942A-34084516813D}
 		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335} = {542F968D-365B-4EE5-942A-34084516813D}
+		{69FE3B7E-426E-480B-AA7F-E52D466409BB} = {542F968D-365B-4EE5-942A-34084516813D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {068486BB-8127-4F5C-82A1-C1CEA8BC1B63}

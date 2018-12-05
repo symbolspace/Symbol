@@ -15,12 +15,12 @@
     <VersionPrefix>4.0.0.1</VersionPrefix>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
-    <Description>symbolspace .net library</Description>
+    <Description>data in Symbol</Description>
     <Copyright>© symbolspace All rights reserved.</Copyright>
     <PackageId>Symbol.Data</PackageId>
     <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
-    <PackageTags>base;symbol</PackageTags>
+    <PackageTags>mssql;postgresql;sqlite;mysql;nosql;ado;symbol</PackageTags>
     <PackageReleaseNotes>symbolspace .net library. Please see https://github.com/symbolspace/Symbol/wiki/ for more information.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
@@ -80,19 +80,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Symbol\Data\ExtendedModel.cs" />
-    <Compile Remove="Symbol\Data\IExtensibleModel.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Symbol\Data\.enum\DatabaseSchemaProcessResults.cs" />
-    <Compile Include="Symbol\Data\.enum\OrderBys.cs" />
-    <Compile Include="Symbol\Data\.enum\MatchOpertaors.cs" />
-    <Compile Include="Symbol\Data\.enum\WhereOperators.cs" />
-    <Compile Include="Symbol\Data\.enum\DatabaseSchemaTypes.cs" />
-    <Compile Include="Symbol\Data\NoSQL\.enum\DefineValueTypes.cs" />
-    <Compile Include="Symbol\Data\NoSQL\.enum\ConditionTypes.cs" />
-    <Compile Include="Symbol\Data\NoSQL\.enum\NodeValueTypes.cs" />
+    <Compile Include=".enum\DatabaseSchemaProcessResults.cs" />
+    <Compile Include=".enum\OrderBys.cs" />
+    <Compile Include=".enum\MatchOpertaors.cs" />
+    <Compile Include=".enum\WhereOperators.cs" />
+    <Compile Include=".enum\DatabaseSchemaTypes.cs" />
+    <Compile Include="NoSQL\.enum\DefineValueTypes.cs" />
+    <Compile Include="NoSQL\.enum\ConditionTypes.cs" />
+    <Compile Include="NoSQL\.enum\NodeValueTypes.cs" />
   </ItemGroup>
 
 
