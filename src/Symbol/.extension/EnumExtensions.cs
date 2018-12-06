@@ -79,14 +79,8 @@ public static class EnumExtensions {
         this
 #endif
         Enum value) where T : struct {
-        var list = new System.Collections.Generic.List<T>();
-        long values = TypeExtensions.Convert<long>(value);
-        foreach (T item in Enum.GetValues(typeof(T))) {
-            long p = TypeExtensions.Convert<long>(item);
-            if ((values & p) == p)
-                list.Add(item);
-        }
-        return list.ToArray();
+        string[] values = value.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+        return TypeExtensions.Convert<T[]>(values);
     }
     #endregion
 
@@ -114,19 +108,16 @@ public static class EnumExtensions {
         this
 #endif
         Enum value, bool defineName) {
-        var list = new System.Collections.Generic.List<string>();
-        long values = TypeExtensions.Convert<long>(value);
-        var type = value.GetType();
-        foreach (Enum item in Enum.GetValues(type)) {
-            long p = TypeExtensions.Convert<long>(item);
-            if ((values & p) == p) {
-                string name;
-                if (defineName || string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(type.GetField(item.ToString()))))
-                    name = item.ToString();
-                list.Add(name);
+        string[] values = value.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+        if (!defineName) {
+            var type = value.GetType();
+            for (int i = 0; i < values.Length; i++) {
+                string name = ConstAttributeExtensions.Const(type.GetField(values[i]));
+                if (!string.IsNullOrEmpty(name))
+                    values[i] = name;
             }
         }
-        return list.ToArray();
+        return values;
     }
     #endregion
 
@@ -154,21 +145,16 @@ public static class EnumExtensions {
         this
 #endif
         Enum value, bool defineName) {
-        string text = "";
-        long values = TypeExtensions.Convert<long>(value);
-        var type = value.GetType();
-        foreach (Enum item in Enum.GetValues(type)) {
-            long p = TypeExtensions.Convert<long>(item);
-            if ((values & p) == p) {
-                string name;
-                if (defineName || string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(type.GetField(item.ToString()))))
-                    name = item.ToString();
-                if (text.Length > 0)
-                    text += defineName ? "," : "，";
-                text += name;
+        string[] values = value.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+        if (!defineName) {
+            var type = value.GetType();
+            for (int i = 0; i < values.Length; i++) {
+                string name = ConstAttributeExtensions.Const(type.GetField(values[i]));
+                if (!string.IsNullOrEmpty(name))
+                    values[i] = name;
             }
         }
-        return text;
+        return string.Join(defineName ? "," : "，", values);
     }
     /// <summary>
     /// 将当前枚举的值，变成名称串，通常用于多值的枚举。比如将 Abc.A | Abc.B 变成Abc[]{ Abc.A,Abc.B }。
@@ -184,21 +170,14 @@ public static class EnumExtensions {
         if (string.IsNullOrEmpty(key))
             key = "Text";
 
-        string text = "";
-        long values = TypeExtensions.Convert<long>(value);
+        string[] values = value.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
         var type = value.GetType();
-        foreach (Enum item in Enum.GetValues(type)) {
-            long p = TypeExtensions.Convert<long>(item);
-            if ((values & p) == p) {
-                string name;
-                if (string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(type.GetField(item.ToString()), key)))
-                    name = item.ToString();
-                if (text.Length > 0)
-                    text += key == "Text" ? "，" : ",";
-                text += name;
-            }
+        for (int i = 0; i < values.Length; i++) {
+            string name = ConstAttributeExtensions.Const(type.GetField(values[i]), key);
+            if (!string.IsNullOrEmpty(name))
+                values[i] = name;
         }
-        return text;
+        return string.Join(key == "Text" ? "," : "，", values);
     }
     #endregion
 
@@ -217,16 +196,12 @@ public static class EnumExtensions {
 
         if (string.IsNullOrEmpty(key))
             key = "Text";
-
-        long values = TypeExtensions.Convert<long>(value);
+        string[] values = value.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
         var type = value.GetType();
-        foreach (Enum item in Enum.GetValues(type)) {
-            long p = TypeExtensions.Convert<long>(item);
-            if ((values & p) == p) {
-                string name;
-                if (!string.IsNullOrEmpty(name = ConstAttributeExtensions.Const(type.GetField(item.ToString()), key)))
-                    return name;
-            }
+        for (int i = 0; i < values.Length; i++) {
+            string name = ConstAttributeExtensions.Const(type.GetField(values[i]), key);
+            if (!string.IsNullOrEmpty(name))
+                return name;
         }
         return "";
     }
