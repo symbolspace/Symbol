@@ -10,17 +10,17 @@
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
     <NeutralLanguage>zh-CN</NeutralLanguage>
-    <AssemblyTitle>Symbol.Cloud</AssemblyTitle>
-    <AssemblyName>Symbol.Cloud</AssemblyName>
+    <AssemblyTitle>Symbol.Net</AssemblyTitle>
+    <AssemblyName>Symbol.Net</AssemblyName>
     <VersionPrefix>4.0.0.1</VersionPrefix>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
-    <Description>cloud in Symbol</Description>
+    <Description>net in Symbol</Description>
     <Copyright>© symbolspace All rights reserved.</Copyright>
-    <PackageId>Symbol</PackageId>
+    <PackageId>Symbol.Net</PackageId>
     <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
-    <PackageTags>cloud;api;nano;symbol</PackageTags>
+    <PackageTags>net;http;socket;symbol</PackageTags>
     <PackageReleaseNotes>symbolspace .net library. Please see https://github.com/symbolspace/Symbol/wiki/ for more information.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
@@ -30,6 +30,7 @@
     <AssemblyOriginatorKeyFile>..\..\Symbol.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>bin</OutputPath>
     <DefineConstants></DefineConstants>
@@ -62,20 +63,6 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='net2'">
     <DefineConstants>net20</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include=".attribute\CloudActionAttribute.cs" />
-    <Compile Include=".attribute\CloudActionCodeAttribute.cs" />
-    <Compile Include=".attribute\CloudActionFilterAttribute.cs" />
-    <Compile Include=".attribute\CloudActionPermissonAttribute.cs" />
-    <Compile Include=".attribute\CloudActionProtocolAttribute.cs" />
-    <Compile Include=".attribute\CloudArgsAttribute.cs" />
-    <Compile Include=".attribute\CloudControllerAttribute.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Symbol\Symbol.csproj" />
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
@@ -84,12 +71,16 @@
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Reflection" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
-  </ItemGroup>
   <ItemGroup>
+    <Compile Include="System\Net\Sockets\.enum\IPProtectionLevel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Symbol\Symbol.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
     <Folder Include="Properties\" />
   </ItemGroup>
 

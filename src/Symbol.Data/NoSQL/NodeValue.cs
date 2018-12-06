@@ -102,11 +102,7 @@ namespace Symbol.Data.NoSQL {
                 _isValue = true;
                 return nodeType;
             }
-#if NETDNX
-            if (_valueType.GetTypeInfo().IsValueType) {
-#else
             if (_valueType.IsValueType) {
-#endif
                 _isValue = true;
                 return NodeValueTypes.Number;
             }
@@ -125,11 +121,7 @@ namespace Symbol.Data.NoSQL {
                 _length = TypeExtensions.Convert<int>(FastWrapper.Get(_value, "Count"), 0);
                 return NodeValueTypes.Array;
             }
-#if NETDNX
-            if (_valueType.GetTypeInfo().IsGenericType) {
-#else
             if (_valueType.IsGenericType) {
-#endif
                 if (_valueType.GetGenericTypeDefinition() == typeof(System.Collections.Generic.List<>)) {
                     _length = TypeExtensions.Convert<int>(FastWrapper.Get(_value, "Count"), 0);
                     return NodeValueTypes.Array;

@@ -68,7 +68,7 @@ namespace Symbol.Text {
 //                }
 
 //                // 中文字符
-//#if NETDNX
+//#if netcore
 //                array = System.Text.Encoding.Unicode.GetBytes(noWChar[j].ToString());
 //#else
 //                array = System.Text.Encoding.Default.GetBytes(noWChar[j].ToString());

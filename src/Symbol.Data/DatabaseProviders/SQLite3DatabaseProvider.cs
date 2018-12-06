@@ -787,12 +787,8 @@ namespace Symbol.Data {
                     if (!type.IsClass || type == typeof(string)) {
                         continue;
                     }
-#if NETDNX
-                    var typeInfo = type.GetTypeInfo();
-#else
-                    var typeInfo = type;
-#endif
-                    if (typeInfo.IsClass) {
+
+                    if (type.IsClass) {
                         CommandParameter p = new CommandParameter() {
                             Name = key,
                             RealType = typeof(string),
@@ -878,12 +874,7 @@ namespace Symbol.Data {
                     if (!type.IsClass || type == typeof(string)) {
                         continue;
                     }
-#if NETDNX
-                    var typeInfo = type.GetTypeInfo();
-#else
-                    var typeInfo = type;
-#endif
-                    if (typeInfo.IsClass) {
+                    if (type.IsClass) {
                         CommandParameter p = new CommandParameter() {
                             Name = key,
                             RealType = typeof(string),
@@ -1103,12 +1094,7 @@ namespace Symbol.Data.SQLite {
         public static bool RegisterFunction(System.Type type) {
             if (type == null)
                 return false;
-#if NETDNX
-            if (!type.GetTypeInfo().IsClass || type.GetTypeInfo().IsAbstract || !type.GetTypeInfo().IsPublic)
-#else
             if (!type.IsClass || type.IsAbstract || !type.IsPublic)
-#endif
-
                 return false;
             lock (_assemblies) {
                 if (type.Assembly.GetName().Name == "System.Data.SQLite") {

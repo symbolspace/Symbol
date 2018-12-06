@@ -38,7 +38,7 @@ namespace Symbol.Data {
         //            if (reader.IsClosed)
         //                return result;
         //            bool isExtensibleModel = (type == null ? false : TypeExtensions.IsInheritFrom(type,typeof(IExtensibleModel)));
-        //#if NETDNX
+        //#if netcore
         //            bool isEntityType = (type != null && reader.FieldCount > 0 && (reader.GetFieldType(0) == type || type.GetTypeInfo().IsValueType));
         //#else
         //            bool isEntityType = (type != null && reader.FieldCount > 0 && (reader.GetFieldType(0) == type || type.IsValueType));
@@ -65,130 +65,6 @@ namespace Symbol.Data {
         #endregion
 
         #region Current
-        //        /// <summary>
-        //        /// 映射DataReader当前数据记录。
-        //        /// </summary>
-        //        /// <param name="reader"></param>
-        //        /// <param name="fields">列信息。</param>
-        //        /// <returns>返回映射结果。</returns>
-        //        public static object Current(IDataReader reader, Symbol.Collections.Generic.HashSet<DataFieldInfo> fields) {
-        //            return Current(reader, fields, null);
-        //        }
-        //        /// <summary>
-        //        /// 映射DataReader当前数据记录。
-        //        /// </summary>
-        //        /// <param name="reader"></param>
-        //        /// <param name="fields">列信息。</param>
-        //        /// <param name="type">实体类型。</param>
-        //        /// <returns>返回映射结果。</returns>
-        //        public static object Current(IDataReader reader, Symbol.Collections.Generic.HashSet<DataFieldInfo> fields, Type type) {
-        //            CommonException.CheckArgumentNull(reader, "reader");
-        //            CommonException.CheckArgumentNull(fields, "fields");
-
-        //            if (reader.IsClosed)
-        //                return null;
-
-        //#if NETDNX
-        //            bool isEntityType = (type != null && fields.Count > 0 && (LinqHelper.FirstOrDefault(fields).Type == type || type.GetTypeInfo().IsValueType));
-        //#else
-        //            bool isEntityType = (type != null && fields.Count > 0 && (LinqHelper.FirstOrDefault(fields).Type == type || type.IsValueType));
-        //#endif
-        //            object result = null;
-        //            Symbol.Collections.Generic.NameValueCollection<object> dic = null;
-        //            IExtensibleModel extensiableModel = null;
-        //            if (type == null) {
-        //                dic = new Symbol.Collections.Generic.NameValueCollection<object>();
-        //                result = dic;
-        //            } else if (!isEntityType) {
-        //                result = Activator.CreateInstance(type);
-        //                if (TypeExtensions.IsInheritFrom(type,typeof(IExtensibleModel))) {
-        //                    extensiableModel = (IExtensibleModel)result;
-        //                } else if (TypeExtensions.IsInheritFrom(type, typeof(Symbol.Collections.Generic.NameValueCollection<object>))) {
-        //                    dic = (Symbol.Collections.Generic.NameValueCollection<object>)result;
-        //                }
-
-        //            }
-        //            foreach (DataFieldInfo field in fields) {
-        //                if (string.IsNullOrEmpty(field.Name) && dic == null)
-        //                    continue;
-        //                Type type2 = null;
-        //                if (dic == null) {
-        //                    type2 = TypeExtensions.GetValueMemberType(type,field.Name, true);
-        //                    if (type2 == null && extensiableModel == null && !isEntityType)
-        //                        continue;
-        //                }
-        //                string key = string.IsNullOrEmpty(field.Name) ? field.Index.ToString() : field.Name;
-        //                object value = TypeExtensions.Convert(reader.GetValue(field.Index),field.Type);
-
-        //                if (field.IsJson) {
-        //                    string text = value as string;
-        //                    //if (!string.IsNullOrEmpty(text)) {
-        //                    value = Symbol.Serialization.Json.Parse(text, isEntityType ? type : type2);
-        //                    //}
-        //                }
-        //                if (dic != null) {
-        //                    dic[key] = value;
-        //                } else {
-        //                    if (isEntityType) {
-        //#if NETDNX
-        //                        if (field.IsJson && !type.GetTypeInfo().IsValueType && type != typeof(string)) {
-        //#else
-        //                        if (field.IsJson && !type.IsValueType && type != typeof(string)) {
-        //#endif
-        //                            //result = Symbol.Serialization.ObjectConverter.ConvertObjectToType(value, type, new Serialization.JavaScriptSerializer());
-        //                            result = value;
-        //                        } else {
-        //                            result = TypeExtensions.Convert(value, type);
-        //                        }
-        //                        break;
-        //                    } else {
-        //                        if (type2 == null) {
-        //                            if (extensiableModel.Extendeds == null)
-        //                                extensiableModel.Extendeds = new Symbol.Collections.Generic.NameValueCollection<object>();
-        //                            int extIndex = field.Name.IndexOf("ext_");
-        //                            string name = field.Name;
-        //                            if (extIndex != -1)
-        //                                name = field.Name.Substring(extIndex + 4);
-        //                            //var name = (field.Name.StartsWith("ext_") ? field.Name.Substring(4) : field.Name);
-        //                            extensiableModel.Extendeds[name] = value;
-        //                        } else {
-        //                            object value2 = null;
-        //                            if (field.IsJson) {
-        //                                //result = Symbol.Serialization.Json.Parse(value, type2);
-        //                                //result = Symbol.Serialization.ObjectConverter.ConvertObjectToType(value, type2, new Serialization.JavaScriptSerializer());
-        //                                value2 = value;
-        //                            } else {
-        //                                value2 = TypeExtensions.Convert(value, type2);
-        //                            }
-        //                            //if (field.Type == typeof(string) &&  TypeExtensions.IsInheritFrom(type2,typeof(IDictionary<string, object>))) {
-        //                            //    if (string.IsNullOrEmpty((string)value))
-        //                            //        value2 = new Symbol.Collections.Generic.NameValueCollection<object>();
-        //                            //    //else
-        //                            //    //    value2 = IDictionaryHelper.FromXml<NameValueCollection>((string)value);
-        //                            //} else {
-        //                            //    value2 = TypeExtensions.Convert(value,type2);
-        //                            //}
-        //                            //reader.GetDataTypeName(field.Index)
-        //                            FastWrapper.Set(result,key, value2, BindingFlags.IgnoreCase);
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            return result;
-        //        }
-        //        /// <summary>
-        //        /// 映射DataReader当前数据记录。
-        //        /// </summary>
-        //        /// <param name="reader"></param>
-        //        /// <returns>返回映射结果。</returns>
-        //        public static object Current(
-        //#if !net20
-        //            this
-        //#endif
-        //            IDataReader reader) {
-        //            return Current(reader, (Type)null);
-        //        }
-
         /// <summary>
         /// 映射DataReader当前数据记录（单个字段）。
         /// </summary>
@@ -255,11 +131,7 @@ namespace Symbol.Data {
             CommonException.CheckArgumentNull(reader,"reader");
             if (reader.IsClosed)
                 return null;
-#if NETDNX
-            if (type != null && (type.GetTypeInfo().IsValueType || reader.GetFieldType(0) == type)) {
-#else
             if (type != null && (type.IsValueType || reader.GetFieldType(0) == type || (reader.FieldCount==1 && type==typeof(string)) )) {
-#endif
                 //只拿第一列
                 object value= reader.GetValue(0);
                 if (value == DBNull.Value) {
@@ -268,13 +140,8 @@ namespace Symbol.Data {
                 return TypeExtensions.Convert(value, type);
             }
             if (type != null) {
-#if NETDNX
-                if ((reader.FieldCount == 1 && (type.GetTypeInfo().IsEnum || (TypeExtensions.IsNullableType(type) && TypeExtensions.GetNullableType(type).GetTypeInfo().IsEnum))) //枚举
-                    || (type.GetTypeInfo().IsValueType || reader.GetFieldType(0) == type)) {//类型匹配
-#else
                 if ((reader.FieldCount == 1 && (type.IsEnum || (TypeExtensions.IsNullableType(type) && TypeExtensions.GetNullableType(type).IsEnum))) //枚举
                     || (type.IsValueType || reader.GetFieldType(0) == type)) {//类型匹配
-#endif
                     object value = reader.GetValue(0);
                     return TypeExtensions.Convert((value == DBNull.Value ? TypeExtensions.DefaultValue(type) : value), type);
                 }
@@ -336,11 +203,7 @@ namespace Symbol.Data {
                             (!property.PropertyType.IsValueType&& property.PropertyType != typeof(string))) {
                             isJson = true;
                         }
-#if NETDNX
-                        if (isJson && !property.PropertyType.GetTypeInfo().IsValueType 
-#else
                         if (isJson && !property.PropertyType.IsValueType 
-#endif
                             && property.PropertyType != typeof(string)) {
                             //value = Symbol.Serialization.ObjectConverter.ConvertObjectToType(value, property.PropertyType, new Serialization.JavaScriptSerializer());
                             value = Symbol.Serialization.Json.Parse(value as string, property.PropertyType);
@@ -353,11 +216,7 @@ namespace Symbol.Data {
 
                     FieldInfo fieldInfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
                     if (fieldInfo != null) {
-#if NETDNX
-                        if (isJson && !fieldInfo.FieldType.GetTypeInfo().IsValueType && fieldInfo.FieldType != typeof(string)) {
-#else
                         if (isJson && !fieldInfo.FieldType.IsValueType && fieldInfo.FieldType != typeof(string)) {
-#endif
                             //value = Symbol.Serialization.ObjectConverter.ConvertObjectToType(value, fieldInfo.FieldType, new Serialization.JavaScriptSerializer());
                             value = Symbol.Serialization.Json.Parse(value as string, fieldInfo.FieldType);
                         } else {

@@ -955,12 +955,8 @@ order by c.id,c.colid
                     if (!type.IsClass || type == typeof(string)) {
                         continue;
                     }
-#if NETDNX
-                    var typeInfo = type.GetTypeInfo();
-#else
-                    var typeInfo = type;
-#endif
-                    if (typeInfo.IsClass) {
+
+                    if (type.IsClass) {
                         CommandParameter p = new CommandParameter() {
                             Name = key,
                             RealType = typeof(string),
@@ -1036,7 +1032,7 @@ order by c.id,c.colid
                     if (!type.IsClass || type == typeof(string)) {
                         continue;
                     }
-#if NETDNX
+#if netcore
                     var typeInfo = type.GetTypeInfo();
 #else
                     var typeInfo = type;

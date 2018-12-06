@@ -105,11 +105,7 @@ namespace Symbol.Data {
         /// <param name="type"></param>
         /// <returns></returns>
         public DatabaseSchemaHandler RegisterType(System.Type type) {
-#if NETDNX
-            if (type == null  || !type.GetTypeInfo().IsClass || type.GetTypeInfo().IsAbstract || 
-#else
             if (type == null || !type.IsClass || type.IsAbstract ||
-#endif
                 !TypeExtensions.IsInheritFrom(type, typeof(DatabaseSchemaHandler)))
                 return null;
             DatabaseSchemaHandler handler = null;
@@ -124,11 +120,7 @@ namespace Symbol.Data {
                 _caches.Add(key, handler);
                 _list.Add(handler);
                 ClassOrder(handler.Attribute.TableName, handler.Attribute.Order);
-#if NETDNX
-                CacheRef(type.GetTypeInfo().Assembly,handler);
-#else
                 CacheRef(type.Assembly,handler);
-#endif
                 return handler;
             } catch(System.Exception error) {
                 _log.Warning("创建实例失败：{0}\r\n{1}", fullName, LogBase.ExceptionToString(error));

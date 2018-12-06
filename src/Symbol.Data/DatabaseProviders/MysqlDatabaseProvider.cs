@@ -196,11 +196,7 @@ namespace Symbol.Data {
                             })
                         };
                         param2 = p;
-#if NETDNX
-                    } else if (type.GetTypeInfo().IsEnum) {
-#else
                     } else if (type.IsEnum) {
-#endif
                         CommandParameter p = new CommandParameter() {
                             Name = parameterName,
                             RealType = typeof(long),
@@ -934,11 +930,8 @@ order by `Position`,`Name`;
                 if (isJson) {
                     commandParameter.Value = value == null ? null : Symbol.Serialization.Json.ToString(value, true);
                 }
-#if NETDNX
-                if (p.PropertyType.GetTypeInfo().IsEnum) {
-#else
+
                 if (propertyDescriptor.PropertyType.IsEnum) {
-#endif
                     commandParameter.RealType = typeof(long);
                     commandParameter.Value = TypeExtensions.Convert<long>(value);
                 } else if (propertyDescriptor.PropertyType.IsArray && propertyDescriptor.PropertyType.GetElementType() == typeof(string)) {
@@ -964,11 +957,6 @@ order by `Position`,`Name`;
                     if (!type.IsClass || type == typeof(string)) {
                         continue;
                     }
-#if NETDNX
-                    var typeInfo = type.GetTypeInfo();
-#else
-                    var typeInfo = type;
-#endif
                     CommandParameter p = new CommandParameter() {
                         Name = key,
                         RealType = typeof(string),
@@ -1052,11 +1040,7 @@ order by `Position`,`Name`;
                 if (isJson) {
                     commandParameter.Value = value == null ? null : Symbol.Serialization.Json.ToString(value, true);
                 }
-#if NETDNX
-                if (p.PropertyType.GetTypeInfo().IsEnum) {
-#else
                 if (propertyDescriptor.PropertyType.IsEnum) {
-#endif
                     commandParameter.RealType = typeof(long);
                     commandParameter.Value = TypeExtensions.Convert<long>(value);
                 } else if (propertyDescriptor.PropertyType.IsArray && propertyDescriptor.PropertyType.GetElementType() == typeof(string)) {
@@ -1092,11 +1076,6 @@ order by `Position`,`Name`;
                     if (!type.IsClass || type == typeof(string)) {
                         continue;
                     }
-#if NETDNX
-                    var typeInfo = type.GetTypeInfo();
-#else
-                    var typeInfo = type;
-#endif
                     CommandParameter p = new CommandParameter() {
                         Name = key,
                         RealType = typeof(string),

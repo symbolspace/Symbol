@@ -137,20 +137,6 @@ public partial class FastWrapper {
         return result;
     }
     #endregion
-#if !NETDNX
-    #region InvokeMember
-    /// <summary>
-    /// 调用成员。
-    /// </summary>
-    /// <param name="name">成员名称。</param>
-    /// <param name="bindingFlags">BindingFlags。</param>
-    /// <param name="args">参数列表。</param>
-    /// <returns>返回调用结果。</returns>
-    public object InvokeMember(string name, BindingFlags bindingFlags, object[] args) {
-        return InvokeMember(Type, name, Instance, GetBindingFlags(bindingFlags), args);
-    }
-    #endregion
-#endif
     #region MethodInvoke
     /// <summary>
     /// 调用方法。
@@ -159,12 +145,8 @@ public partial class FastWrapper {
     /// <param name="args">参数列表。</param>
     /// <returns>返回调用结果。</returns>
     public object MethodInvoke(string name, params object[] args) {
-#if NETDNX
-        return MethodInvoke(Type, name, Instance, args);
-#else
         return InvokeMember(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.InvokeMethod,
             args);
-#endif
     }
     #endregion
     #region Get
@@ -175,7 +157,7 @@ public partial class FastWrapper {
     /// <param name="name">属性或字段名称。</param>
     /// <returns>返回属性或字段的值。</returns>
     public object Get(string name) {
-#if NETDNX
+#if netcore
         return Get(Type, name, Instance, new object[0]);
 #else
         return InvokeMember(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.GetField,
@@ -200,7 +182,7 @@ public partial class FastWrapper {
     /// <param name="name">属性或字段名称。</param>
     /// <param name="value">属性或字段的值。</param>
     public void Set(string name, object value) {
-#if NETDNX
+#if netcore
         Set(Type, name,value, Instance, new object[0]);
 #else
         InvokeMember(name, BindingFlags.Static | BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.SetField,
@@ -400,8 +382,17 @@ public partial class FastWrapper {
 
     }
     #endregion
-#if !NETDNX
     #region InvokeMember
+    /// <summary>
+    /// 调用成员。
+    /// </summary>
+    /// <param name="name">成员名称。</param>
+    /// <param name="bindingFlags">BindingFlags。</param>
+    /// <param name="args">参数列表。</param>
+    /// <returns>返回调用结果。</returns>
+    public object InvokeMember(string name, BindingFlags bindingFlags, object[] args) {
+        return InvokeMember(Type, name, Instance, GetBindingFlags(bindingFlags), args);
+    }
     /// <summary>
     /// 调用对像的成员。
     /// </summary>
@@ -428,15 +419,9 @@ public partial class FastWrapper {
 
     private static object InvokeMember(Type type, string name, object instance, BindingFlags bindingFlags, object[] args) {
         Symbol.CommonException.CheckArgumentNull(type, "type");
-#if netcore
         return type.InvokeMember(name, bindingFlags, null, instance, args, CultureInfo.CurrentCulture);
-#else
-        return type.InvokeMember(name, bindingFlags, null, instance, args, CultureInfo.CurrentCulture);
-#endif
-
     }
     #endregion
-#endif
 
     #region MethodInvoke
     /// <summary>

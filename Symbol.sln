@@ -5,20 +5,35 @@ VisualStudioVersion = 15.0.28010.2019
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "library", "library", "{542F968D-365B-4EE5-942A-34084516813D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "file", "file", "{8ACAA298-CFB8-4C6F-B14F-4B20D233B94A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".file", ".file", "{8ACAA298-CFB8-4C6F-B14F-4B20D233B94A}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 		Symbol.snk = Symbol.snk
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A50E1220-69A1-44FF-9CD3-41701686EE7F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{A50E1220-69A1-44FF-9CD3-41701686EE7F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol", "src\Symbol\Symbol.csproj", "{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.Data", "src\Symbol.Data\Symbol.Data.csproj", "{D41198F1-C1EB-4FD6-9F93-97E23EF8D335}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Symbol.Cloud", "src\Symbol.Cloud\Symbol.Cloud.csproj", "{69FE3B7E-426E-480B-AA7F-E52D466409BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.Cloud", "src\Symbol.Cloud\Symbol.Cloud.csproj", "{69FE3B7E-426E-480B-AA7F-E52D466409BB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.Net", "src\Symbol.Net\Symbol.Net.csproj", "{2EFD4913-8261-4D2C-A5FF-E0B6359C2474}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.Web", "src\Symbol.Web\Symbol.Web.csproj", "{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".wiki", ".wiki", "{5013F7B6-C264-40F8-8180-36CD83FFB4DC}"
+	ProjectSection(SolutionItems) = preProject
+		wiki\Symbol.Data.dll.md = wiki\Symbol.Data.dll.md
+		wiki\Symbol.dll.md = wiki\Symbol.dll.md
+		wiki\Symbol.Net.dll.md = wiki\Symbol.Net.dll.md
+		wiki\Symbol.Web.dll.md = wiki\Symbol.Web.dll.md
+		wiki\Version history.md = wiki\Version history.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".tools", ".tools", "{0579BA7F-3F32-498B-8101-816D14A2B7B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +53,14 @@ Global
 		{69FE3B7E-426E-480B-AA7F-E52D466409BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69FE3B7E-426E-480B-AA7F-E52D466409BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69FE3B7E-426E-480B-AA7F-E52D466409BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EFD4913-8261-4D2C-A5FF-E0B6359C2474}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EFD4913-8261-4D2C-A5FF-E0B6359C2474}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EFD4913-8261-4D2C-A5FF-E0B6359C2474}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EFD4913-8261-4D2C-A5FF-E0B6359C2474}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +69,8 @@ Global
 		{E4E9E856-5DEF-48C4-BEE8-503DF4EA38C0} = {542F968D-365B-4EE5-942A-34084516813D}
 		{D41198F1-C1EB-4FD6-9F93-97E23EF8D335} = {542F968D-365B-4EE5-942A-34084516813D}
 		{69FE3B7E-426E-480B-AA7F-E52D466409BB} = {542F968D-365B-4EE5-942A-34084516813D}
+		{2EFD4913-8261-4D2C-A5FF-E0B6359C2474} = {542F968D-365B-4EE5-942A-34084516813D}
+		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5} = {542F968D-365B-4EE5-942A-34084516813D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {068486BB-8127-4F5C-82A1-C1CEA8BC1B63}

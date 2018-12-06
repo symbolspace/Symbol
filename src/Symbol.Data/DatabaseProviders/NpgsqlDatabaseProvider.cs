@@ -167,11 +167,7 @@ namespace Symbol.Data {
                 filter = (p1) => p1.Name.StartsWith(perfix, System.StringComparison.OrdinalIgnoreCase);
 
             foreach (System.Type type in assembly.GetTypes()) {
-#if NETDNX
-                if (type.GetTypeInfo().IsAbstract || !filter(type))
-#else
                 if (type.IsAbstract || !filter(type))
-#endif
                     continue;
                 helper.MapType(type);
             }
@@ -186,11 +182,7 @@ namespace Symbol.Data {
         /// <param name="connection">连接实例</param>
         /// <returns>返回是否成功</returns>
         public static bool MapType(System.Type type, object connection = null) {
-#if NETDNX
-            if (type == null || type.GetTypeInfo().IsAbstract)
-#else
             if (type == null || type.IsAbstract)
-#endif
                 return false;
 
             MapTypeHelper helper = new MapTypeHelper(connection);
@@ -242,11 +234,7 @@ namespace Symbol.Data {
                             })
                         };
                         param2 = p;
-#if NETDNX
-                    } else if (type.GetTypeInfo().IsEnum) {
-#else
                     } else if (type.IsEnum) {
-#endif
                         CommandParameter p = new CommandParameter() {
                             Name = parameterName,
                             RealType = typeof(long),
@@ -1090,11 +1078,8 @@ ORDER BY
                 if (isJson) {
                     commandParameter.Value = value == null ? null : Symbol.Serialization.Json.ToString(value, true);
                 }
-#if NETDNX
-                    if (p.PropertyType.GetTypeInfo().IsEnum) {
-#else
+
                 if (propertyDescriptor.PropertyType.IsEnum) {
-#endif
                     commandParameter.RealType = typeof(long);
                     commandParameter.Value = TypeExtensions.Convert<long>(value);
                 } else if (propertyDescriptor.PropertyType.IsArray && propertyDescriptor.PropertyType.GetElementType() == typeof(string)) {
@@ -1121,11 +1106,6 @@ ORDER BY
                     if (!type.IsClass || type == typeof(string)) {
                         continue;
                     }
-#if NETDNX
-                    var typeInfo = type.GetTypeInfo();
-#else
-                    var typeInfo = type;
-#endif
                     CommandParameter p = new CommandParameter() {
                         Name = key,
                         RealType = typeof(string),
@@ -1209,11 +1189,7 @@ ORDER BY
                 if (isJson) {
                     commandParameter.Value = value == null ? null : Symbol.Serialization.Json.ToString(value, true);
                 }
-#if NETDNX
-                    if (p.PropertyType.GetTypeInfo().IsEnum) {
-#else
                 if (propertyDescriptor.PropertyType.IsEnum) {
-#endif
                     commandParameter.RealType = typeof(long);
                     commandParameter.Value = TypeExtensions.Convert<long>(value);
                 } else if (propertyDescriptor.PropertyType.IsArray && propertyDescriptor.PropertyType.GetElementType() == typeof(string)) {
@@ -1240,11 +1216,6 @@ ORDER BY
                     if (!type.IsClass || type == typeof(string)) {
                         continue;
                     }
-#if NETDNX
-                    var typeInfo = type.GetTypeInfo();
-#else
-                    var typeInfo = type;
-#endif
                     CommandParameter p = new CommandParameter() {
                         Name = key,
                         RealType = typeof(string),
@@ -1304,28 +1275,17 @@ ORDER BY
                 }
             }
             public bool MapType(System.Type type, string pgName = null, object nameTranslator = null) {
-#if NETDNX
-                if (type == null || type.GetTypeInfo().IsAbstract)
-#else
                 if (type == null || type.IsAbstract)
-#endif
                     return false;
 
-#if NETDNX
-                if (type.GetTypeInfo().IsClass) {
-#else
                 if (type.IsClass) {
-#endif
                     if (_connection == null) {
                         _mapCompositeGlobally.MakeGenericMethod(type).Invoke(null, new object[2]);
                     } else {
                         _mapComposite.MakeGenericMethod(type).Invoke(_connection, new object[2]);
                     }
-#if NETDNX
-                } else if (type.GetTypeInfo().IsEnum) {
-#else
                 } else if (type.IsEnum) {
-#endif
+
                     if (_connection == null) {
                         _mapEnumGlobally.MakeGenericMethod(type).Invoke(null, new object[] { type.Name.ToLower(), null });
                     } else {

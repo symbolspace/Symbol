@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup Label="NuGet">
+   <PropertyGroup Label="NuGet">
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;net45;net4;net35;net2</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -10,17 +10,17 @@
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
     <NeutralLanguage>zh-CN</NeutralLanguage>
-    <AssemblyTitle>Symbol.Cloud</AssemblyTitle>
-    <AssemblyName>Symbol.Cloud</AssemblyName>
+    <AssemblyTitle>Symbol.Web</AssemblyTitle>
+    <AssemblyName>Symbol.Web</AssemblyName>
     <VersionPrefix>4.0.0.1</VersionPrefix>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
-    <Description>cloud in Symbol</Description>
+    <Description>web in Symbol</Description>
     <Copyright>© symbolspace All rights reserved.</Copyright>
-    <PackageId>Symbol</PackageId>
+    <PackageId>Symbol.Web</PackageId>
     <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
-    <PackageTags>cloud;api;nano;symbol</PackageTags>
+    <PackageTags>web;symbol</PackageTags>
     <PackageReleaseNotes>symbolspace .net library. Please see https://github.com/symbolspace/Symbol/wiki/ for more information.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
@@ -62,21 +62,7 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='net2'">
     <DefineConstants>net20</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include=".attribute\CloudActionAttribute.cs" />
-    <Compile Include=".attribute\CloudActionCodeAttribute.cs" />
-    <Compile Include=".attribute\CloudActionFilterAttribute.cs" />
-    <Compile Include=".attribute\CloudActionPermissonAttribute.cs" />
-    <Compile Include=".attribute\CloudActionProtocolAttribute.cs" />
-    <Compile Include=".attribute\CloudArgsAttribute.cs" />
-    <Compile Include=".attribute\CloudControllerAttribute.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Symbol\Symbol.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
@@ -85,12 +71,40 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Reflection" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+  <ItemGroup>
+    <ProjectReference Include="..\Symbol\Symbol.csproj" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Collections.Specialized">
+      <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="System.Collections.Specialized">
+      <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include=".enum\Verbs.cs" />
+    <Compile Include=".implement\HttpApplicationState.cs" />
+    <Compile Include=".implement\HttpConnection.cs" />
+    <Compile Include=".implement\HttpCookie.cs" />
+    <Compile Include=".implement\HttpCookieCollection.cs" />
+    <Compile Include=".implement\HttpFileCollection.cs" />
+    <Compile Include=".implement\HttpListenerContext.cs" />
+    <Compile Include=".implement\HttpListenerRequest.cs" />
+    <Compile Include=".implement\HttpListenerResponse.cs" />
+    <Compile Include=".implement\HttpOutputStream.cs" />
+    <Compile Include=".implement\HttpPostedFile.cs" />
+    <Compile Include=".implement\HttpSessionState.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
+  
+
 
 </Project>
