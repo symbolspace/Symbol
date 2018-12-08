@@ -1,0 +1,104 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="NuGet">
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net45;net4;net35;net2</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GeneratedAssemblyInfoFile>Properties\AssemblyInfo.cs</GeneratedAssemblyInfoFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
+    <NeutralLanguage>zh-CN</NeutralLanguage>
+    <AssemblyTitle>Symbol.ImageRecognition.Verification</AssemblyTitle>
+    <AssemblyName>Symbol.ImageRecognition.Verification</AssemblyName>
+    <VersionPrefix>4.0.0.1</VersionPrefix>
+    <Title>Symbol.ImageRecognition.Verification</Title>
+    <Authors>symbolspace</Authors>
+    <Company>symbolspace</Company>
+    <Description>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.ImageRecognition.Verification.dll for more information.</Description>
+    <PackageId>Symbol.ImageRecognition.Verification</PackageId>
+    <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/symbolspace/Symbol/master/icon.png</PackageIconUrl>
+    <PackageTags>web;symbol</PackageTags>
+    <PackageReleaseNotes>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.ImageRecognition.Verification.dll for more information.</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <AssemblyOriginatorKeyFile>..\..\Symbol.snk</AssemblyOriginatorKeyFile>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin</OutputPath>
+    <DefineConstants></DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin</OutputPath>
+    <DefineConstants></DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
+    <DefineConstants>netapp20;netcore;</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <DefineConstants>netcore20;netcore;</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+    <DefineConstants>net45</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net4'">
+    <DefineConstants>net40</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
+    <DefineConstants>net35</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net2'">
+    <DefineConstants>net20</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net4' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include=".charRecognizer\Weight3x3CharRecognizer.cs" />
+    <Compile Include=".preHandler\BinarizationPreHandler.cs" />
+    <Compile Include=".preHandler\ClearBackColorPreHandler.cs" />
+    <Compile Include=".preHandler\ClearBorderPreHandler.cs" />
+    <Compile Include=".preHandler\ClearNoisePreHandler.cs" />
+    <Compile Include=".preHandler\ContrastPreHandler.cs" />
+    <Compile Include=".preHandler\GrayscalePreHandler.cs" />
+    <Compile Include=".preHandler\InversePreHandler.cs" />
+    <Compile Include=".preHandler\LightPreHandler.cs" />
+    <Compile Include=".preHandler\MonochromeHSB8PreHandler.cs" />
+    <Compile Include=".preHandler\ThinningPreHandler.cs" />
+    <Compile Include=".preHandler\XStrikethroughPreHandler.cs" />
+    <Compile Include=".takeHandler\YDotMatrixTakeHandler.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Symbol.Drawing\Symbol.Drawing.csproj" />
+    <ProjectReference Include="..\Symbol.IO.Packing.TreePackage\Symbol.IO.Packing.TreePackage.csproj" />
+    <ProjectReference Include="..\Symbol\Symbol.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+</Project>
