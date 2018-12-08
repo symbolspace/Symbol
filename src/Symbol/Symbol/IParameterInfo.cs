@@ -607,7 +607,7 @@ namespace Symbol {
                         || (text[0] == '[' && text[text.Length - 1] == ']')
                     )
                  ) {
-                    return Symbol.Serialization.Json.Parse(text) ?? value;
+                    return JSON.Parse(text) ?? value;
                 }
             }
             return value;
