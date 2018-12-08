@@ -12,16 +12,18 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol</AssemblyTitle>
     <AssemblyName>Symbol</AssemblyName>
-    <VersionPrefix>4.0.0.3</VersionPrefix>
+    <VersionPrefix>4.0.0.4</VersionPrefix>
+    <Title>Symbol</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
-    <Description>symbolspace .net library</Description>
+    <Description>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.dll for more information.</Description>
     <Copyright>© symbolspace All rights reserved.</Copyright>
     <PackageId>Symbol</PackageId>
     <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/symbolspace/Symbol/master/icon.png</PackageIconUrl>
     <PackageTags>base;symbol</PackageTags>
-    <PackageReleaseNotes>symbolspace .net library. Please see https://github.com/symbolspace/Symbol/wiki/ for more information.</PackageReleaseNotes>
+    <PackageReleaseNotes>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.dll for more information.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -29,6 +31,7 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>..\..\Symbol.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -63,6 +66,8 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='net2'">
     <DefineConstants>net20</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup>
+  </PropertyGroup>
  
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
@@ -80,7 +85,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Symbol\Encryption\BinaryEncryptionHelper.cs" />
     <Compile Remove="System\Reflection\ICustomAttributeProvider.cs" />
   </ItemGroup>
 
@@ -110,8 +114,18 @@
     <Compile Include="Symbol\.exception\TypeMismatchException.cs" />
     <Compile Include="Symbol\.extension\AttributeExtensions.cs" />
     <Compile Include="Symbol\Encryption\.enum\SHALevels.cs" />
+    <Compile Include="Symbol\IO\Packing\.attribute\CustomPackageAttribute.cs" />
+    <Compile Include="Symbol\IO\Packing\.attribute\FieldPackageAttribute.cs" />
+    <Compile Include="Symbol\IO\Packing\.attribute\NonPackageAttribute.cs" />
+    <Compile Include="Symbol\IO\Packing\.attribute\PropertyPackageAttribute.cs" />
+    <Compile Include="Symbol\IO\Packing\.enum\PackageArrayTypes.cs" />
+    <Compile Include="Symbol\IO\Packing\.enum\PackageCompressTypes.cs" />
+    <Compile Include="Symbol\IO\Packing\.enum\PackageEncryptTypes.cs" />
+    <Compile Include="Symbol\IO\Packing\.enum\PackageValueAsTypes.cs" />
+    <Compile Include="Symbol\IO\Packing\.enum\PackageValueTypes.cs" />
     <Compile Include="System\.extension\DateTimeExtensions.cs" />
     <Compile Include="System\.extension\TimeSpanExtensions.cs" />
+    <Compile Include="System\Collections\Generic\.extension\HashSetExtensions.cs" />
     <Compile Include="System\Collections\Generic\.extension\ICollectionExtensions.cs" />
     <Compile Include="System\Collections\Generic\.extension\QueueExtensions.cs" />
     <Compile Include="System\IO\.extension\StreamExtensions.cs" />
