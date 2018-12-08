@@ -16,16 +16,15 @@ namespace Symbol.Collections.Generic {
     [System.Serializable]
     [System.Runtime.InteropServices.ComVisible(false)]
     [System.Diagnostics.DebuggerDisplay("Count = {Count}")]
-//#if !netcore
-//    [Symbol.IO.Packing.CustomPackage(typeof(NameValueCollection<>.NameValueCollection_T_CustomPackage))]
-//#endif
+    //[Symbol.IO.Packing.CustomPackage(typeof(NameValueCollection<>.NameValueCollection_T_CustomPackage))]
     public class NameValueCollection<T> : 
         IDictionary<string, T>, 
         System.Collections.IDictionary
 #if !netcore
         , System.Runtime.Serialization.ISerializable
-        , System.Runtime.Serialization.IDeserializationCallback//, IXmlSerializable
+        , System.Runtime.Serialization.IDeserializationCallback
 #endif
+        //, IXmlSerializable
     {
         #region fields
         private Dictionary<string, T> _dictionary;
@@ -154,7 +153,7 @@ namespace Symbol.Collections.Generic {
                 }
                 if (value[0] == '{') {
                     CreateDictionary(StringComparer.Ordinal);
-                    values = Serialization.Json.Parse(value);
+                    values = JSON.Parse(value);
                     goto lb_Retry;
                 } else {
                     CreateDictionary(null);
@@ -469,38 +468,37 @@ namespace Symbol.Collections.Generic {
         #endregion
 
         #region types
-//#if !netcore
-//        class NameValueCollection_T_CustomPackage : Symbol.IO.Packing.ICustomPackage {
-//            #region ICustomPackage 成员
+        //class NameValueCollection_T_CustomPackage : Symbol.IO.Packing.ICustomPackage {
+        //    #region ICustomPackage 成员
 
-//            public byte[] Save(object instance) {
-//                Type type = instance.GetType();
-//                Type t1 = type.GetGenericArguments()[0];
-//                System.Collections.IEnumerable collection = (System.Collections.IEnumerable)instance;
-//                IO.Packing.TreePackage package = new IO.Packing.TreePackage();
-//                package.Attributes.Add("T1", t1.AssemblyQualifiedName);
-//                foreach (object item in collection) {
-//                    string key = (string)FastWrapper.Get(item,"Key");
-//                    object value = FastWrapper.Get(item,"Value");
-//                    package.Add(key, value);
-//                }
-//                return package.Save();
-//            }
+        //    public byte[] Save(object instance) {
+        //        Type type = instance.GetType();
+        //        Type t1 = type.GetGenericArguments()[0];
+        //        System.Collections.IEnumerable collection = (System.Collections.IEnumerable)instance;
+        //        IO.Packing.TreePackage package = new IO.Packing.TreePackage();
+        //        package.Attributes.Add("T1", t1.AssemblyQualifiedName);
+        //        foreach (object item in collection) {
+        //            string key = (string)FastWrapper.Get(item, "Key");
+        //            object value = FastWrapper.Get(item, "Value");
+        //            package.Add(key, value);
+        //        }
+        //        return package.Save();
+        //    }
 
-//            public object Load(byte[] buffer) {
-//                IO.Packing.TreePackage package = IO.Packing.TreePackage.Load(buffer);
-//                Type t1 = FastWrapper.GetWarpperType((string)package.Attributes["T1"]);
-//                Type type = typeof(NameValueCollection<>).MakeGenericType(t1);
-//                object result = FastWrapper.CreateInstance(type);
-//                foreach (string key in package.Keys) {
-//                    FastWrapper.MethodInvoke(type,"Add", result, key, package[key]);
-//                }
-//                return result;
-//            }
+        //    public object Load(byte[] buffer) {
+        //        IO.Packing.TreePackage package = IO.Packing.TreePackage.Load(buffer);
+        //        Type t1 = FastWrapper.GetWarpperType((string)package.Attributes["T1"]);
+        //        Type type = typeof(NameValueCollection<>).MakeGenericType(t1);
+        //        object result = FastWrapper.CreateInstance(type);
+        //        foreach (string key in package.Keys) {
+        //            FastWrapper.MethodInvoke(type, "Add", result, key, package[key]);
+        //        }
+        //        return result;
+        //    }
 
-//            #endregion
-//        }
-//#endif
+        //    #endregion
+        //}
+
         /// <summary>
         /// 属性反射处理器。
         /// </summary>
