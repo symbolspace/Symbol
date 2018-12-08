@@ -495,7 +495,7 @@ public class ConsoleLog : LogBase {
     
     #endregion
 }
-#if !net20
+#if !net20 && missing
 /// <summary>
 /// 控制台日志存储扩展类。
 /// </summary>
