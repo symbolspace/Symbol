@@ -23,6 +23,7 @@ namespace Symbol.Serialization {
         /// <param name="throwError">是否需要抛出异常</param>
         /// <returns>返回json对象。</returns>
         /// <remarks>如果json文本是数组就是List&lt;object&gt;,如果是自定义对象就是JsonObject,如果解析异常或空json文本就是null。</remarks>
+        [System.Obsolete("请更改为JSON.Parse(string json, bool throwError)")]
         public static object Parse(string json,bool throwError=false) {
             if (string.IsNullOrEmpty(json))
                 return null;
@@ -46,6 +47,7 @@ namespace Symbol.Serialization {
         /// <param name="throwError">是否需要抛出异常</param>
         /// <returns>返回json对象。</returns>
         /// <remarks>如果json文本是数组就是List&lt;object&gt;,如果是自定义对象就是JsonObject,如果解析异常或空json文本就是null。</remarks>
+        [System.Obsolete("请更改为JSON.Parse(string json, Type type, bool throwError)")]
         public static object Parse(string json,System.Type type, bool throwError = false) {
             if (string.IsNullOrEmpty(json))
                 return null;
@@ -76,6 +78,7 @@ namespace Symbol.Serialization {
         /// <param name="json">json文本</param>
         /// <param name="throwError">是否需要抛出异常</param>
         /// <returns>返回json对象。</returns>
+        [System.Obsolete("请更改为JSON.ToObject<T>(string json, bool throwError)")]
         public static T Parse<T>(string json, bool throwError = false) {
             if (string.IsNullOrEmpty(json))
                 return default(T);
@@ -135,6 +138,7 @@ namespace Symbol.Serialization {
         /// </summary>
         /// <param name="json">Json文本</param>
         /// <returns>返回格式化后的json。</returns>
+        [System.Obsolete("请更改为JSON.Beautify(string json)")]
         public static string Format(string json) {
             return Format(json, false);
         }
@@ -144,7 +148,8 @@ namespace Symbol.Serialization {
         /// <param name="json">Json文本</param>
         /// <param name="throwError">是否需要抛出异常</param>
         /// <returns>返回格式化后的json。</returns>
-        public static string Format(string json, bool throwError ) {
+        [System.Obsolete("请更改为JSON.Beautify(string json, bool throwError)")]
+        public static string Format(string json, bool throwError) {
             if (string.IsNullOrEmpty(json))
                 return json;
 

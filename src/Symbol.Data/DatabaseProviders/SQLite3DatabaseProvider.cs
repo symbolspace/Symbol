@@ -2318,11 +2318,11 @@ namespace Symbol.Data.SQLite.Functions {
     [SQLiteFunction(Name = "json_get", Arguments = 2, Type = FunctionTypes.Scalar)]
     public class json_get : SQLiteFunction {
         public override object Invoke(object[] args) {
-            string html = args[0] as string;
+            string value = args[0] as string;
             string text = args[1] as string;
             if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(text))
                 return null;
-            object json = Symbol.Serialization.Json.Parse(html);
+            object json = JSON.Parse(value);
             return FastObject.Path(json, text);
         }
     }
@@ -2338,7 +2338,7 @@ namespace Symbol.Data.SQLite.Functions {
             string text = args[1] as string;
             if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(text))
                 return null;
-            object json = Symbol.Serialization.Json.Parse(html);
+            object json = JSON.Parse(html);
             FastObject.Path(json, text,args[2]);
             return Symbol.Serialization.Json.ToString(json);
         }
@@ -2351,8 +2351,8 @@ namespace Symbol.Data.SQLite.Functions {
     [SQLiteFunction(Name = "json_format", Arguments = 1, Type = FunctionTypes.Scalar)]
     public class json_format : SQLiteFunction {
         public override object Invoke(object[] args) {
-            string html = args[0] as string;
-            return Symbol.Serialization.Json.Format(html);
+            string value = args[0] as string;
+            return JSON.Beautify(value);
         }
     }
     #endregion

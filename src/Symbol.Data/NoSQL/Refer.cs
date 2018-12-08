@@ -269,7 +269,7 @@ namespace Symbol.Data.NoSQL {
                         if (string.IsNullOrEmpty(text))
                             continue;
                         if (text[0] == '[' || text[0] == '{') {
-                            item = new NodeValue(Symbol.Serialization.Json.Parse(text));
+                            item = new NodeValue(JSON.Parse(text));
                             b = false;
                             goto lb_Retury;
                         }
@@ -323,7 +323,7 @@ namespace Symbol.Data.NoSQL {
                     if (string.IsNullOrEmpty(text))
                         return false;
                     if (text[0] == '[' || text[0] == '{') {
-                        jsonValue = new NodeValue(Symbol.Serialization.Json.Parse(text));
+                        jsonValue = new NodeValue(JSON.Parse(text));
                         b = false;
                         goto lb_Retury;
                     }
@@ -387,7 +387,7 @@ namespace Symbol.Data.NoSQL {
                 if (string.IsNullOrEmpty(value))
                     return new Refer();
                 if (value[0] == '[' || value[0] == '{') {
-                    return Parse(Symbol.Serialization.Json.Parse(value));
+                    return Parse(JSON.Parse(value));
                 }
                 return new Refer();
             }

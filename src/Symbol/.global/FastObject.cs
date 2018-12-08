@@ -237,10 +237,10 @@ public class FastObject {
         if (string.IsNullOrEmpty(file))
             return null;
         if (file[0] == '[' || file[0] == '{') {
-            return Symbol.Serialization.Json.Parse(file);
+            return JSON.Parse(file);
         }
         file = AppHelper.MapPath(file);
-        object o = Symbol.Serialization.Json.Parse(AppHelper.LoadTextFile(file, System.Text.Encoding.UTF8), true);
+        object o = JSON.Parse(AppHelper.LoadTextFile(file, System.Text.Encoding.UTF8), true);
         _file = file;
         return o;
     }

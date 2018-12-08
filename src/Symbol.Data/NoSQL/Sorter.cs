@@ -229,7 +229,7 @@ namespace Symbol.Data.NoSQL {
                 if (string.IsNullOrEmpty(value))
                     return new Sorter();
                 if (value[0] == '[' || value[0] == '{') {
-                    return Parse(Symbol.Serialization.Json.Parse(value));
+                    return Parse(JSON.Parse(value));
                 }
                 Sorter result = new Sorter();
                 if (Filter_Name(value))

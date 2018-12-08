@@ -904,7 +904,7 @@ order by `Position`,`Name`;
                 {
                     System.Type dbType = GetDbType();
                     string dbTypeValue = null;
-                    string dataTypeName = FastObject.Path(Symbol.Serialization.Json.Parse(
+                    string dataTypeName = FastObject.Path(JSON.Parse(
                         ConstAttributeExtensions.Const(propertyDescriptor.ComponentType.GetProperty(propertyDescriptor.Name), "TableField")
                         ), "Type") as string;
                     if (!string.IsNullOrEmpty(dataTypeName)) {
@@ -1014,7 +1014,7 @@ order by `Position`,`Name`;
                 {
                     System.Type dbType = GetDbType();
                     string dbTypeValue = null;
-                    string dataTypeName = FastObject.Path(Symbol.Serialization.Json.Parse(
+                    string dataTypeName = FastObject.Path(JSON.Parse(
                         ConstAttributeExtensions.Const(propertyDescriptor.ComponentType.GetProperty(propertyDescriptor.Name), "TableField")
                         ), "Type") as string;
                     if (!string.IsNullOrEmpty(dataTypeName)) {

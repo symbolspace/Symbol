@@ -292,7 +292,7 @@ namespace Symbol.Data {
             if (string.IsNullOrEmpty(text))
                 return false;
             if (text.StartsWith("{") && text.EndsWith("}")) {
-                return PreFieldValue_Dictionary(builder, name, new NoSQL.NodeValue(Symbol.Serialization.Json.Parse(text)), ref i, ref pIndex);
+                return PreFieldValue_Dictionary(builder, name, new NoSQL.NodeValue(JSON.Parse(text)), ref i, ref pIndex);
             }
             return false;
         }

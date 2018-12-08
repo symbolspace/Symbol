@@ -106,7 +106,7 @@ namespace Symbol.Data {
             }
             lb_Json_retry:
             if (isJson) {
-                value = Symbol.Serialization.Json.Parse(value as string, true);
+                value = JSON.Parse(value as string, true);
             } else if (tryParseJson && value is string) {
                 string text = ((string)value).Trim();
                 if (text != null && ((text.StartsWith("{") && text.EndsWith("}")) || (text.StartsWith("[") && text.EndsWith("]")))) {
@@ -181,7 +181,7 @@ namespace Symbol.Data {
                 //if (isJson) {
                 //    string text = value as string;
                 //    if (!string.IsNullOrEmpty(text)) {
-                //        value = Symbol.Serialization.Json.Parse(text);
+                //        value = JSON.Parse(text);
                 //    }
                 //} else 
                 if (reader.GetFieldType(i) == typeof(byte[]) && string.Equals(reader.GetDataTypeName(i), "timestamp", StringComparison.OrdinalIgnoreCase)) {
@@ -206,7 +206,7 @@ namespace Symbol.Data {
                         if (isJson && !property.PropertyType.IsValueType 
                             && property.PropertyType != typeof(string)) {
                             //value = Symbol.Serialization.ObjectConverter.ConvertObjectToType(value, property.PropertyType, new Serialization.JavaScriptSerializer());
-                            value = Symbol.Serialization.Json.Parse(value as string, property.PropertyType);
+                            value = JSON.ToObject(value as string, property.PropertyType);
                         } else {
                             value = TypeExtensions.Convert(value, property.PropertyType);
                         }
@@ -218,7 +218,7 @@ namespace Symbol.Data {
                     if (fieldInfo != null) {
                         if (isJson && !fieldInfo.FieldType.IsValueType && fieldInfo.FieldType != typeof(string)) {
                             //value = Symbol.Serialization.ObjectConverter.ConvertObjectToType(value, fieldInfo.FieldType, new Serialization.JavaScriptSerializer());
-                            value = Symbol.Serialization.Json.Parse(value as string, fieldInfo.FieldType);
+                            value = JSON.ToObject(value as string, fieldInfo.FieldType);
                         } else {
                             value = TypeExtensions.Convert(value, fieldInfo.FieldType);
                         }
@@ -233,7 +233,7 @@ namespace Symbol.Data {
                 if (value != null) {
                     lb_Json_retry:
                     if (isJson) {
-                        value = Symbol.Serialization.Json.Parse(value as string, true);
+                        value = JSON.Parse(value as string, true);
                     } else if (string.Equals(reader.GetDataTypeName(i), "char(1)", StringComparison.OrdinalIgnoreCase)
                         || string.Equals(reader.GetDataTypeName(i), "nchar(1)", StringComparison.OrdinalIgnoreCase)) {
                         value = reader.GetChar(i);

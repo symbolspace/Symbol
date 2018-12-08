@@ -286,11 +286,11 @@ namespace Symbol.Data.NoSQL {
                 if (string.IsNullOrEmpty(value))
                     return;
                 if (value[0] == '[' || value[0] == '{') {
-                    Parse(parent, Symbol.Serialization.Json.Parse(value));
+                    Parse(parent, JSON.Parse(value));
                 }
                 if (value[0] == '$' || value[0]=='!') {
                     value = "{ \"" + value + "\":null }";
-                    Parse(parent, Symbol.Serialization.Json.Parse(value));
+                    Parse(parent, JSON.Parse(value));
                 }
             }
             #endregion
@@ -617,12 +617,12 @@ namespace Symbol.Data.NoSQL {
                             if (string.IsNullOrEmpty(value))
                                 return false;
                             if (value[0] == '[') {
-                                if (Check_Pair_Field(pair, new NodeValue(Symbol.Serialization.Json.Parse(value))))
+                                if (Check_Pair_Field(pair, new NodeValue(JSON.Parse(value))))
                                     return true;
 
                             }
                             if (value[0] == '{') {
-                                if (Check_Pair_Field(pair, new NodeValue(Symbol.Serialization.Json.Parse(value))))
+                                if (Check_Pair_Field(pair, new NodeValue(JSON.Parse(value))))
                                     return true;
                             }
                             pair.Children.Add(new Condition("$eq", ConditionTypes.Logical, jsonValue.Value));

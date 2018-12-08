@@ -1053,7 +1053,7 @@ ORDER BY
                 {
                     System.Type npgsqlDbType = GetDbType();
                     string dbType = null;
-                    string dataTypeName = FastObject.Path(Symbol.Serialization.Json.Parse(
+                    string dataTypeName = FastObject.Path(JSON.Parse(
                         ConstAttributeExtensions.Const(propertyDescriptor.ComponentType.GetProperty(propertyDescriptor.Name), "TableField")
                         ), "Type") as string;
                     if (!string.IsNullOrEmpty(dataTypeName)) {
@@ -1164,7 +1164,7 @@ ORDER BY
                 {
                     System.Type npgsqlDbType = GetDbType();
                     string dbType = null;
-                    string dataTypeName = FastObject.Path(Symbol.Serialization.Json.Parse(
+                    string dataTypeName = FastObject.Path(JSON.Parse(
                         ConstAttributeExtensions.Const(propertyDescriptor.ComponentType.GetProperty(propertyDescriptor.Name), "TableField")
                         ), "Type") as string;
                     if (!string.IsNullOrEmpty(dataTypeName)) {

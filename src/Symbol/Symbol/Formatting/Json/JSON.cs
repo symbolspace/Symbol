@@ -93,12 +93,32 @@ public static class JSON {
     #endregion
     #region Parse
     /// <summary>
-    /// Parse a json string and generate a Dictionary&lt;string,object&gt; or List&lt;object&gt; structure
+    /// 解析json（忽略异常）
     /// </summary>
-    /// <param name="json"></param>
-    /// <returns></returns>
+    /// <param name="json">json文本</param>
+    /// <returns>返回json对象</returns>
     public static object Parse(string json) {
-        return new JsonParser(json).Decode();
+        return Parse(json, false);
+    }
+    #endregion
+    #region Parse
+    /// <summary>
+    /// 解析json
+    /// </summary>
+    /// <param name="json">json文本</param>
+    /// <param name="throwError">是否需要抛出异常</param>
+    /// <returns>返回json对象</returns>
+    public static object Parse(string json, bool throwError) {
+        if (string.IsNullOrEmpty(json))
+            return null;
+        if (throwError) {
+            return new JsonParser(json).Decode();
+        }
+        try {
+            return new JsonParser(json).Decode();
+        } catch {
+            return null;
+        }
     }
     #endregion
     #region ToDynamic
@@ -115,14 +135,34 @@ public static class JSON {
     #endregion
     #region ToObject
     /// <summary>
-    /// Create a typed generic object from the json
+    /// 解析json(泛型，忽略异常)
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="json"></param>
-    /// <returns></returns>
+    /// <typeparam name="T">任意类型</typeparam>
+    /// <param name="json">json文本</param>
+    /// <returns>返回json对象</returns>
     public static T ToObject<T>(string json) {
-        return new JsonDeserializer(Parameters).ToObject<T>(json);
+        return ToObject<T>(json, false);
     }
+    /// <summary>
+    /// 解析json(泛型)
+    /// </summary>
+    /// <typeparam name="T">任意类型</typeparam>
+    /// <param name="json">json文本</param>
+    /// <param name="throwError">是否需要抛出异常</param>
+    /// <returns>返回json对象</returns>
+    public static T ToObject<T>(string json, bool throwError) {
+        if (string.IsNullOrEmpty(json))
+            return default(T);
+        if (throwError) {
+            return new JsonDeserializer(Parameters).ToObject<T>(json);
+        }
+        try {
+            return new JsonDeserializer(Parameters).ToObject<T>(json);
+        } catch {
+            return default(T);
+        }
+    }
+
     /// <summary>
     /// Create a typed generic object from the json with parameter override on this call
     /// </summary>
@@ -131,6 +171,8 @@ public static class JSON {
     /// <param name="param"></param>
     /// <returns></returns>
     public static T ToObject<T>(string json, JSONParameters param) {
+        if (string.IsNullOrEmpty(json))
+            return default(T);
         return new JsonDeserializer(param).ToObject<T>(json);
     }
     /// <summary>
@@ -139,6 +181,8 @@ public static class JSON {
     /// <param name="json"></param>
     /// <returns></returns>
     public static object ToObject(string json) {
+        if (string.IsNullOrEmpty(json))
+            return null;
         return new JsonDeserializer(Parameters).ToObject(json, null);
     }
     /// <summary>
@@ -148,16 +192,40 @@ public static class JSON {
     /// <param name="param"></param>
     /// <returns></returns>
     public static object ToObject(string json, JSONParameters param) {
+        if (string.IsNullOrEmpty(json))
+            return null;
         return new JsonDeserializer(param).ToObject(json, null);
     }
     /// <summary>
-    /// Create an object of type from the json
+    /// 解析json(忽略异常)
     /// </summary>
-    /// <param name="json"></param>
-    /// <param name="type"></param>
-    /// <returns></returns>
+    /// <param name="json">json文本</param>
+    /// <param name="type">类型</param>
+    /// <returns>返回json对象</returns>
     public static object ToObject(string json, Type type) {
-        return new JsonDeserializer(Parameters).ToObject(json, type);
+        return ToObject(json, type, false);
+    }
+    /// <summary>
+    /// 解析json
+    /// </summary>
+    /// <param name="json">json文本</param>
+    /// <param name="type">类型</param>
+    /// <param name="throwError">返回json对象</param>
+    /// <returns>返回json对象</returns>
+    public static object ToObject(string json, Type type, bool throwError) {
+        if (string.IsNullOrEmpty(json))
+            return null;
+        if (type == null) {
+            return Parse(json, throwError);
+        }
+        if (throwError) {
+            return new JsonDeserializer(Parameters).ToObject(json, type);
+        }
+        try {
+            return new JsonDeserializer(Parameters).ToObject(json, type);
+        } catch {
+            return TypeExtensions.DefaultValue(type);
+        }
     }
     #endregion
     #region FillObject
@@ -168,6 +236,8 @@ public static class JSON {
     /// <param name="json"></param>
     /// <returns></returns>
     public static object FillObject(object input, string json) {
+        if (string.IsNullOrEmpty(json))
+            return null;
         IDictionary<string, object> ht = new JsonParser(json).Decode() as IDictionary<string, object>;
         if (ht == null) return null;
         return new JsonDeserializer(Parameters).ParseDictionary(ht, null, input.GetType(), input);
@@ -180,6 +250,8 @@ public static class JSON {
     /// <param name="obj"></param>
     /// <returns></returns>
     public static object DeepCopy(object obj) {
+        if (obj == null)
+            return null;
         return new JsonDeserializer(Parameters).ToObject(ToJSON(obj));
     }
     /// <summary>
@@ -189,17 +261,38 @@ public static class JSON {
     /// <param name="obj"></param>
     /// <returns></returns>
     public static T DeepCopy<T>(T obj) {
+        if (obj == null)
+            return default(T);
+
         return new JsonDeserializer(Parameters).ToObject<T>(ToJSON(obj));
     }
     #endregion
     #region Beautify
     /// <summary>
-    /// Create a human readable string from the json 
+    /// 美化Json(忽略异常)
     /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <param name="input">Json文本</param>
+    /// <returns>返回格式化后的json</returns>
     public static string Beautify(string input) {
-        return JsonFormatter.PrettyPrint(input);
+        return Beautify(input, false);
+    }
+    /// <summary>
+    /// 美化Json
+    /// </summary>
+    /// <param name="input">Json文本</param>
+    /// <param name="throwError">是否需要抛出异常</param>
+    /// <returns>返回格式化后的json</returns>
+    public static string Beautify(string input, bool throwError) {
+        if (string.IsNullOrEmpty(input))
+            return "";
+        if (throwError) {
+            return JsonFormatter.PrettyPrint(input);
+        }
+        try {
+            return JsonFormatter.PrettyPrint(input);
+        } catch {
+            return "";
+        }
     }
     #endregion
     #region RegisterCustomType

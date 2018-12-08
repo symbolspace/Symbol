@@ -48,7 +48,7 @@ namespace Symbol.Data {
         /// <returns>返回数据上下文。</returns>
         public virtual IDataContext CreateDataContext(string connectionString) {
             if (!string.IsNullOrEmpty(connectionString) && connectionString.StartsWith("{"))
-                return CreateDataContext(Symbol.Serialization.Json.Parse(connectionString));
+                return CreateDataContext(JSON.Parse(connectionString));
             return CreateDataContext(CreateConnection(connectionString));
         }
         /// <summary>

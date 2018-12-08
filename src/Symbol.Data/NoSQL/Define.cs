@@ -176,7 +176,7 @@ namespace Symbol.Data.NoSQL {
                             continue;
                         Parse_String(item, result);
                         if (text[0] == '[' || text[0] == '{') {
-                            item = new NodeValue(Symbol.Serialization.Json.Parse(text));
+                            item = new NodeValue(JSON.Parse(text));
                             b = false;
                             goto lb_Retury;
                         }
@@ -227,7 +227,7 @@ namespace Symbol.Data.NoSQL {
                 if (string.IsNullOrEmpty(value))
                     return define ?? new Define();
                 //if (value[0] == '[' || value[0] == '{') {
-                //    return Parse(Symbol.Serialization.Json.Parse(value), define);
+                //    return Parse(JSON.Parse(value), define);
                 //}
                 if (define == null)
                     define = new Define();
