@@ -580,6 +580,447 @@ namespace Symbol.Drawing {
         #endregion
 
 
+        #region Thinning
+        /// <summary>
+        /// 细化图像（需要二值化图像）
+        /// </summary>
+        /// <param name="image">需要处理的二值化图像。</param>
+        public unsafe static void Thinning(Bitmap image) {
+            int w = image.Width, h = image.Height;
+            sbyte[] vArray = new sbyte[w * h];
+
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    vArray[w * h - (x + y * w) - 1] = (sbyte)(image.GetPixel(x, y).R == 0 ? 1 : 0);
+                }// end of x
+            }// end of y
+            vArray = ThinnerRosenfeld(vArray, w, h);
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    image.SetPixel(x, y, vArray[w * h - (x + y * w) - 1] == 0 ? Color.White : Color.Black);
+                }//for x
+            }//for y
+        }
+
+        /// <summary>
+        /// 图像细化主函数,细化图像
+        /// </summary>
+        /// <param name="image">始终为一个一给图像数组(倒序式)</param>
+        /// <param name="lx">图像宽</param>
+        /// <param name="ly">图像高</param>
+        /// <returns>返回细化后的数组</returns>
+        private unsafe static sbyte[] ThinnerRosenfeld(sbyte[] image, long lx, long ly) {
+            sbyte[] f;
+            sbyte[] g;
+            sbyte[] n = new sbyte[10];
+            sbyte[] a = new sbyte[] { 0, -1, 1, 0, 0 };
+            sbyte[] b = new sbyte[] { 0, 0, 0, 1, -1 };
+            sbyte nrnd, cond, n48, n26, n24, n46, n68, n82, n123, n345, n567, n781;
+            short k, shori;
+            long i, j;
+            long ii, jj, kk, kk1, kk2, kk3, size;
+            size = ly * lx;
+
+            //g = (sbyte *)malloc(size);
+            g = new sbyte[size];
+            if (g == null) {
+                Console.WriteLine("error in alocating mmeory!\n");
+                return null;
+            }
+
+            f = image;
+            //f=
+            for (kk = 0L; kk < size; kk++) {
+                g[kk] = f[kk];
+            }
+
+            do {
+                shori = 0;
+                for (k = 1; k <= 4; k++) {
+                    for (i = 1; i < ly - 1; i++) {
+                        ii = i + a[k];
+
+                        for (j = 1; j < lx - 1; j++) {
+                            kk = i * lx + j;
+
+                            if (f[kk] == 0)
+                                continue;
+
+                            jj = j + b[k];
+                            kk1 = ii * lx + jj;
+
+                            if (f[kk1] != 0)
+                                continue;
+
+                            kk1 = kk - lx - 1;
+                            kk2 = kk1 + 1;
+                            kk3 = kk2 + 1;
+                            n[3] = f[kk1];
+                            n[2] = f[kk2];
+                            n[1] = f[kk3];
+                            kk1 = kk - 1;
+                            kk3 = kk + 1;
+                            n[4] = f[kk1];
+                            n[8] = f[kk3];
+                            kk1 = kk + lx - 1;
+                            kk2 = kk1 + 1;
+                            kk3 = kk2 + 1;
+                            n[5] = f[kk1];
+                            n[6] = f[kk2];
+                            n[7] = f[kk3];
+
+                            nrnd = (sbyte)(n[1] + n[2] + n[3] + n[4]
+                                + n[5] + n[6] + n[7] + n[8]);
+                            if (nrnd <= 1)
+                                continue;
+
+                            cond = 0;
+                            n48 = (sbyte)(n[4] + n[8]);
+                            n26 = (sbyte)(n[2] + n[6]);
+                            n24 = (sbyte)(n[2] + n[4]);
+                            n46 = (sbyte)(n[4] + n[6]);
+                            n68 = (sbyte)(n[6] + n[8]);
+                            n82 = (sbyte)(n[8] + n[2]);
+                            n123 = (sbyte)(n[1] + n[2] + n[3]);
+                            n345 = (sbyte)(n[3] + n[4] + n[5]);
+                            n567 = (sbyte)(n[5] + n[6] + n[7]);
+                            n781 = (sbyte)(n[7] + n[8] + n[1]);
+
+                            if (n[2] == 1 && n48 == 0 && n567 > 0) {
+                                if (cond == 0)
+                                    continue;
+                                g[kk] = 0;
+                                shori = 1;
+                                continue;
+                            }
+
+                            if (n[6] == 1 && n48 == 0 && n123 > 0) {
+                                if (cond == 0)
+                                    continue;
+                                g[kk] = 0;
+                                shori = 1;
+                                continue;
+                            }
+
+                            if (n[8] == 1 && n26 == 0 && n345 > 0) {
+                                if (cond == 0)
+                                    continue;
+                                g[kk] = 0;
+                                shori = 1;
+                                continue;
+                            }
+
+                            if (n[4] == 1 && n26 == 0 && n781 > 0) {
+                                if (cond == 0)
+                                    continue;
+                                g[kk] = 0;
+                                shori = 1;
+                                continue;
+                            }
+
+                            if (n[5] == 1 && n46 == 0) {
+                                if (cond == 0)
+                                    continue;
+                                g[kk] = 0;
+                                shori = 1;
+                                continue;
+                            }
+
+                            if (n[7] == 1 && n68 == 0) {
+                                if (cond == 0)
+                                    continue;
+                                g[kk] = 0;
+                                shori = 1;
+                                continue;
+                            }
+
+                            if (n[1] == 1 && n82 == 0) {
+                                if (cond == 0)
+                                    continue;
+                                g[kk] = 0;
+                                shori = 1;
+                                continue;
+                            }
+
+                            if (n[3] == 1 && n24 == 0) {
+                                if (cond == 0)
+                                    continue;
+                                g[kk] = 0;
+                                shori = 1;
+                                continue;
+                            }
+
+                            cond = 1;
+                            if (cond == 0)
+                                continue;
+                            g[kk] = 0;
+                            shori = 1;
+                        }
+                    }
+
+                    for (i = 0; i < ly; i++) {
+                        for (j = 0; j < lx; j++) {
+                            kk = i * lx + j;
+                            f[kk] = g[kk];
+                        }
+                    }
+                }
+            } while (shori != 0);
+
+            //free(g);
+            return f;
+        }
+
+        #endregion
+        #region XStrikethrough
+        /// <summary>
+        /// 横向删除线
+        /// </summary>
+        /// <param name="image">需要处理的图像</param>
+        /// <param name="span">跨度（百分比小数）</param>
+        /// <param name="continuousDegree">连续度（像素）</param>
+        /// <param name="backColor">背景色</param>
+        public unsafe static void XStrikethrough(Bitmap image, float span, int continuousDegree, System.Drawing.Color backColor) {
+            int backColorArgb = ColorHelper.ToArgb(backColor.R, backColor.G, backColor.B);
+
+
+            int w = image.Width; int h = image.Height;
+            BitmapData data = image.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+
+            byte* p = (byte*)data.Scan0;
+            byte* pOri = p;
+            int offset = data.Stride - w * 3;
+
+            ImagePointToIndexHandler pointToIndexHandler = (p1, p2) => {
+                if (p1 < 0 || p2 < 0 || p1 >= w || p2 >= h)
+                    return -1;
+                return p1 * 3 + p2 * w * 3 + p2 * offset;
+            };
+            System.Collections.Generic.Dictionary<int, XStrikethroughLine> lines = new System.Collections.Generic.Dictionary<int, XStrikethroughLine>();
+            for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h; y++) {
+                    int index = pointToIndexHandler(x, y);
+                    p = pOri + index;
+                    int a = ColorHelper.ToArgb(p[0], p[1], p[2]);
+                    if (a == backColorArgb)
+                        continue;
+                    XStrikethroughLine line = null;
+                    if (x > 0) {
+                        var o = LinqHelper.FirstOrDefault(
+                            LinqHelper.ThenBy(
+                                LinqHelper.OrderBy(
+                                    LinqHelper.Where(
+                                        LinqHelper.Select(
+                                            lines.Values,
+                                            p1 => new { p1, c = p1.Continuous(x, y, continuousDegree) }),
+                                        p1 => p1.c != int.MinValue),
+                                    p1 => p1.c),
+                                p1 => p1.p1.Y)
+                            );
+                        if (o != null)
+                            line = o.p1;
+                    }
+                    XStrikethroughLinePoint point = new XStrikethroughLinePoint() {
+                        X = x,
+                        Y = y,
+                        Index = index
+                    };
+                    if (y > 0) {
+                        int topPIndex = pointToIndexHandler(x, y - 1);
+                        byte* topP = pOri + topPIndex;
+                        point.TopPoint = new ColorScanStridePoint() {
+                            X = x,
+                            Y = y - 1,
+                            Index = topPIndex,
+                            R = topP[0],
+                            G = topP[1],
+                            B = topP[2],
+                            Color = ColorHelper.ToArgb(topP[0], topP[1], topP[2]),
+                        };
+                    }
+                    if (y < h - 1) {
+                        int bottomPIndex = pointToIndexHandler(x, y + 1);
+                        byte* bottomP = pOri + bottomPIndex;
+                        point.BottomPoint = new ColorScanStridePoint() {
+                            X = x,
+                            Y = y + 1,
+                            Index = bottomPIndex,
+                            R = bottomP[0],
+                            G = bottomP[1],
+                            B = bottomP[2],
+                            Color = ColorHelper.ToArgb(bottomP[0], bottomP[1], bottomP[2]),
+                        };
+                    }
+                    if (line == null) {
+                        line = new XStrikethroughLine() {
+                            X = x,
+                            Y = y,
+                            Color = a,
+                            R = p[0],
+                            G = p[1],
+                            B = p[2],
+                            Width = 1,
+                            Height = 1,
+                            Right = x + 1,
+                            Bottom = y + 1,
+                            Index = index,
+                            ImagePointToIndexHandler = pointToIndexHandler,
+                        };
+                        line.Points.Add(index, point);
+                        lines.Add(index, line);
+                    } else {
+                        if (x > line.X) {
+                            line.Width = x - line.X + 1;
+                            line.Right = x;
+                        }
+                        if (y > line.Bottom) {
+                            line.Height = y - line.Y + 1;
+                            line.Bottom = y;
+                        }
+                        line.Points.Add(index, point);
+                    }
+                }
+            }
+            System.Collections.Generic.IEnumerable<XStrikethroughLine> q =
+                 LinqHelper.Select(
+                     LinqHelper.ThenBy(
+                         LinqHelper.OrderByDescending(
+                             LinqHelper.Where(
+                                 LinqHelper.Select(
+                                     lines.Values,
+                                     p1 => new { p1, c = ((float)p1.Width) / w }),
+                                 p1 => p1.c >= span),
+                             p1 => p1.c),
+                         p1 => p1.p1.X),
+                     p1 => p1.p1);
+            foreach (var item in q) {
+                foreach (XStrikethroughLinePoint point in item.Points.Values) {
+                    p = pOri + point.Index;
+                    XStrikethrough_SetColor(p, pOri, point.X, point.Y, backColorArgb, pointToIndexHandler);
+                    //ColorScanStridePoint colorPoint = point.TopPoint ?? point.BottomPoint;
+                    ////p[0] = 255;
+                    ////p[1] = 0; p[2] = 0;
+                    //p[0] = colorPoint.R;
+                    //p[1] = colorPoint.G;
+                    //p[2] = colorPoint.B;
+                    ////p[0] = p[1] = p[2] = 255;
+                }
+            }
+
+            image.UnlockBits(data);
+
+        }
+        static unsafe void XStrikethrough_SetColor(byte* p, byte* pOri, int x, int y, int backColorArgb, ImagePointToIndexHandler pointToIndexHandler) {
+            int pArgb = ColorHelper.ToArgb(p[0], p[1], p[2]);
+            int top = pointToIndexHandler(x, y - 1);
+
+            if (top != -1) {
+                byte* p2 = pOri + top;
+                int a = ColorHelper.ToArgb(p2[0], p2[1], p2[2]);
+                if (a != backColorArgb && a != pArgb) {
+                    p[0] = p2[0];
+                    p[1] = p2[1];
+                    p[2] = p2[2];
+                    return;
+                }
+            }
+
+
+
+            int bottom = pointToIndexHandler(x, y + 1);
+            if (bottom != -1) {
+                byte* p2 = pOri + bottom;
+                int a = ColorHelper.ToArgb(p2[0], p2[1], p2[2]);
+                if (a != backColorArgb && a != pArgb) {
+                    p[0] = p2[0];
+                    p[1] = p2[1];
+                    p[2] = p2[2];
+                    return;
+                }
+            }
+            int left = pointToIndexHandler(x - 1, y);
+            bool isEmpty = true;
+            if (left != -1) {
+                byte* p2 = pOri + left;
+                int a = ColorHelper.ToArgb(p2[0], p2[1], p2[2]);
+                if (a != backColorArgb && a != pArgb) {
+                    isEmpty = false;
+                    //p[0] = p2[0];
+                    //p[1] = p2[1];
+                    //p[2] = p2[2];
+                    return;
+                }
+            }
+            if (isEmpty) {
+                p[0] = p[1] = p[2] = 255;
+            }
+        }
+        delegate int ImagePointToIndexHandler(int x, int y);
+        [System.Diagnostics.DebuggerDisplay("({X},{Y}),{Points.Count}")]
+        class XStrikethroughLine : ColorScanStridePoint {
+            public System.Collections.Generic.Dictionary<int, XStrikethroughLinePoint> Points;
+
+            public int Width;
+            public int Height;
+            public int Right;
+            public int Bottom;
+
+            public ImagePointToIndexHandler ImagePointToIndexHandler;
+
+
+            public XStrikethroughLine() {
+                Points = new System.Collections.Generic.Dictionary<int, XStrikethroughLinePoint>();
+            }
+
+            public int Continuous(int x, int y, int degree) {
+                if (Points.Count == 0)
+                    return int.MinValue;
+                int xStart = x - 1;
+                int yStart = y;
+
+                if (xStart < 0)
+                    return int.MinValue;
+                //现在先只实现左侧横向的，不考虑圆形辐射
+                degree++;
+                for (int i = 0; i < degree; i++) {
+                    if (Find(xStart - i, y) != null)
+                        return i * degree - 1;
+                    if (Find(xStart - i, y - 1) != null)
+                        return i * degree;
+                    if (Find(xStart - i, y + 1) != null)
+                        return i * degree + 1;
+                }
+                return int.MinValue;
+            }
+            public XStrikethroughLinePoint Find(int index) {
+                XStrikethroughLinePoint result = null;
+                if (Points.TryGetValue(index, out result))
+                    return result;
+                return null;
+            }
+            public XStrikethroughLinePoint Find(int x, int y) {
+                int index = ImagePointToIndexHandler(x, y);
+                return Find(index);
+            }
+        }
+        class XStrikethroughLinePoint : ScanStridePoint {
+            public ColorScanStridePoint TopPoint;
+            public ColorScanStridePoint BottomPoint;
+        }//nearby
+        class ScanStridePoint {
+            public int Index;
+            public int X;
+            public int Y;
+        }
+        //public 
+        class ColorScanStridePoint : ScanStridePoint {
+            public int Color;
+            public byte R;
+            public byte G;
+            public byte B;
+
+        }
+        #endregion
 
         #region GetBitmapColors3x3
         private static readonly int[][] _pos3x3_finds = new int[][] { 
