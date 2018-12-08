@@ -133,6 +133,8 @@ public static class ConstAttributeExtensions {
         this
 #endif
         ICustomAttributeProvider provider, string key) {
+        if (provider == null)
+            return "";
         var list = GetValues(provider);
         return list[string.IsNullOrEmpty(key) ? "Text" : key] ?? "";
     }
@@ -174,6 +176,8 @@ public static class ConstAttributeExtensions {
         this
 #endif
         object instance, string memberName, string key) {
+        if (instance == null)
+            return "";
         var provider = instance as ICustomAttributeProvider;
         if (provider == null) {
             var type = instance.GetType();
@@ -190,6 +194,8 @@ public static class ConstAttributeExtensions {
                 }
             }
         }
+        if (provider == null)
+            return "";
         var list = GetValues(provider);
         return list[string.IsNullOrEmpty(key) ? "Text" : key] ?? "";
     }
