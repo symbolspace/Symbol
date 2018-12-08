@@ -12,16 +12,18 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Net</AssemblyTitle>
     <AssemblyName>Symbol.Net</AssemblyName>
-    <VersionPrefix>4.0.0.1</VersionPrefix>
+    <VersionPrefix>4.0.0.2</VersionPrefix>
+    <Title>Symbol.Net</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
-    <Description>net in Symbol</Description>
+    <Description>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Net.dll for more information.</Description>
     <Copyright>© symbolspace All rights reserved.</Copyright>
     <PackageId>Symbol.Net</PackageId>
     <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/symbolspace/Symbol/master/icon.png</PackageIconUrl>
     <PackageTags>net;http;socket;symbol</PackageTags>
-    <PackageReleaseNotes>symbolspace .net library. Please see https://github.com/symbolspace/Symbol/wiki/ for more information.</PackageReleaseNotes>
+    <PackageReleaseNotes>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Net.dll for more information.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -29,6 +31,7 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>..\..\Symbol.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

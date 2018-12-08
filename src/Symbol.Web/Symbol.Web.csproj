@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-   <PropertyGroup Label="NuGet">
+  <PropertyGroup Label="NuGet">
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;net45;net4;net35;net2</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -12,16 +12,17 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Web</AssemblyTitle>
     <AssemblyName>Symbol.Web</AssemblyName>
-    <VersionPrefix>4.0.0.1</VersionPrefix>
+    <VersionPrefix>4.0.0.2</VersionPrefix>
+    <Title>Symbol.Web</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
-    <Description>web in Symbol</Description>
-    <Copyright>© symbolspace All rights reserved.</Copyright>
+    <Description>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Web.dll for more information.</Description>
     <PackageId>Symbol.Web</PackageId>
     <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/symbolspace/Symbol/master/icon.png</PackageIconUrl>
     <PackageTags>web;symbol</PackageTags>
-    <PackageReleaseNotes>symbolspace .net library. Please see https://github.com/symbolspace/Symbol/wiki/ for more information.</PackageReleaseNotes>
+    <PackageReleaseNotes>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Web.dll for more information.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -29,6 +30,7 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>..\..\Symbol.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>bin</OutputPath>
