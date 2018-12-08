@@ -18,37 +18,76 @@ namespace Symbol {
 
         #region IsDefined
         /// <summary>
+        /// 检查是否定义此特性（继承）
+        /// </summary>
+        /// <param name="customAttributeProvider"></param>
+        /// <param name="type">特性类型, instance is type。</param>
+        /// <returns></returns>
+        public static bool IsDefined(
+#if !net20
+            this
+#endif
+            System.Type customAttributeProvider, System.Type type) {
+            return GetCustomAttribute(customAttributeProvider, type, true) != null;
+        }
+        /// <summary>
         /// 检查是否定义此特性
         /// </summary>
         /// <param name="customAttributeProvider"></param>
-        /// <param name="type">特性类型。</param>
+        /// <param name="type">特性类型, instance is type。</param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
         public static bool IsDefined(
 #if !net20
             this
 #endif
-            System.Type customAttributeProvider, System.Type type, bool inherit = true) {
+            System.Type customAttributeProvider, System.Type type, bool inherit) {
             return GetCustomAttribute(customAttributeProvider, type, inherit) != null;
+        }
+        /// <summary>
+        /// 检查是否定义此特性（继承）
+        /// </summary>
+        /// <param name="customAttributeProvider"></param>
+        /// <param name="type">特性类型。</param>
+        /// <returns></returns>
+        public static bool IsDefined(
+#if !net20
+            this
+#endif
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type) {
+            return GetCustomAttribute(customAttributeProvider, type, true) != null;
         }
         /// <summary>
         /// 检查是否定义此特性
         /// </summary>
         /// <param name="customAttributeProvider"></param>
-        /// <param name="type">特性类型。</param>
+        /// <param name="type">特性类型, instance is type。</param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
         public static bool IsDefined(
 #if !net20
             this
 #endif
-            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit = true) {
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit) {
             return GetCustomAttribute(customAttributeProvider, type, inherit) != null;
+        }
+        /// <summary>
+        /// 检查是否定义此特性（继承）
+        /// </summary>
+        /// <typeparam name="T">识别instance is T</typeparam>
+        /// <param name="customAttributeProvider"></param>
+        /// <returns></returns>
+        public static bool IsDefined<T>(
+#if !net20
+            this
+#endif
+            System.Type customAttributeProvider) where T : System.Attribute {
+            return GetCustomAttribute<T>(customAttributeProvider, true) != null;
         }
         /// <summary>
         /// 检查是否定义此特性
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">识别instance is T</typeparam>
         /// <param name="customAttributeProvider"></param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
@@ -56,13 +95,26 @@ namespace Symbol {
 #if !net20
             this
 #endif
-            System.Type customAttributeProvider, bool inherit = true) where T : System.Attribute {
+            System.Type customAttributeProvider, bool inherit) where T : System.Attribute {
             return GetCustomAttribute<T>(customAttributeProvider, inherit) != null;
         }
         /// <summary>
+        /// 检查是否定义此特性（继承）
+        /// </summary>
+        /// <typeparam name="T">识别instance is T</typeparam>
+        /// <param name="customAttributeProvider"></param>
+        /// <returns></returns>
+        public static bool IsDefined<T>(
+#if !net20
+            this
+#endif
+            System.Reflection.ICustomAttributeProvider customAttributeProvider) where T : System.Attribute {
+            return GetCustomAttribute<T>(customAttributeProvider, true) != null;
+        }
+        /// <summary>
         /// 检查是否定义此特性
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">识别instance is T</typeparam>
         /// <param name="customAttributeProvider"></param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
@@ -70,16 +122,29 @@ namespace Symbol {
 #if !net20
             this
 #endif
-            System.Reflection.ICustomAttributeProvider customAttributeProvider, bool inherit = true) where T : System.Attribute {
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, bool inherit) where T : System.Attribute {
             return GetCustomAttribute<T>(customAttributeProvider, inherit) != null;
         }
         #endregion
 
         #region GetCustomAttribute
         /// <summary>
+        /// 获取自定义Attribute中的第一个对象（继承）
+        /// </summary>
+        /// <typeparam name="T">识别instance is T</typeparam>
+        /// <param name="customAttributeProvider"></param>
+        /// <returns></returns>
+        public static T GetCustomAttribute<T>(
+#if !net20
+            this
+#endif
+            System.Type customAttributeProvider) where T : System.Attribute {
+            return (T)GetCustomAttribute(customAttributeProvider, typeof(T), true);
+        }
+        /// <summary>
         /// 获取自定义Attribute中的第一个对象
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">识别instance is T</typeparam>
         /// <param name="customAttributeProvider"></param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
@@ -87,28 +152,54 @@ namespace Symbol {
 #if !net20
             this
 #endif
-            System.Type customAttributeProvider, bool inherit = true) where T : System.Attribute {
+            System.Type customAttributeProvider, bool inherit) where T : System.Attribute {
             return (T)GetCustomAttribute(customAttributeProvider, typeof(T), inherit);
         }
 
         /// <summary>
+        /// 获取自定义Attribute中的第一个对象（继承）
+        /// </summary>
+        /// <param name="customAttributeProvider"></param>
+        /// <param name="type">特性类型, instance is type。</param>
+        /// <returns></returns>
+        public static Attribute GetCustomAttribute(
+#if !net20
+            this
+#endif
+            System.Type customAttributeProvider, System.Type type) {
+            return GetCustomAttribute((System.Reflection.ICustomAttributeProvider)customAttributeProvider, type, true);
+        }
+        /// <summary>
         /// 获取自定义Attribute中的第一个对象
         /// </summary>
         /// <param name="customAttributeProvider"></param>
-        /// <param name="type"></param>
+        /// <param name="type">特性类型, instance is type。</param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
         public static Attribute GetCustomAttribute(
 #if !net20
             this
 #endif
-            System.Type customAttributeProvider, System.Type type, bool inherit = true) {
+            System.Type customAttributeProvider, System.Type type, bool inherit) {
             return GetCustomAttribute((System.Reflection.ICustomAttributeProvider)customAttributeProvider, type, inherit);
+        }
+        /// <summary>
+        /// 获取自定义Attribute中的第一个对象（继承）
+        /// </summary>
+        /// <typeparam name="T">识别instance is T</typeparam>
+        /// <param name="customAttributeProvider"></param>
+        /// <returns></returns>
+        public static T GetCustomAttribute<T>(
+#if !net20
+            this
+#endif
+            System.Reflection.ICustomAttributeProvider customAttributeProvider) where T : System.Attribute {
+            return (T)GetCustomAttribute(customAttributeProvider, typeof(T), true);
         }
         /// <summary>
         /// 获取自定义Attribute中的第一个对象
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">识别instance is T</typeparam>
         /// <param name="customAttributeProvider"></param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
@@ -116,30 +207,57 @@ namespace Symbol {
 #if !net20
             this
 #endif
-            System.Reflection.ICustomAttributeProvider customAttributeProvider, bool inherit = true) where T : System.Attribute {
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, bool inherit) where T : System.Attribute {
             return (T)GetCustomAttribute(customAttributeProvider, typeof(T), inherit);
+        }
+        /// <summary>
+        /// 获取自定义Attribute中的第一个对象（继承）
+        /// </summary>
+        /// <param name="customAttributeProvider"></param>
+        /// <param name="type">特性类型, instance is type。</param>
+        /// <returns></returns>
+        public static Attribute GetCustomAttribute(
+#if !net20
+            this
+#endif
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type) {
+            var list = GetCustomAttributes(customAttributeProvider, type, true);
+            return list.Count == 0 ? null : (Attribute)list[0];
         }
         /// <summary>
         /// 获取自定义Attribute中的第一个对象
         /// </summary>
         /// <param name="customAttributeProvider"></param>
-        /// <param name="type"></param>
+        /// <param name="type">特性类型, instance is type。</param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
         public static Attribute GetCustomAttribute(
 #if !net20
             this
 #endif
-            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit = true) {
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit) {
             var list = GetCustomAttributes(customAttributeProvider, type, inherit);
             return list.Count == 0 ? null : (Attribute)list[0];
         }
         #endregion
         #region GetCustomAttributes
         /// <summary>
+        /// 获取自定义Attribute列表（继承）
+        /// </summary>
+        /// <typeparam name="T">识别instance is T</typeparam>
+        /// <param name="customAttributeProvider"></param>
+        /// <returns></returns>
+        public static System.Collections.Generic.List<T> GetCustomAttributes<T>(
+#if !net20
+            this
+#endif
+            System.Type customAttributeProvider) where T : System.Attribute {
+            return (System.Collections.Generic.List<T>)GetCustomAttributes(customAttributeProvider, typeof(T), true);
+        }
+        /// <summary>
         /// 获取自定义Attribute列表
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">识别instance is T</typeparam>
         /// <param name="customAttributeProvider"></param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
@@ -147,28 +265,54 @@ namespace Symbol {
 #if !net20
             this
 #endif
-            System.Type customAttributeProvider, bool inherit = true) where T : System.Attribute {
+            System.Type customAttributeProvider, bool inherit) where T : System.Attribute {
             return (System.Collections.Generic.List<T>)GetCustomAttributes(customAttributeProvider, typeof(T), inherit);
         }
 
         /// <summary>
+        /// 获取自定义Attribute列表（继承）
+        /// </summary>
+        /// <param name="customAttributeProvider"></param>
+        /// <param name="type">特性类型, instance is type。</param>
+        /// <returns></returns>
+        public static System.Collections.IList GetCustomAttributes(
+#if !net20
+            this
+#endif
+            System.Type customAttributeProvider, System.Type type) {
+            return GetCustomAttributes((System.Reflection.ICustomAttributeProvider)customAttributeProvider, type, true);
+        }
+        /// <summary>
         /// 获取自定义Attribute列表
         /// </summary>
         /// <param name="customAttributeProvider"></param>
-        /// <param name="type"></param>
+        /// <param name="type">特性类型, instance is type。</param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
         public static System.Collections.IList GetCustomAttributes(
 #if !net20
             this
 #endif
-            System.Type customAttributeProvider, System.Type type, bool inherit = true) {
+            System.Type customAttributeProvider, System.Type type, bool inherit) {
             return GetCustomAttributes((System.Reflection.ICustomAttributeProvider)customAttributeProvider, type, inherit);
+        }
+        /// <summary>
+        /// 获取自定义Attribute列表（继承）
+        /// </summary>
+        /// <typeparam name="T">识别instance is T</typeparam>
+        /// <param name="customAttributeProvider"></param>
+        /// <returns></returns>
+        public static System.Collections.Generic.List<T> GetCustomAttributes<T>(
+#if !net20
+            this
+#endif
+            System.Reflection.ICustomAttributeProvider customAttributeProvider) where T : System.Attribute {
+            return (System.Collections.Generic.List<T>)GetCustomAttributes(customAttributeProvider, typeof(T), true);
         }
         /// <summary>
         /// 获取自定义Attribute列表
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">识别instance is T</typeparam>
         /// <param name="customAttributeProvider"></param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
@@ -176,21 +320,34 @@ namespace Symbol {
 #if !net20
             this
 #endif
-            System.Reflection.ICustomAttributeProvider customAttributeProvider, bool inherit = true) where T : System.Attribute {
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, bool inherit) where T : System.Attribute {
             return (System.Collections.Generic.List<T>)GetCustomAttributes(customAttributeProvider, typeof(T), inherit);
+        }
+        /// <summary>
+        /// 获取自定义Attribute列表（继承）
+        /// </summary>
+        /// <param name="customAttributeProvider"></param>
+        /// <param name="type">特性类型, instance is type。</param>
+        /// <returns></returns>
+        public static System.Collections.IList GetCustomAttributes(
+#if !net20
+            this
+#endif
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type) {
+            return GetCustomAttributes(customAttributeProvider, type, true);
         }
         /// <summary>
         /// 获取自定义Attribute列表
         /// </summary>
         /// <param name="customAttributeProvider"></param>
-        /// <param name="type"></param>
+        /// <param name="type">特性类型, instance is type。</param>
         /// <param name="inherit">如果为 true，则指定还在 element 的祖先中搜索自定义特性。</param>
         /// <returns></returns>
         public static System.Collections.IList GetCustomAttributes(
 #if !net20
             this
 #endif
-            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit = true) {
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit) {
             if (customAttributeProvider == null || type == null)
                 return CreateList(type);
 
