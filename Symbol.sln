@@ -28,12 +28,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".wiki", ".wiki", "{5013F7B6
 	ProjectSection(SolutionItems) = preProject
 		wiki\Symbol.Data.dll.md = wiki\Symbol.Data.dll.md
 		wiki\Symbol.dll.md = wiki\Symbol.dll.md
+		wiki\Symbol.Drawing.dll.md = wiki\Symbol.Drawing.dll.md
+		wiki\Symbol.ImageRecognition.Verification.dll.md = wiki\Symbol.ImageRecognition.Verification.dll.md
+		wiki\Symbol.IO.Packing.TreePackage.dll.md = wiki\Symbol.IO.Packing.TreePackage.dll.md
 		wiki\Symbol.Net.dll.md = wiki\Symbol.Net.dll.md
 		wiki\Symbol.Web.dll.md = wiki\Symbol.Web.dll.md
 		wiki\Version history.md = wiki\Version history.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".tools", ".tools", "{0579BA7F-3F32-498B-8101-816D14A2B7B8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Examples.Enums", "examples\Examples.Enums\Examples.Enums.csproj", "{4F35076C-EEF0-4A02-95D9-2D7D5A3CBF15}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.ImageRecognition.Verification", "src\Symbol.ImageRecognition.Verification\Symbol.ImageRecognition.Verification.csproj", "{B5490522-9B7A-4413-9D2F-7E63ED83289F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.Drawing", "src\Symbol.Drawing\Symbol.Drawing.csproj", "{99100FBD-54EB-49B0-9619-7D01DD022D5A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symbol.IO.Packing.TreePackage", "src\Symbol.IO.Packing.TreePackage\Symbol.IO.Packing.TreePackage.csproj", "{37B84B53-2B99-4D49-B00B-E5CA23ED3147}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +72,22 @@ Global
 		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F35076C-EEF0-4A02-95D9-2D7D5A3CBF15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F35076C-EEF0-4A02-95D9-2D7D5A3CBF15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F35076C-EEF0-4A02-95D9-2D7D5A3CBF15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F35076C-EEF0-4A02-95D9-2D7D5A3CBF15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5490522-9B7A-4413-9D2F-7E63ED83289F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5490522-9B7A-4413-9D2F-7E63ED83289F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5490522-9B7A-4413-9D2F-7E63ED83289F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5490522-9B7A-4413-9D2F-7E63ED83289F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99100FBD-54EB-49B0-9619-7D01DD022D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99100FBD-54EB-49B0-9619-7D01DD022D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99100FBD-54EB-49B0-9619-7D01DD022D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99100FBD-54EB-49B0-9619-7D01DD022D5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37B84B53-2B99-4D49-B00B-E5CA23ED3147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37B84B53-2B99-4D49-B00B-E5CA23ED3147}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37B84B53-2B99-4D49-B00B-E5CA23ED3147}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37B84B53-2B99-4D49-B00B-E5CA23ED3147}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +98,10 @@ Global
 		{69FE3B7E-426E-480B-AA7F-E52D466409BB} = {542F968D-365B-4EE5-942A-34084516813D}
 		{2EFD4913-8261-4D2C-A5FF-E0B6359C2474} = {542F968D-365B-4EE5-942A-34084516813D}
 		{0E914CC4-B9B5-4C8A-8594-B66E3CAE11C5} = {542F968D-365B-4EE5-942A-34084516813D}
+		{4F35076C-EEF0-4A02-95D9-2D7D5A3CBF15} = {A50E1220-69A1-44FF-9CD3-41701686EE7F}
+		{B5490522-9B7A-4413-9D2F-7E63ED83289F} = {542F968D-365B-4EE5-942A-34084516813D}
+		{99100FBD-54EB-49B0-9619-7D01DD022D5A} = {542F968D-365B-4EE5-942A-34084516813D}
+		{37B84B53-2B99-4D49-B00B-E5CA23ED3147} = {542F968D-365B-4EE5-942A-34084516813D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {068486BB-8127-4F5C-82A1-C1CEA8BC1B63}
