@@ -78,7 +78,7 @@ public static class EnumExtensions {
 #if !net20
         this
 #endif
-        Enum value) where T : struct {
+        T value) where T:Enum {
         string[] values = value.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
         return TypeExtensions.Convert<T[]>(values);
     }
