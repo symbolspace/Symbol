@@ -1,10 +1,10 @@
-/*  
- *  author£ºsymbolspace
- *  e-mail£ºsymbolspace@outlook.com
+ï»¿/*  
+ *  authorï¼šsymbolspace
+ *  e-mailï¼šsymbolspace@outlook.com
  */
 namespace System.IO {
     /// <summary>
-    /// File¸¨ÖúÀà¡£
+    /// Fileè¾…åŠ©ç±»ã€‚
     /// </summary>
     public class FileHelper {
 
@@ -16,19 +16,19 @@ namespace System.IO {
 
         #region LengthToString
         /// <summary>
-        /// ÎÄ¼ş³¤¶È×ª»»Îª¾«¼òµÄ´óĞ¡ÃèÊö£¬Èç£º1.23M
+        /// æ–‡ä»¶é•¿åº¦è½¬æ¢ä¸ºç²¾ç®€çš„å¤§å°æè¿°ï¼Œå¦‚ï¼š1.23M
         /// </summary>
-        /// <param name="length">ÎÄ¼ş³¤¶È</param>
-        /// <returns>·µÒòÃèÊöĞÅÏ¢¡£</returns>
+        /// <param name="length">æ–‡ä»¶é•¿åº¦</param>
+        /// <returns>è¿”å› æè¿°ä¿¡æ¯ã€‚</returns>
         public static string LengthToString(long length) {
             return LengthToString(length, false);
         }
         /// <summary>
-        /// ÎÄ¼ş³¤¶È×ª»»Îª¾«¼òµÄ´óĞ¡ÃèÊö£¬Èç£º1.23M
+        /// æ–‡ä»¶é•¿åº¦è½¬æ¢ä¸ºç²¾ç®€çš„å¤§å°æè¿°ï¼Œå¦‚ï¼š1.23M
         /// </summary>
-        /// <param name="length">ÎÄ¼ş³¤¶È</param>
-        /// <param name="speed">ÎªtrueÊ±£¬±íÊ¾ÕâÊÇÒ»¸öËÙ¶ÈÖµ£¬»áÔÚÄ©Î²¼ÓÉÏ/S¡£</param>
-        /// <returns>·µÒòÃèÊöĞÅÏ¢¡£</returns>
+        /// <param name="length">æ–‡ä»¶é•¿åº¦</param>
+        /// <param name="speed">ä¸ºtrueæ—¶ï¼Œè¡¨ç¤ºè¿™æ˜¯ä¸€ä¸ªé€Ÿåº¦å€¼ï¼Œä¼šåœ¨æœ«å°¾åŠ ä¸Š/Sã€‚</param>
+        /// <returns>è¿”å› æè¿°ä¿¡æ¯ã€‚</returns>
         public static string LengthToString(long length, bool speed) {
             int tStart=0;
             double tMax= length;
@@ -50,26 +50,26 @@ namespace System.IO {
 
         #region Scan
         /// <summary>
-        /// É¨ÃèÎÄ¼şÁĞ±í£¨Ïà¶ÔÓÚAppHepler.AppPath£©
+        /// æ‰«ææ–‡ä»¶åˆ—è¡¨ï¼ˆç›¸å¯¹äºAppHepler.AppPathï¼‰
         /// </summary>
-        /// <param name="path">ÎÄ¼şÂ·¾¶£¬Ö§³Ö*Æ¥Åä£¬¶à¸öÂ·¾¶ÓÃ·ÖºÅ¸ô¿ª£¬²ÎÊıÎŞĞ§Ê±Ö±½Ó·´»Ø¿ÕÁĞ±í¡£</param>
-        /// <returns>·µ»ØÆ¥Åäµ½µÄÎÄ¼şÁĞ±í£¬ÎÄ¼şÂ·¾¶Îª¾ø¶ÔÂ·¾¶</returns>
+        /// <param name="path">æ–‡ä»¶è·¯å¾„ï¼Œæ”¯æŒ*åŒ¹é…ï¼Œå¤šä¸ªè·¯å¾„ç”¨åˆ†å·éš”å¼€ï¼Œå‚æ•°æ— æ•ˆæ—¶ç›´æ¥åå›ç©ºåˆ—è¡¨ã€‚</param>
+        /// <returns>è¿”å›åŒ¹é…åˆ°çš„æ–‡ä»¶åˆ—è¡¨ï¼Œæ–‡ä»¶è·¯å¾„ä¸ºç»å¯¹è·¯å¾„</returns>
         public static System.Collections.Generic.List<string> Scan(string path) {
             return Scan(path, null);
         }
         /// <summary>
-        /// É¨ÃèÎÄ¼şÁĞ±í
+        /// æ‰«ææ–‡ä»¶åˆ—è¡¨
         /// </summary>
-        /// <param name="path">ÎÄ¼şÂ·¾¶£¬Ö§³Ö*Æ¥Åä£¬¶à¸öÂ·¾¶ÓÃ·ÖºÅ¸ô¿ª£¬²ÎÊıÎŞĞ§Ê±Ö±½Ó·´»Ø¿ÕÁĞ±í¡£</param>
-        /// <param name="appPath">Ïà¶ÔÄ¿Â¼£¬Ä¬ÈÏÎªAppHelper.AppPath</param>
-        /// <returns>·µ»ØÆ¥Åäµ½µÄÎÄ¼şÁĞ±í£¬ÎÄ¼şÂ·¾¶Îª¾ø¶ÔÂ·¾¶</returns>
+        /// <param name="path">æ–‡ä»¶è·¯å¾„ï¼Œæ”¯æŒ*åŒ¹é…ï¼Œå¤šä¸ªè·¯å¾„ç”¨åˆ†å·éš”å¼€ï¼Œå‚æ•°æ— æ•ˆæ—¶ç›´æ¥åå›ç©ºåˆ—è¡¨ã€‚</param>
+        /// <param name="appPath">ç›¸å¯¹ç›®å½•ï¼Œé»˜è®¤ä¸ºAppHelper.AppPath</param>
+        /// <returns>è¿”å›åŒ¹é…åˆ°çš„æ–‡ä»¶åˆ—è¡¨ï¼Œæ–‡ä»¶è·¯å¾„ä¸ºç»å¯¹è·¯å¾„</returns>
         public static System.Collections.Generic.List<string> Scan(string path, string appPath) {
             var list = new Collections.Generic.List<string>();
             if (string.IsNullOrEmpty(appPath))
                 appPath = AppHelper.AppPath;
             if (string.IsNullOrEmpty(path))
                 return list;
-            string[] paths = path.Split(';','£»');
+            string[] paths = path.Split(';','ï¼›');
             foreach (string p in paths) {
                 if (string.IsNullOrEmpty(p))
                     continue;
