@@ -2383,8 +2383,9 @@ namespace Symbol.Formatting.Json {
                     if (d.Setter != null)
                         d.CanWrite = true;
                     d.Getter = Reflection.CreateGetMethod(type, p);
-                    result.Add(p.Name, d);
-                    string lowerName = "lower." + p.Name.ToLower();
+                    string name = PropertyParameterInfo.As(p).AliasName;
+                    result.Add(name, d);
+                    string lowerName = "lower." + name.ToLower();
                     if (!result.ContainsKey(lowerName))
                         result.Add(lowerName, d);
                 }
@@ -2396,9 +2397,10 @@ namespace Symbol.Formatting.Json {
                         if (d.Setter != null)
                             d.CanWrite = true;
                         d.Getter = Reflection.CreateGetField(type, f);
-                        result.Add(f.Name, d);
+                        string name = FieldParameterInfo.As(f).AliasName;
+                        result.Add(name, d);
 
-                        string lowerName = "lower." + f.Name.ToLower();
+                        string lowerName = "lower." + name.ToLower();
                         if (!result.ContainsKey(lowerName))
                             result.Add(lowerName, d);
                     }
@@ -2512,17 +2514,27 @@ namespace Symbol.Formatting.Json {
                 if (_constrcache.TryGetValue(objtype, out c)) {
                     return c();
                 } else {
-#if netcore
-                if (objtype.GetTypeInfo().IsClass)
-#else
-                    if (objtype.IsClass)
-#endif
-                {
-                        DynamicMethod dynMethod = new DynamicMethod("DM_" + System.Guid.NewGuid().ToString("N"), objtype, null);
-                        ILGenerator ilGen = dynMethod.GetILGenerator();
-                        ilGen.Emit(OpCodes.Newobj, objtype.GetConstructor(Type.EmptyTypes));
-                        ilGen.Emit(OpCodes.Ret);
-                        c = (CreateObject)dynMethod.CreateDelegate(typeof(CreateObject));
+                    if (objtype.IsClass) {
+                        //var ctor = objtype.GetConstructor(Type.EmptyTypes);
+                        if (TypeExtensions.IsAnonymousType(objtype)) {
+                            //匿名类的变态用法
+                            var ctor = objtype.GetConstructors()[0];
+                            var parameters = ctor.GetParameters();
+                            var args = new object[parameters.Length];
+                            for (int i = 0; i < parameters.Length; i++) {
+                                args[i] = TypeExtensions.DefaultValue(parameters[i].ParameterType);
+                            }
+                            c = () => FastWrapper.CreateInstance(objtype, args);
+                        } else {
+                            //解决空参数构造函数为非public时
+                            var ctor = objtype.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
+                            //typeOwner用于解决非public构造函数
+                            DynamicMethod dynMethod = new DynamicMethod("DM_" + System.Guid.NewGuid().ToString("N"), objtype, null, objtype);
+                            ILGenerator ilGen = dynMethod.GetILGenerator();
+                            ilGen.Emit(OpCodes.Newobj, ctor);
+                            ilGen.Emit(OpCodes.Ret);
+                            c = (CreateObject)dynMethod.CreateDelegate(typeof(CreateObject));
+                        }
                         _constrcache.Add(objtype, c);
                     } else // structs
                         {
@@ -2553,11 +2565,7 @@ namespace Symbol.Formatting.Json {
 
             ILGenerator il = dynamicSet.GetILGenerator();
 
-#if netcore
-        if (!type.GetTypeInfo().IsClass) // structs
-#else
             if (!type.IsClass) // structs
-#endif
         {
                 var lv = il.DeclareLocal(type);
                 il.Emit(OpCodes.Ldarg_0);
@@ -2565,11 +2573,7 @@ namespace Symbol.Formatting.Json {
                 il.Emit(OpCodes.Stloc_0);
                 il.Emit(OpCodes.Ldloca_S, lv);
                 il.Emit(OpCodes.Ldarg_1);
-#if netcore
-            if (fieldInfo.FieldType.GetTypeInfo().IsClass)
-#else
                 if (fieldInfo.FieldType.IsClass)
-#endif
                     il.Emit(OpCodes.Castclass, fieldInfo.FieldType);
                 else
                     il.Emit(OpCodes.Unbox_Any, fieldInfo.FieldType);
@@ -2580,11 +2584,7 @@ namespace Symbol.Formatting.Json {
             } else {
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldarg_1);
-#if netcore
-            if (fieldInfo.FieldType.GetTypeInfo().IsValueType)
-#else
                 if (fieldInfo.FieldType.IsValueType)
-#endif
                     il.Emit(OpCodes.Unbox_Any, fieldInfo.FieldType);
                 il.Emit(OpCodes.Stfld, fieldInfo);
                 il.Emit(OpCodes.Ldarg_0);
@@ -2595,32 +2595,36 @@ namespace Symbol.Formatting.Json {
 
         internal static GenericSetter CreateSetMethod(Type type, PropertyInfo propertyInfo) {
             MethodInfo setMethod = propertyInfo.GetSetMethod();
-            if (setMethod == null)
+            if (setMethod == null)//非public
+                setMethod = propertyInfo.GetSetMethod(true);
+            if(setMethod==null && TypeExtensions.IsAnonymousType(type)) {
+                string fix = "<" + propertyInfo.Name + ">";
+                foreach(var x in type.GetFields(BindingFlags.Instance| BindingFlags.NonPublic)) {
+                    if (x.Name.IndexOf(fix) > -1 || x.FieldType.Name.IndexOf(fix) > -1) {
+                        return CreateSetField(type, x);
+                    }
+                }
+            }
+            if (setMethod == null) {
+                Console.WriteLine("setMethod is null {0}.{1}",type.Name, propertyInfo.Name);
                 return null;
-
+            }
             Type[] arguments = new Type[2];
             arguments[0] = arguments[1] = typeof(object);
 
-            DynamicMethod setter = new DynamicMethod(TypeExtensions.FullName2(type) + ".set_" + propertyInfo.Name, typeof(object), arguments);
+            //typeOwner 解决非public时
+            DynamicMethod setter = new DynamicMethod(TypeExtensions.FullName2(type) + ".set_" + propertyInfo.Name, typeof(object), arguments, type);
             ILGenerator il = setter.GetILGenerator();
 
-#if netcore
-        if (!type.GetTypeInfo().IsClass) // structs
-#else
             if (!type.IsClass) // structs
-#endif
-        {
+            {
                 var lv = il.DeclareLocal(type);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Unbox_Any, type);
                 il.Emit(OpCodes.Stloc_0);
                 il.Emit(OpCodes.Ldloca_S, lv);
                 il.Emit(OpCodes.Ldarg_1);
-#if netcore
-            if (propertyInfo.PropertyType.GetTypeInfo().IsClass)
-#else
                 if (propertyInfo.PropertyType.IsClass)
-#endif
                     il.Emit(OpCodes.Castclass, propertyInfo.PropertyType);
                 else
                     il.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
@@ -2632,11 +2636,7 @@ namespace Symbol.Formatting.Json {
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Castclass, propertyInfo.DeclaringType);
                     il.Emit(OpCodes.Ldarg_1);
-#if netcore
-                if (propertyInfo.PropertyType.GetTypeInfo().IsClass)
-#else
                     if (propertyInfo.PropertyType.IsClass)
-#endif
                         il.Emit(OpCodes.Castclass, propertyInfo.PropertyType);
                     else
                         il.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
@@ -2645,11 +2645,7 @@ namespace Symbol.Formatting.Json {
                 } else {
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldarg_1);
-#if netcore
-                if (propertyInfo.PropertyType.GetTypeInfo().IsClass)
-#else
                     if (propertyInfo.PropertyType.IsClass)
-#endif
                         il.Emit(OpCodes.Castclass, propertyInfo.PropertyType);
                     else
                         il.Emit(OpCodes.Unbox_Any, propertyInfo.PropertyType);
@@ -2663,41 +2659,29 @@ namespace Symbol.Formatting.Json {
         }
 
         internal static GenericGetter CreateGetField(Type type, FieldInfo fieldInfo) {
-            if (TypeExtensions.IsAnonymousType(type)) {
-                GenericGetter getter_any = fieldInfo.GetValue;
-                return getter_any;
-            }
+            //if (TypeExtensions.IsAnonymousType(type)) {
+            //    GenericGetter getter_any = fieldInfo.GetValue;
+            //    return getter_any;
+            //}
 
             DynamicMethod dynamicGet = new DynamicMethod(TypeExtensions.FullName2(type) + ".get_" + fieldInfo.Name, typeof(object), new Type[] { typeof(object) }, type);
 
             ILGenerator il = dynamicGet.GetILGenerator();
 
-#if netcore
-        if (!type.GetTypeInfo().IsClass) // structs
-#else
             if (!type.IsClass) // structs
-#endif
-        {
+            {
                 var lv = il.DeclareLocal(type);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Unbox_Any, type);
                 il.Emit(OpCodes.Stloc_0);
                 il.Emit(OpCodes.Ldloca_S, lv);
                 il.Emit(OpCodes.Ldfld, fieldInfo);
-#if netcore
-            if (fieldInfo.FieldType.GetTypeInfo().IsValueType)
-#else
                 if (fieldInfo.FieldType.IsValueType)
-#endif
                     il.Emit(OpCodes.Box, fieldInfo.FieldType);
             } else {
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldfld, fieldInfo);
-#if netcore
-            if (fieldInfo.FieldType.GetTypeInfo().IsValueType)
-#else
                 if (fieldInfo.FieldType.IsValueType)
-#endif
                     il.Emit(OpCodes.Box, fieldInfo.FieldType);
             }
 
@@ -2711,31 +2695,23 @@ namespace Symbol.Formatting.Json {
             if (getMethod == null)
                 return null;
 
-            if (TypeExtensions.IsAnonymousType(type)) {
-                GenericGetter getter_any = (p) => getMethod.Invoke(p, new object[0]);
-                return getter_any;
-            }
+            //if (TypeExtensions.IsAnonymousType(type)) {
+            //    GenericGetter getter_any = (p) => getMethod.Invoke(p, new object[0]);
+            //    return getter_any;
+            //}
             DynamicMethod getter = new DynamicMethod(TypeExtensions.FullName2(type) + ".get_" + propertyInfo.Name, typeof(object), new Type[] { typeof(object) }, type);
 
             ILGenerator il = getter.GetILGenerator();
 
-#if netcore
-        if (!type.GetTypeInfo().IsClass) // structs
-#else
             if (!type.IsClass) // structs
-#endif
-                {
+            {
                 var lv = il.DeclareLocal(type);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Unbox_Any, type);
                 il.Emit(OpCodes.Stloc_0);
                 il.Emit(OpCodes.Ldloca_S, lv);
                 il.EmitCall(OpCodes.Call, getMethod, null);
-#if netcore
-        if (propertyInfo.PropertyType.GetTypeInfo().IsValueType)
-#else
                 if (propertyInfo.PropertyType.IsValueType)
-#endif
                     il.Emit(OpCodes.Box, propertyInfo.PropertyType);
             } else {
                 if (!getMethod.IsStatic) {
@@ -2745,11 +2721,7 @@ namespace Symbol.Formatting.Json {
                 } else
                     il.Emit(OpCodes.Call, getMethod);
 
-#if netcore
-            if (propertyInfo.PropertyType.GetTypeInfo().IsValueType)
-#else
                 if (propertyInfo.PropertyType.IsValueType)
-#endif
                     il.Emit(OpCodes.Box, propertyInfo.PropertyType);
             }
 
@@ -2761,11 +2733,7 @@ namespace Symbol.Formatting.Json {
             if (g == null)
                 return;
 
-#if netcore
-        Type typeInfo = parameterInfo.Type.GetTypeInfo();
-#else
             Type typeInfo = parameterInfo.Type;
-#endif
             if (typeInfo.IsEnum
                 || (TypeExtensions.IsNullableType(parameterInfo.Type) && TypeExtensions.GetNullableType(parameterInfo.Type).IsEnum)
             ) {
@@ -2782,8 +2750,8 @@ namespace Symbol.Formatting.Json {
                         var value = g(p);
                         return value == null ? "" : value.ToString();
                     },
-                    LowerCaseName = parameterInfo.Name.ToLower() + "string",
-                    Name = parameterInfo.Name + "String",
+                    LowerCaseName = parameterInfo.AliasName.ToLower() + "string",
+                    Name = parameterInfo.AliasName + "String",
                 });
             }
             if (AttributeExtensions.IsDefined<ExtraEnumTextAttribute>(parameterInfo)) {
@@ -2793,13 +2761,13 @@ namespace Symbol.Formatting.Json {
                         var value = g(p);
                         return value == null ? "" : EnumExtensions.ToName((Enum)value);
                     },
-                    LowerCaseName = parameterInfo.Name.ToLower() + "text",
-                    Name = parameterInfo.Name + "Text",
+                    LowerCaseName = parameterInfo.AliasName.ToLower() + "text",
+                    Name = parameterInfo.AliasName + "Text",
                 });
             }
 
         }
-
+        
         void ScanExtras_ExtraPath(List<Getters> getters, GenericGetter g, IParameterInfo parameterInfo) {
             foreach (var info in AttributeExtensions.GetCustomAttributes<ExtraPathAttribute>(parameterInfo, false)) {
                 ScanExtras_ExtraPath_Item(getters, g, parameterInfo, info);
@@ -2864,7 +2832,7 @@ namespace Symbol.Formatting.Json {
                 if (g != null) {
                     IParameterInfo parameterInfo = PropertyParameterInfo.As(p);
                     g = GetterFilter(g, parameterInfo);
-                    getters.Add(new Getters { Getter = g, Name = p.Name, LowerCaseName = p.Name.ToLower() });
+                    getters.Add(new Getters { Getter = g, Name = parameterInfo.AliasName, LowerCaseName = parameterInfo.AliasName.ToLower() });
                     ScanExtras(getters, g, parameterInfo);
                 }
             }
@@ -2889,7 +2857,7 @@ namespace Symbol.Formatting.Json {
                     if (g != null) {
                         IParameterInfo parameterInfo = FieldParameterInfo.As(f);
                         g = GetterFilter(g, parameterInfo);
-                        getters.Add(new Getters { Getter = g, Name = f.Name, LowerCaseName = f.Name.ToLower() });
+                        getters.Add(new Getters { Getter = g, Name = parameterInfo.Name, LowerCaseName = parameterInfo.Name.ToLower() });
                         ScanExtras(getters, g, parameterInfo);
                     }
                 }
