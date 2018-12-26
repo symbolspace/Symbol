@@ -45,11 +45,12 @@ namespace Symbol.Data.Binding {
                 Field = "id";
 
             using (var builder = dataContext.CreateSelect(SourceName)) {
-                PreSelectBuilder(dataContext, dataReader, entity, builder, cache);
+                //PreSelectBuilder(dataContext, dataReader, entity, builder, cache);
                 if (isSingleValue) {
                     builder.Select(Field);
                 }
-                builder.Query(Condition).Sort(Sorter);
+                var conditiion = MapObject(Condition, dataContext, entity, dataReader);
+                builder.Query(conditiion).Sort(Sorter);
                 return CacheFunc(cache, builder, "list", type, () => {
                     var q = dataContext.CreateQuery(elementType, builder.CommandText, builder.Parameters);
                     q.DataBinderObjectCache = cache;

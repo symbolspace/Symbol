@@ -68,14 +68,15 @@ namespace Symbol.Data.Binding {
 
             string fix = "__";
             using (var builder = dataContext.CreateSelect(SourceName)) {
-                PreSelectBuilder(dataContext, dataReader, entity, builder, cache);
+                //PreSelectBuilder(dataContext, dataReader, entity, builder, cache);
                 if (isSingleValue) {
                     builder.Select(builder.PreName(new string[] { fix, Field }));
                 } else {
                     builder.Select(builder.PreName(fix) + ".*");
                 }
                 builder.Refer(NoSQL.Refer.Begin().Refence(fix, TargetName, TargetField, SourceName, SourceField).Json());
-                builder.Query(Condition).Sort(Sorter);
+                var conditiion = MapObject(Condition, dataContext, entity, dataReader);
+                builder.Query(conditiion).Sort(Sorter);
                 return CacheFunc(cache, builder, "list.ref", type, () => {
                     var q = dataContext.CreateQuery(elementType, builder.CommandText, builder.Parameters);
                     q.DataBinderObjectCache = cache;

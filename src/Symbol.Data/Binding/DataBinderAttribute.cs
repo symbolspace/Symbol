@@ -25,7 +25,7 @@ namespace Symbol.Data.Binding {
         /// <summary>
         /// 获取过虑规则。
         /// </summary>
-        public Symbol.Data.NoSQL.Condition Condition { get; private set; }
+        public string Condition { get; private set; }
         /// <summary>
         /// 获取排序规则。
         /// </summary>
@@ -58,7 +58,8 @@ namespace Symbol.Data.Binding {
             AllowCache = true;
             SourceName = sourceName;
             Field = field;
-            Condition = Symbol.Data.NoSQL.Condition.Parse(condition);
+            //Condition = Symbol.Data.NoSQL.Condition.Parse(condition);
+            Condition = condition;
             Sorter = Symbol.Data.NoSQL.Sorter.Parse(sort);
         }
         #endregion
@@ -280,6 +281,113 @@ namespace Symbol.Data.Binding {
                 }
             }
         }
+        class ObjectMapper {
+            private IDataContext _dataContext;
+            private object _entity;
+            private System.Data.IDataReader _dataReader;
+            private FastObject _fastObject;
+            public ObjectMapper(string expression, IDataContext dataContext, object entity, System.Data.IDataReader dataReader) {
+                _fastObject = expression;
+                _dataContext = dataContext;
+                _entity = entity;
+                _dataReader = dataReader;
+            }
+
+            public object Map() {
+                if (_fastObject.Instance == null)
+                    return null;
+                if (_fastObject.Instance is System.Collections.IList list) {
+                    MapArray(list);
+                } else if (_fastObject.Instance is System.Collections.Generic.IDictionary<string, object> dictionary) {
+                    MapObject(dictionary);
+                    return _fastObject.Instance;
+                }
+                return _fastObject.Instance;
+            }
+
+            void MapObject(System.Collections.Generic.IDictionary<string, object> map) {
+                var fastObject = new FastObject(map);
+                foreach (var item in LinqHelper.ToArray(map)) {
+                    if (item.Value == null)
+                        continue;
+                    if (item.Value is string text) {
+                        MapValue(fastObject, item.Key, text);
+                        continue;
+                    }
+                    if (item.Value is System.Collections.IList list) {
+                        MapArray(list);
+                        continue;
+                    }
+                    if (item.Value is System.Collections.Generic.IDictionary<string, object> dictionary) {
+                        MapObject(dictionary);
+                    }
+
+                }
+            }
+            void MapArray(System.Collections.IList list) {
+                FastObject fastObject = new FastObject(list);
+                for (int i = 0; i < list.Count; i++) {
+                    object value = list[i];
+                    if (value == null)
+                        continue;
+                    if (value is string text) {
+                        MapValue(fastObject, $"[{i}]", text);
+                        continue;
+                    }
+                    if (value is System.Collections.IList list2) {
+                        MapArray(list2);
+                        continue;
+                    }
+                    if (value is System.Collections.Generic.IDictionary<string, object> dictionary) {
+                        MapObject(dictionary);
+                    }
+                }
+            }
+            void MapValue(FastObject fastObject, string key, string expression) {
+                if (string.IsNullOrEmpty(expression))
+                    return;
+                if (expression[0] != '$')
+                    return;
+                if (expression.StartsWith("$this.", StringComparison.OrdinalIgnoreCase)) {
+                    string path = expression.Substring("$this.".Length);
+                    fastObject[key] = FastObject.Path(_entity, path);
+                }
+                if (expression.StartsWith("$reader.", StringComparison.OrdinalIgnoreCase)) {
+                    string p10 = expression.Substring("$reader.".Length);
+                    if (p10.IndexOf('.') > -1) {
+                        string name = p10.Split('.')[0];
+                        string path = p10.Substring(name.Length + 1);
+                        fastObject[key] = FastObject.Path(DataReaderHelper.Current(_dataReader, name), path);
+                    } else {
+                        fastObject[key] = DataReaderHelper.Current(_dataReader, p10);
+                    }
+                }
+            }
+            public void Dispose() {
+                _dataContext = null;
+                _entity = null;
+                _dataReader = null;
+                _fastObject = null;
+            }
+
+        }
+        /// <summary>
+        /// 映射对象值
+        /// </summary>
+        /// <param name="expression">表达式</param>
+        /// <param name="dataContext"></param>
+        /// <param name="entity">实体对象</param>
+        /// <param name="dataReader"></param>
+        /// <returns></returns>
+        public static object MapObject(string expression, IDataContext dataContext, object entity, System.Data.IDataReader dataReader) {
+            if (string.IsNullOrEmpty(expression))
+                return null;
+            var mapper = new ObjectMapper(expression, dataContext, entity, dataReader);
+            var result = mapper.Map();
+            mapper.Dispose();
+            return result;
+        }
+
         #endregion
 
     }

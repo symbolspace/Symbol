@@ -17,7 +17,7 @@ namespace Symbol.Data.Binding {
         /// <summary>
         /// 获取过虑规则。
         /// </summary>
-        Symbol.Data.NoSQL.Condition Condition { get; }
+        string Condition { get; }
         /// <summary>
         /// 获取排序规则。
         /// </summary>
