@@ -36,6 +36,26 @@ public static class TypeExtensions {
                 typeof(decimal?),
                 typeof(double?),
         };
+    private static System.Collections.Generic.Dictionary<string, string> _list_type_keywords = new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+        { "System.Boolean", "bool" },
+        { "System.Byte", "byte"},
+        { "System.SByte", "sbyte"},
+        { "System.Int16", "short"},
+        { "System.UInt16", "ushort"},
+        { "System.Int32", "int"},
+        { "System.UInt32", "uint"},
+        { "System.Int64", "long"},
+        { "System.UInt64", "ulong"},
+        { "System.Single", "float"},
+        { "System.Double", "double"},
+        { "System.Decimal", "decimal"},
+        { "System.String", "string"},
+        { "System.Char", "char"},
+        { "System.Void", "void"},
+        { "System.Object", "object"},
+    };
+        
+
     #endregion
 
     #region methods
@@ -113,11 +133,7 @@ public static class TypeExtensions {
         if (type == null)
             return null;
         string result = typeNameOnly ? type.Name : type.FullName;
-#if netcore
-        if (type.GetTypeInfo().IsGenericType) {
-#else
         if (type.IsGenericType) {
-#endif
             if (typeNameOnly) {
                 result = type.Name;
             } else {
@@ -141,22 +157,75 @@ public static class TypeExtensions {
     }
     #endregion
 
+    #region GetFullName
+    /// <summary>
+    /// 获取完整名称（方便展示）
+    /// </summary>
+    /// <param name="type">Type的实例</param>
+    /// <returns>返回完带的类型名称输出。</returns>
+    public static string GetFullName(System.Type type) {
+        return GetFullName(type, false, false);
+    }
+    /// <summary>
+    /// 获取完整名称（方便展示）
+    /// </summary>
+    /// <param name="type">Type的实例</param>
+    /// <param name="isTypeDefine">是否为类型定义。</param>
+    /// <param name="isNamespaceEq">是否匹配命名空间</param>
+    /// <returns>返回完带的类型名称输出。</returns>
+    public static string GetFullName(System.Type type, bool isTypeDefine, bool isNamespaceEq) {
+        if (IsNullableType(type)) {
+            return GetFullName(GetNullableType(type)) + "?";
+        } else if (type.IsArray) {
+            return GetFullName(type.GetElementType()) + "[]";
+        } else if (type.IsGenericType) {
+            System.Type genericType = type.GetGenericTypeDefinition();
+            string genericName = FullName2(type.GetGenericTypeDefinition()).Split('<')[0];
+            if (isTypeDefine) {
+                genericName = type.GetGenericTypeDefinition().Name.Split('`')[0];
+            }
+            return genericName 
+                    + "<" 
+                    + string.Join(
+                            ",", 
+                            LinqHelper.Select(
+                                type.GetGenericArguments(), 
+                                p => GetFullName(p))
+#if net20 || net35
+                                .ToArray()
+#endif
+                                ) 
+                    + ">";
+        } else {
+            if (isTypeDefine)
+                return type.Name;
+
+            string typeName = FullName2(type, isNamespaceEq);
+            string value = null;
+            if (_list_type_keywords.TryGetValue(typeName, out value))
+                typeName = value;
+
+            return typeName.Replace('+', '.');
+        }
+    }
+    #endregion
+
     #region DisplayName
-//    /// <summary>
-//    /// 从ICustomAttributeProvider实例上读取DisplayNameAttribute特性，如果有将返回它的DisplayName属性
-//    /// </summary>
-//    /// <param name="memberInfo">ICustomAttributeProvider的实例</param>
-//    /// <returns>返回DisplayName值，如果没有这个特性将返回memberInfo.Name</returns>
-//    public static string DisplayName(
-//#if !net20
-//        this
-//#endif
-//        ICustomAttributeProvider memberInfo) {
-//        DisplayNameAttribute[] attributes = (DisplayNameAttribute[])memberInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true);
-//        if (attributes == null || attributes.Length == 0)
-//            return FastWrapper.Get(memberInfo, "Name") as string;
-//        return attributes[0].DisplayName;
-//    }
+    //    /// <summary>
+    //    /// 从ICustomAttributeProvider实例上读取DisplayNameAttribute特性，如果有将返回它的DisplayName属性
+    //    /// </summary>
+    //    /// <param name="memberInfo">ICustomAttributeProvider的实例</param>
+    //    /// <returns>返回DisplayName值，如果没有这个特性将返回memberInfo.Name</returns>
+    //    public static string DisplayName(
+    //#if !net20
+    //        this
+    //#endif
+    //        ICustomAttributeProvider memberInfo) {
+    //        DisplayNameAttribute[] attributes = (DisplayNameAttribute[])memberInfo.GetCustomAttributes(typeof(DisplayNameAttribute), true);
+    //        if (attributes == null || attributes.Length == 0)
+    //            return FastWrapper.Get(memberInfo, "Name") as string;
+    //        return attributes[0].DisplayName;
+    //    }
     #endregion
 
     #region DefaultValue
