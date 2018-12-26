@@ -59,20 +59,63 @@ public static class ConstAttributeExtensions {
 
     #region methods
 
+    #region GetParameter
+    static ParameterInfo GetParameter(MethodInfo methodInfo, string parameterName) {
+        var parameters = methodInfo.GetParameters();
+        var parameter = LinqHelper.FirstOrDefault(parameters, p => p.Name == parameterName);
+        if (parameter == null) {
+            parameter = LinqHelper.FirstOrDefault(parameters, p => string.Equals(p.Name, parameterName, StringComparison.OrdinalIgnoreCase));
+        }
+        return parameter;
+    }
+    #endregion
+
     #region GetValues
 
     static Symbol.Collections.Generic.NameValueCollection<string> GetValues(ICustomAttributeProvider provider) {
         Symbol.Collections.Generic.NameValueCollection<string> list;
         if (!_list.TryGetValue(provider, out list)) {
-            ThreadHelper.Block(_list, () => {
+            ThreadHelper.Block(provider, () => {
                 if (!_list.TryGetValue(provider, out list)) {
                     list = new Symbol.Collections.Generic.NameValueCollection<string>(StringComparer.OrdinalIgnoreCase);
                     GetValues(provider, list, true);
-                    _list.TryAdd(provider, list);
+                    if (!(provider is ParameterInfo))
+                        _list.TryAdd(provider, list);
                 }
             });
         }
         return list;
+    }
+    static Symbol.Collections.Generic.NameValueCollection<string> GetValues(MethodInfo methodInfo, ParameterInfo parameter) {
+        Symbol.Collections.Generic.NameValueCollection<string> list;
+        if (!_list.TryGetValue(parameter, out list)) {
+            ThreadHelper.Block(parameter, () => {
+                if (!_list.TryGetValue(parameter, out list)) {
+                    list = new Symbol.Collections.Generic.NameValueCollection<string>(StringComparer.OrdinalIgnoreCase);
+                    GetValues(methodInfo, parameter, list);
+                    _list.TryAdd(parameter, list);
+                }
+            });
+        }
+        return list;
+    }
+    static void GetValues(MethodInfo methodInfo, ParameterInfo parameter, Symbol.Collections.Generic.NameValueCollection<string> list) {
+        if (methodInfo.DeclaringType == null)
+            return;
+        foreach (Type interfaceType in methodInfo.DeclaringType.GetInterfaces()) {
+            MemberInfo[] members = interfaceType.GetMember(methodInfo.Name);
+            if (members == null || members.Length == 0)
+                continue;
+            foreach (MemberInfo member in members) {
+                MethodInfo interfaceMethod = member as MethodInfo;
+                if (interfaceMethod == null)
+                    continue;
+                var interfaceMethodParameter = GetParameter(interfaceMethod, parameter.Name);
+                if (interfaceMethodParameter == null)
+                    continue;
+                GetValues(interfaceMethodParameter, list, false);
+            }
+        }
     }
     static void GetValues(ICustomAttributeProvider provider, Symbol.Collections.Generic.NameValueCollection<string> list, bool inherit) {
         if (inherit) {
@@ -109,7 +152,45 @@ public static class ConstAttributeExtensions {
     }
     #endregion
 
-    #region Const
+    #region Const Parameter
+
+    /// <summary>
+    /// 获取常量标识值，常量名称为：Text
+    /// </summary>
+    /// <param name="methodInfo"></param>
+    /// <param name="parameterName">参数名称，优先区分大小写，其次不区分；null或empty将返回methodInfo本身的常量值</param>
+    /// <returns></returns>
+    public static string ConstParameter(
+#if !net20
+        this
+#endif
+        MethodInfo methodInfo, string parameterName) {
+        return ConstParameter(methodInfo, parameterName, "Text");
+    }
+    /// <summary>
+    /// 获取常量标识值
+    /// </summary>
+    /// <param name="methodInfo"></param>
+    /// <param name="parameterName">参数名称，优先区分大小写，其次不区分；null或empty将返回methodInfo本身的常量值</param>
+    /// <param name="key">常量名称</param>
+    /// <returns></returns>
+    public static string ConstParameter(
+#if !net20
+        this
+#endif
+        MethodInfo methodInfo, string parameterName, string key) {
+        if (methodInfo == null)
+            return "";
+        if (string.IsNullOrEmpty(parameterName)) {
+            return Const((ICustomAttributeProvider)methodInfo, key);
+        }
+        var parameter = GetParameter(methodInfo, parameterName);
+        if (parameter == null)
+            return "";
+        return GetValues(methodInfo, parameter)[string.IsNullOrEmpty(key) ? "Text" : key] ?? "";
+    }
+    #endregion
+    #region Const Assembly/TypeInfo/MethodInfo/PropertyInfo/FieldInfo/EventInfo/ICustomAttributeProvider
     /// <summary>
     /// 获取常量标识值，常量名称为：Text
     /// </summary>
@@ -138,7 +219,8 @@ public static class ConstAttributeExtensions {
         var list = GetValues(provider);
         return list[string.IsNullOrEmpty(key) ? "Text" : key] ?? "";
     }
-
+    #endregion
+    #region Const instance/ICustomAttributeProvider
     /// <summary>
     /// 获取常量标识值
     /// </summary>
@@ -178,6 +260,12 @@ public static class ConstAttributeExtensions {
         object instance, string memberName, string key) {
         if (instance == null)
             return "";
+        {
+            var methodInfo = instance as MethodInfo;
+            if (methodInfo != null) {
+                return ConstParameter(methodInfo, memberName, key);
+            }
+        }
         var provider = instance as ICustomAttributeProvider;
         if (provider == null) {
             var type = instance.GetType();
@@ -196,13 +284,9 @@ public static class ConstAttributeExtensions {
         }
         if (provider == null)
             return "";
-        var list = GetValues(provider);
-        return list[string.IsNullOrEmpty(key) ? "Text" : key] ?? "";
+        return GetValues(provider)[string.IsNullOrEmpty(key) ? "Text" : key] ?? "";
     }
     #endregion
-
-
-
 
     #endregion
 }
