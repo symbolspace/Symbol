@@ -115,7 +115,7 @@ namespace Symbol.Data {
             }
         }
         /// <summary>
-        /// 获取where命名。
+        /// 获取where命令。
         /// </summary>
         public System.Collections.Generic.Dictionary<string, WhereOperators> Wheres { get { return _wheres; } }
 

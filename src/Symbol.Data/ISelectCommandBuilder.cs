@@ -68,7 +68,7 @@ namespace Symbol.Data {
         /// </summary>
         Symbol.Collections.Generic.HashSet<string> WhereBefores { get; }
         /// <summary>
-        /// 获取where命名。
+        /// 获取where命令。
         /// </summary>
         System.Collections.Generic.Dictionary<string, WhereOperators> Wheres { get; }
         /// <summary>
