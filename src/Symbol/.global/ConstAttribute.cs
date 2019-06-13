@@ -73,31 +73,19 @@ public static class ConstAttributeExtensions {
     #region GetValues
 
     static Symbol.Collections.Generic.NameValueCollection<string> GetValues(ICustomAttributeProvider provider) {
-        Symbol.Collections.Generic.NameValueCollection<string> list;
-        if (!_list.TryGetValue(provider, out list)) {
-            ThreadHelper.Block(provider, () => {
-                if (!_list.TryGetValue(provider, out list)) {
-                    list = new Symbol.Collections.Generic.NameValueCollection<string>(StringComparer.OrdinalIgnoreCase);
-                    GetValues(provider, list, true);
-                    if (!(provider is ParameterInfo))
-                        _list.TryAdd(provider, list);
-                }
-            });
-        }
-        return list;
+        Func<ICustomAttributeProvider, Symbol.Collections.Generic.NameValueCollection<string>> func = (p) => {
+            var list = new Symbol.Collections.Generic.NameValueCollection<string>(StringComparer.OrdinalIgnoreCase);
+            GetValues(provider, list, true);
+            return list;
+        };
+        return (provider is ParameterInfo) ? func(provider) : _list.GetOrAdd(provider, func);
     }
     static Symbol.Collections.Generic.NameValueCollection<string> GetValues(MethodInfo methodInfo, ParameterInfo parameter) {
-        Symbol.Collections.Generic.NameValueCollection<string> list;
-        if (!_list.TryGetValue(parameter, out list)) {
-            ThreadHelper.Block(parameter, () => {
-                if (!_list.TryGetValue(parameter, out list)) {
-                    list = new Symbol.Collections.Generic.NameValueCollection<string>(StringComparer.OrdinalIgnoreCase);
-                    GetValues(methodInfo, parameter, list);
-                    _list.TryAdd(parameter, list);
-                }
-            });
-        }
-        return list;
+        return _list.GetOrAdd(methodInfo, (p) => {
+            var list = new Symbol.Collections.Generic.NameValueCollection<string>(StringComparer.OrdinalIgnoreCase);
+            GetValues(methodInfo, parameter, list);
+            return list;
+        });
     }
     static void GetValues(MethodInfo methodInfo, ParameterInfo parameter, Symbol.Collections.Generic.NameValueCollection<string> list) {
         if (methodInfo.DeclaringType == null)
