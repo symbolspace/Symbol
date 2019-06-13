@@ -347,27 +347,19 @@ namespace Symbol {
 #if !net20
             this
 #endif
-            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit) {
+            System.Reflection.ICustomAttributeProvider customAttributeProvider, System.Type type, bool inherit = true) {
             if (customAttributeProvider == null || type == null)
                 return CreateList(type);
 
-            System.Collections.IList list;
             string key = string.Concat(GetKeyBefore(customAttributeProvider), "_", type.AssemblyQualifiedName);
-
-            if (!_list_key.TryGetValue(key, out list)) {
-                ThreadHelper.Block(_list_key, () => {
-                    if (!_list_key.TryGetValue(key, out list)) {
-                        list = CreateList(type);
-                        foreach (var item in customAttributeProvider.GetCustomAttributes(inherit)) {
-                            if (item.GetType() == type || TypeExtensions.IsInheritFrom(item.GetType(), type))
-                                list.Add(item);
-                        }
-                        _list_key.TryAdd(key, list);
-                    }
-                });
-            }
-
-            return list;
+            return _list_key.GetOrAdd(key, (p) => {
+                var list = CreateList(type);
+                foreach (var item in customAttributeProvider.GetCustomAttributes(inherit)) {
+                    if (item.GetType() == type || TypeExtensions.IsInheritFrom(item.GetType(), type))
+                        list.Add(item);
+                }
+                return list;
+            });
         }
         static object GetKeyBefore(System.Reflection.ICustomAttributeProvider customAttributeProvider) {
             {
