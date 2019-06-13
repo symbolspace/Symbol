@@ -9,6 +9,21 @@ using System;
 /// </summary>
 public static class EnumExtensions {
 
+
+    #region fields
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Symbol.Collections.Generic.NameValueCollection<object>> _list_define;
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> _list_define_json;
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, System.Collections.Generic.List<object>> _list_define_object;
+    #endregion
+
+    #region cctor
+    static EnumExtensions() {
+        _list_define = new System.Collections.Concurrent.ConcurrentDictionary<string, Symbol.Collections.Generic.NameValueCollection<object>>();
+        _list_define_json = new System.Collections.Concurrent.ConcurrentDictionary<string, string>();
+        _list_define_object = new System.Collections.Concurrent.ConcurrentDictionary<string, System.Collections.Generic.List<object>>();
+    }
+    #endregion
+
     #region methods
 
     #region HasFlag2
@@ -206,6 +221,231 @@ public static class EnumExtensions {
         return "";
     }
     #endregion
+
+    #region ToDefine
+    /// <summary>
+    /// 输出枚举定义数组。
+    /// </summary>
+    /// <typeparam name="T">任意枚举类型。</typeparam>
+    /// <returns>返回枚举定义数组 T[]。</returns>
+    public static T[] ToDefine<T>() where T : Enum {
+        var array = Enum.GetValues(typeof(T));
+        if (array is T[] result) {
+            return result;
+        }
+        result = new T[array.Length];
+        for (int i = 0; i < array.Length; i++) {
+            result[i] = (T)array.GetValue(i);
+        }
+        return result;
+    }
+    /// <summary>
+    /// 输出枚举定义数组（用于非泛型时）。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <returns>返回枚举定义数组 type[]。</returns>
+    public static Array ToDefine(System.Type type) {
+        Symbol.CommonException.CheckArgumentNull(type, "type");
+        if (!type.IsEnum)
+            Symbol.CommonException.ThrowArgument("type", $"“{type.AssemblyQualifiedName}”必须是枚举类型");
+        var array = Enum.GetValues(type);
+        if (array.GetType().GetElementType() == type)
+            return array;
+        var result = Array.CreateInstance(type, array.Length);
+        array.CopyTo(result, 0);
+        return result;
+    }
+    #endregion
+    #region ToDefineJson
+    /// <summary>
+    /// 输出枚举定义Json（首字母小写）。
+    /// </summary>
+    /// <typeparam name="T">任意枚举类型。</typeparam>
+    /// <returns>返回定义Json。</returns>
+    public static string ToDefineJson<T>() where T : Enum {
+        return ToDefineJson<T>(true, false);
+    }
+    /// <summary>
+    /// 输出枚举定义Json。
+    /// </summary>
+    /// <typeparam name="T">任意枚举类型。</typeparam>
+    /// <param name="lowerFirstLetter">首字母小写。</param>
+    /// <param name="containsToName">包含ToName定义 [{key}Name]=ToName()。</param>
+    /// <returns>返回定义Json。</returns>
+    public static string ToDefineJson<T>(bool lowerFirstLetter, bool containsToName) where T : Enum {
+        return ToDefineJson(typeof(T), lowerFirstLetter, containsToName);
+    }
+    /// <summary>
+    /// 输出枚举定义Json（首字母小写）。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <returns>返回定义Json。</returns>
+    public static string ToDefineJson(System.Type type) {
+        return ToDefineJson(type, true, false);
+    }
+    /// <summary>
+    /// 输出枚举定义Json。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <param name="lowerFirstLetter">首字母小写。</param>
+    /// <param name="containsToName">包含ToName定义 [{key}Name]=ToName()。</param>
+    /// <returns>返回定义Json。</returns>
+    public static string ToDefineJson(System.Type type, bool lowerFirstLetter, bool containsToName) {
+        string key = $"object_{type.AssemblyQualifiedName}_{lowerFirstLetter}_{containsToName}";
+        return _list_define_json.GetOrAdd(key, (p) => {
+            return JSON.ToJSON(ToDefineObject(type, lowerFirstLetter, containsToName));
+        });
+    }
+    #endregion
+    #region ToDefineObject
+    /// <summary>
+    /// 输出枚举定义对象（首字母小写）。
+    /// </summary>
+    /// <returns>返回定义对象。</returns>
+    public static Symbol.Collections.Generic.NameValueCollection<object> ToDefineObject<T>() where T : Enum {
+        return ToDefineObject<T>(true, false);
+    }
+    /// <summary>
+    /// 输出枚举定义对象。
+    /// </summary>
+    /// <typeparam name="T">任意枚举类型。</typeparam>
+    /// <param name="lowerFirstLetter">首字母小写。</param>
+    /// <param name="containsToName">包含ToName定义 [{key}Name]=ToName()。</param>
+    /// <returns>返回定义对象。</returns>
+    public static Symbol.Collections.Generic.NameValueCollection<object> ToDefineObject<T>(bool lowerFirstLetter, bool containsToName) where T : Enum {
+        return ToDefineObject(typeof(T), lowerFirstLetter, containsToName);
+    }
+    /// <summary>
+    /// 输出枚举定义对象（首字母小写）。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <returns>返回定义对象。</returns>
+    public static Symbol.Collections.Generic.NameValueCollection<object> ToDefineObject(System.Type type) {
+        return ToDefineObject(type, true, false);
+    }
+    /// <summary>
+    /// 输出枚举定义对象。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <param name="lowerFirstLetter">首字母小写。</param>
+    /// <param name="containsToName">包含ToName定义，额外数据 [{key}Text]=ToName()。</param>
+    /// <returns>返回定义对象。</returns>
+    public static Symbol.Collections.Generic.NameValueCollection<object> ToDefineObject(System.Type type, bool lowerFirstLetter, bool containsToName) {
+        Symbol.CommonException.CheckArgumentNull(type, "type");
+        if (!type.IsEnum)
+            Symbol.CommonException.ThrowArgument("type", $"“{type.AssemblyQualifiedName}”必须是枚举类型");
+
+        string key = $"{type.AssemblyQualifiedName}_{lowerFirstLetter}_{containsToName}";
+        return _list_define.GetOrAdd(key, (p) => {
+            var list = new Symbol.Collections.Generic.NameValueCollection<object>();
+            foreach (Enum item in Enum.GetValues(type)) {
+                string name = item.ToString();
+                if (lowerFirstLetter)
+                    name = name.Substring(0, 1).ToLower() + name.Substring(1);
+                list[name] = item.GetHashCode();
+                if (containsToName) {
+                    list[name + "Text"] = ToName(item);
+                }
+            }
+            return list;
+        });
+    }
+    #endregion
+
+    #region ToDefineObjectsJson
+    /// <summary>
+    /// 输出枚举定义Json [ { name,value,text } ]（首字母小写）。
+    /// </summary>
+    /// <typeparam name="T">任意枚举类型。</typeparam>
+    /// <returns>返回定义Json。</returns>
+    public static string ToDefineObjectsJson<T>() where T : Enum {
+        return ToDefineObjectsJson<T>(true);
+    }
+    /// <summary>
+    /// 输出枚举定义Json [ { name,value,text } ]。
+    /// </summary>
+    /// <typeparam name="T">任意枚举类型。</typeparam>
+    /// <param name="lowerFirstLetter">首字母小写。</param>
+    /// <returns>返回定义Json。</returns>
+    public static string ToDefineObjectsJson<T>(bool lowerFirstLetter) where T : Enum {
+        return ToDefineObjectsJson(typeof(T), lowerFirstLetter);
+    }
+    /// <summary>
+    /// 输出枚举定义Json [ { name,value,text } ]（首字母小写）。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <returns>返回定义Json。</returns>
+    public static string ToDefineObjectsJson(System.Type type) {
+        return ToDefineObjectsJson(type, true);
+    }
+    /// <summary>
+    /// 输出枚举定义Json [ { name,value,text } ]。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <param name="lowerFirstLetter">首字母小写。</param>
+    /// <returns>返回定义Json。</returns>
+    public static string ToDefineObjectsJson(System.Type type, bool lowerFirstLetter) {
+        string key = $"objects_{type.AssemblyQualifiedName}_{lowerFirstLetter}";
+        return _list_define_json.GetOrAdd(key, (p) => {
+            return JSON.ToJSON(ToDefineObjects(type, lowerFirstLetter));
+        });
+    }
+    #endregion
+    #region ToDefineObjects
+    /// <summary>
+    /// 输出枚举定义集合[ { name,value,text } ]（首字母小写）。
+    /// </summary>
+    /// <returns>返回定义集合。</returns>
+    public static System.Collections.Generic.List<object> ToDefineObjects<T>() where T : Enum {
+        return ToDefineObjects<T>(true);
+    }
+    /// <summary>
+    /// 输出枚举定义集合[ { name,value,text } ]。
+    /// </summary>
+    /// <typeparam name="T">任意枚举类型。</typeparam>
+    /// <param name="lowerFirstLetter">首字母小写。</param>
+    /// <returns>返回定义集合。</returns>
+    public static System.Collections.Generic.List<object> ToDefineObjects<T>(bool lowerFirstLetter) where T : Enum {
+        return ToDefineObjects(typeof(T), lowerFirstLetter);
+    }
+
+    /// <summary>
+    /// 输出枚举定义集合[ { name,value,text } ]（首字母小写）。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <returns>返回定义集合。</returns>
+    public static System.Collections.Generic.List<object> ToDefineObjects(System.Type type) {
+        return ToDefineObjects(type, true);
+    }
+    /// <summary>
+    /// 输出枚举定义集合[ { name,value,text } ]。
+    /// </summary>
+    /// <param name="type">枚举类型。</param>
+    /// <param name="lowerFirstLetter">首字母小写。</param>
+    /// <returns>返回定义集合。</returns>
+    public static System.Collections.Generic.List<object> ToDefineObjects(System.Type type, bool lowerFirstLetter) {
+        Symbol.CommonException.CheckArgumentNull(type, "type");
+        if (!type.IsEnum)
+            Symbol.CommonException.ThrowArgument("type", $"“{type.AssemblyQualifiedName}”必须是枚举类型");
+
+        string key = $"{type.AssemblyQualifiedName}_{lowerFirstLetter}";
+        return _list_define_object.GetOrAdd(key, (p) => {
+            var list = new System.Collections.Generic.List<object>();
+            foreach (Enum item in Enum.GetValues(type)) {
+                string name = item.ToString();
+                if (lowerFirstLetter)
+                    name = name.Substring(0, 1).ToLower() + name.Substring(1);
+                list.Add(new {
+                    name = name,
+                    value = item.GetHashCode(),
+                    text = ToName(item)
+                });
+            }
+            return list;
+        });
+    }
+    #endregion
+
 
     #endregion
 
