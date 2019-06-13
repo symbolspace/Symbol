@@ -690,10 +690,10 @@ namespace Symbol.Formatting.Json {
                         object oset = null;
 
                         switch (pi.Type) {
-                            case PropertyInfoTypes.Int: oset = (int)((long)v); break;
-                            case PropertyInfoTypes.Long: oset = (long)v; break;
-                            case PropertyInfoTypes.String: oset = (string)v; break;
-                            case PropertyInfoTypes.Bool: oset = (bool)v; break;
+                            case PropertyInfoTypes.Int: oset = TypeExtensions.Convert(v, 0); break;
+                            case PropertyInfoTypes.Long: oset = TypeExtensions.Convert(v, 0L); break;
+                            case PropertyInfoTypes.String: oset = TypeExtensions.Convert<string>(v); break;
+                            case PropertyInfoTypes.Bool: oset = TypeExtensions.Convert(v, false); break;
                             case PropertyInfoTypes.DateTime: {
                                     if (v is System.DateTime)
                                         oset = v;
@@ -705,27 +705,27 @@ namespace Symbol.Formatting.Json {
 
                             case PropertyInfoTypes.Array:
                                 if (!pi.IsValueType)
-                                    oset = CreateArray((List<object>)v, pi.MemberType, pi.ElementType, globaltypes);
+                                    oset = CreateArray((IList<object>)v, pi.MemberType, pi.ElementType, globaltypes);
                                 // what about 'else'?
                                 break;
                             case PropertyInfoTypes.ByteArray: oset = Convert.FromBase64String((string)v); break;
 #if !netcore
                             case PropertyInfoTypes.Hashtable: // same case as Dictionary
 #endif
-                            case PropertyInfoTypes.Dictionary: oset = CreateDictionary((List<object>)v, pi.MemberType, pi.GenericTypes, globaltypes); break;
+                            case PropertyInfoTypes.Dictionary: oset = CreateDictionary((IList<object>)v, pi.MemberType, pi.GenericTypes, globaltypes); break;
                             case PropertyInfoTypes.StringKeyDictionary: oset = CreateStringKeyDictionary((IDictionary<string, object>)v, pi.MemberType, pi.GenericTypes, globaltypes); break;
                             case PropertyInfoTypes.NameValue: oset = CreateNV((IDictionary<string, object>)v); break;
                             case PropertyInfoTypes.StringDictionary: oset = CreateSD((IDictionary<string, object>)v); break;
                             case PropertyInfoTypes.Custom: oset = Reflection.Instance.CreateCustom((string)v, pi.MemberType); break;
                             default: {
-                                    if (pi.IsGenericType && pi.IsValueType == false && v is List<object>)
-                                        oset = CreateGenericList((List<object>)v, pi.MemberType, pi.ElementType, globaltypes);
+                                    if (pi.IsGenericType && pi.IsValueType == false && v is IList<object>)
+                                        oset = CreateGenericList((IList<object>)v, pi.MemberType, pi.ElementType, globaltypes);
 
                                     else if ((pi.IsClass || pi.IsStruct || pi.IsInterface) && v is IDictionary<string, object>)
                                         oset = ParseDictionary((IDictionary<string, object>)v, globaltypes, pi.MemberType, pi.Getter(o));
 
-                                    else if (v is List<object>)
-                                        oset = CreateArray((List<object>)v, pi.MemberType, typeof(object), globaltypes);
+                                    else if (v is IList<object>)
+                                        oset = CreateArray((IList<object>)v, pi.MemberType, typeof(object), globaltypes);
 
                                     else if (pi.IsValueType)
                                         oset = ChangeType(v, pi.ChangeType);
@@ -841,7 +841,7 @@ namespace Symbol.Formatting.Json {
                 return new DateTime(year, month, day, hour, min, sec, ms, DateTimeKind.Utc).ToLocalTime();
         }
 
-        private object CreateArray(List<object> data, Type pt, Type bt, IDictionary<string, object> globalTypes) {
+        private object CreateArray(IList<object> data, Type pt, Type bt, IDictionary<string, object> globalTypes) {
             if (bt == null)
                 bt = typeof(object);
 
@@ -856,7 +856,7 @@ namespace Symbol.Formatting.Json {
                 if (ob is IDictionary)
                     col.SetValue(ParseDictionary((IDictionary<string, object>)ob, globalTypes, bt, null), i);
                 else if (ob is ICollection)
-                    col.SetValue(CreateArray((List<object>)ob, bt, arraytype, globalTypes), i);
+                    col.SetValue(CreateArray((IList<object>)ob, bt, arraytype, globalTypes), i);
                 else
                     col.SetValue(ChangeType(ob, bt), i);
             }
@@ -864,7 +864,7 @@ namespace Symbol.Formatting.Json {
             return col;
         }
 
-        private object CreateGenericList(List<object> data, Type pt, Type bt, IDictionary<string, object> globalTypes) {
+        private object CreateGenericList(IList<object> data, Type pt, Type bt, IDictionary<string, object> globalTypes) {
             if (pt != typeof(object)) {
                 IList col = (IList)Reflection.Instance.FastCreateInstance(pt);
                 var it = pt.GetGenericArguments()[0];
@@ -873,13 +873,13 @@ namespace Symbol.Formatting.Json {
                     if (ob is IDictionary)
                         col.Add(ParseDictionary((IDictionary<string, object>)ob, globalTypes, bt, null));
 
-                    else if (ob is List<object>) {
+                    else if (ob is IList<object>) {
 #if netcore
                     if (bt.GetTypeInfo().IsGenericType)
 #else
                         if (bt.IsGenericType)
 #endif
-                            col.Add((List<object>)ob);//).ToArray());
+                            col.Add((IList<object>)ob);//).ToArray());
                         else
                             col.Add(((List<object>)ob).ToArray());
                     } else
@@ -927,7 +927,7 @@ namespace Symbol.Formatting.Json {
             return col;
         }
 
-        private object CreateDictionary(List<object> reader, Type pt, Type[] types, IDictionary<string, object> globalTypes) {
+        private object CreateDictionary(IList<object> reader, Type pt, Type[] types, IDictionary<string, object> globalTypes) {
             IDictionary col = (IDictionary)Reflection.Instance.FastCreateInstance(pt);
             Type t1 = null;
             Type t2 = null;
