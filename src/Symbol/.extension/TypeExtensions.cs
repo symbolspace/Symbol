@@ -455,27 +455,20 @@ public static class TypeExtensions {
 #endif
         object value, Type type) {
         object result = null;// DefaultValue(type);
-        if (value == DBNull.Value)
-            value = null;
         if (value == null || (value is string && (string)value == string.Empty)) {
             return result;
         }
+        if (value is DBNull)
+            return null;
+
         bool isNullable = IsNullableType(type);
         bool valueIsArray = value.GetType().IsArray;
         bool typeIsArray = type.IsArray;
         bool isEnum = false;
         if (isNullable)
             type = Nullable.GetUnderlyingType(type);
-        System.Type valueType = value.GetType();
-#if netcore
-        var valueTypeInfo = valueType.GetTypeInfo();
-        var typeInfo = type.GetTypeInfo();
-        isEnum = typeInfo.IsEnum;
-#else
-        System.Type valueTypeInfo = valueType;
-        var typeInfo = type;
         isEnum = type.IsEnum;
-#endif
+        System.Type valueType = value.GetType();
 
         if (valueType == type || IsInheritFrom(valueType, type))
             return value;
@@ -499,17 +492,17 @@ public static class TypeExtensions {
         if (typeIsArray) {
             if (valueIsArray)
                 return TryToArray((Array)value, type);
-            if (type.GetElementType() == typeof(byte) && valueTypeInfo.IsValueType) 
+            if (type.GetElementType() == typeof(byte) && valueType.IsValueType) 
                 return StructureToByte(value, valueType);
             result = TryToArray(value as System.Collections.IEnumerable, type);
             if (result != null)
                 return result;
-            result = TryToArray(value as System.Collections.IEnumerator, type);
+            result = TryToArray(value as System.Collections.IEnumerator,type);
             if (result != null)
                 return result;
         }
         if (valueIsArray) {
-            if (valueType.GetElementType() == typeof(byte) && typeInfo.IsValueType)
+            if (valueType.GetElementType() == typeof(byte) && type.IsValueType)
                 return TryByteToStructure((byte[])value, type, isNullable);
         }
         try {
