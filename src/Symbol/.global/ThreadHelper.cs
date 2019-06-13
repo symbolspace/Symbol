@@ -268,27 +268,12 @@ public class ThreadHelper {
     /// <returns>返回并行锁对象。</returns>
     public static ParallelLockContext ParallelLock(string name, string value) {
         Symbol.CommonException.CheckArgumentNull(name, "name");
-        //Symbol.CommonException.CheckArgumentNull(value, "value");
+
         string key = name + "|" + value;
 
-        ParallelLockContext result = null;
-        if (!_list_parallelLock.TryGetValue(key,out result)) {
-            Block(_list_parallelLock, () => {
-                if (!_list_parallelLock.TryGetValue(key, out result)) {
-                    //System.Func<string, ParallelLockContext> valueFactory = (p) => {
-                    //    System.Console.WriteLine("valueFactory {0}", p);
-                    //    return new ParallelLockContext(name, value);
-                    //};
-                    result = new ParallelLockContext(name, value);
-                    _list_parallelLock.TryAdd(key, result);
-                }
-            });
-        }
-        return result;
-       
-        //if(!_list_parallelLock.ContainsKey(key))
-        //    _list_parallelLock.TryAdd(key, valueFactory(key));
-        //return _list_parallelLock[key];
+        return _list_parallelLock.GetOrAdd(key, (p) => {
+            return new ParallelLockContext(name, value);
+        });
     }
     #endregion
 
