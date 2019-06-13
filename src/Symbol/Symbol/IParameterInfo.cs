@@ -24,6 +24,10 @@ namespace Symbol {
         /// </summary>
         string Name { get; }
         /// <summary>
+        /// 获取参数别名（尝试寻找AliasNameAttribute和[Const("Alias","xxx")]）。
+        /// </summary>
+        string AliasName { get; }
+        /// <summary>
         /// 获取是否为输入。
         /// </summary>
         bool IsIn { get; }
@@ -57,9 +61,33 @@ namespace Symbol {
         /// 目标对象。
         /// </summary>
         protected T _target;
+        /// <summary>
+        /// 参数别名。
+        /// </summary>
+        protected string _aliasName;
         #endregion
 
         #region properties
+        /// <summary>
+        /// 获取参数名称。
+        /// </summary>
+        public abstract string Name { get; }
+
+        /// <summary>
+        /// 获取参数别名（尝试寻找AliasNameAttribute和[Const("Alias","xxx")]）。
+        /// </summary>
+        public virtual string AliasName {
+            get {
+                if (string.IsNullOrEmpty(_aliasName)) {
+                    _aliasName = GetAliasName();
+                }
+                return _aliasName;
+            }
+        }
+        /// <summary>
+        /// 获取目标对象。
+        /// </summary>
+        public T Target { get { return _target; } }
 
         #endregion
 
@@ -75,6 +103,20 @@ namespace Symbol {
         #endregion
 
         #region methods
+
+        /// <summary>
+        /// 获取参数别名（尝试寻找AliasNameAttribute和[Const("Alias","xxx")]）。
+        /// </summary>
+        /// <returns>返回参数别名，未找到返回原名称。</returns>
+        protected virtual string GetAliasName() {
+            var name = AttributeExtensions.GetCustomAttribute<AliasAttribute>(_target)?.Name;
+            if (string.IsNullOrEmpty(name))
+                name = ConstAttributeExtensions.Const(_target, "Alias");
+            if (string.IsNullOrEmpty(name))
+                name = Name;
+            return name;
+        }
+
         /// <summary>
         /// 获取该参数上定义的指定类型的自定义属性。
         /// </summary>
@@ -117,7 +159,7 @@ namespace Symbol {
         /// <summary>
         /// 获取参数名称。
         /// </summary>
-        public string Name { get { return _target?.Name; } }
+        public override string Name { get { return _target?.Name; } }
         /// <summary>
         /// 获取是否为输入。
         /// </summary>
@@ -204,7 +246,7 @@ namespace Symbol {
         /// <summary>
         /// 获取参数名称。
         /// </summary>
-        public string Name { get { return _target?.Name; } }
+        public override string Name { get { return _target?.Name; } }
         /// <summary>
         /// 获取是否为输入。
         /// </summary>
@@ -291,7 +333,7 @@ namespace Symbol {
         /// <summary>
         /// 获取参数名称。
         /// </summary>
-        public string Name { get { return _target?.Name; } }
+        public override string Name { get { return _target?.Name; } }
         /// <summary>
         /// 获取是否为输入。
         /// </summary>
@@ -634,7 +676,7 @@ namespace Symbol {
             if (!finded) {
                 var dataBodyAttribute = Symbol.AttributeExtensions.GetCustomAttribute<DataBodyAttribute>(paramter, true);
                 if (dataBodyAttribute != null) {
-                    var datas = FastWrapper.As(_bodyData);
+                    var datas = FastWrapper.Combine(_bodyData);
                     value = datas;
                     for (int i = 0; i < _paramters.Count; i++) {
                         datas.Remove(_paramters[i].Name);
@@ -647,6 +689,7 @@ namespace Symbol {
                     if (!string.IsNullOrEmpty(dataBodyAttribute.InvalidKeys)) {
                         datas.RemoveKeys(dataBodyAttribute.InvalidKeys.Split(',', ';', '，', '；', '|', '｜', ' '));
                     }
+                    value = _convertValue(PreConvertValue(value, paramter.Type), paramter.Type);
                     //value = _datas[0];
                 }
             }
