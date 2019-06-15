@@ -12,7 +12,7 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("symbolspace")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("© symbolspace All rights reserved.")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Data.MySql.dll for m" +
     "ore information.")]

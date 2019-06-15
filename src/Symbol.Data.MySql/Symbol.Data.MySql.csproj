@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="NuGet">
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net45;net4;net35;net2</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net452;net35;net2</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
@@ -54,7 +54,7 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>netcore20;netcore;</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
     <DefineConstants>net45</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net4'">
@@ -73,6 +73,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="MySql.Data" Version="8.0.15" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net4' ">
     <Reference Include="System" />
@@ -85,18 +86,11 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net2' ">
     <Reference Include="System" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Data.Common" Version="4.3.0">
-    </PackageReference>
-    <PackageReference Include="MySql.Data" Version="8.0.16">
-    </PackageReference>
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
+    <PackageReference Include="MySql.Data" Version="8.0.15" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
-    <PackageReference Include="MySql.Data" Version="8.0.16">
-    </PackageReference>
-    <PackageReference Include="System.Data.Common" Version="4.3.0">
-    </PackageReference>
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+      <PackageReference Include="MySql.Data" Version="8.0.15" />
   </ItemGroup>
 
   <ItemGroup>
