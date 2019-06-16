@@ -12,15 +12,15 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("symbolspace")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("© symbolspace All rights reserved.")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Data.MySql.dll for m" +
     "ore information.")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("4.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("4.1.0.0")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("4.1.0.1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("4.1.0.1")]
 [assembly: System.Reflection.AssemblyProductAttribute("Symbol.Data.MySql")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Symbol.Data.MySql")]
-[assembly: System.Reflection.AssemblyVersionAttribute("4.1.0.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("4.1.0.1")]
 [assembly: System.Resources.NeutralResourcesLanguageAttribute("zh-CN")]
 
 // 由 MSBuild WriteCodeFragment 类生成。

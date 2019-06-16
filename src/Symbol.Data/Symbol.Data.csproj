@@ -12,7 +12,7 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Data</AssemblyTitle>
     <AssemblyName>Symbol.Data</AssemblyName>
-    <VersionPrefix>4.1.0.0</VersionPrefix>
+    <VersionPrefix>4.1.0.1</VersionPrefix>
     <Title>Symbol.Data</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
@@ -36,14 +36,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>bin\Release</OutputPath>
     <DefineConstants></DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>bin\Debug</OutputPath>
     <DefineConstants></DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>

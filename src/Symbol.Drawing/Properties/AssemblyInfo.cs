@@ -12,7 +12,7 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("symbolspace")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Drawing.dll for more" +
     " information.")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("4.0.0.1")]
