@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include=".enum\OrderStates.cs" />
     <Compile Include=".enum\UserTypes.cs" />
+    <Compile Include=".model\t_User.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -73,6 +74,10 @@
     <ProjectReference Include="..\..\src\Symbol.Data.MySql\Symbol.Data.MySql.csproj">
       <Project>{a59c4b67-f270-4e37-bb71-2214cd022bf5}</Project>
       <Name>Symbol.Data.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Symbol.Data.PostgreSQL\Symbol.Data.PostgreSQL.csproj">
+      <Project>{b1e524b2-ec8d-4148-bb26-2eeceb59cc79}</Project>
+      <Name>Symbol.Data.PostgreSQL</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\Symbol.Data.SqlServer\Symbol.Data.SqlServer.csproj">
       <Project>{37f0d79d-9095-4666-b6b2-bca395c112f7}</Project>

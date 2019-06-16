@@ -210,7 +210,7 @@ namespace Symbol.Data {
             var dataReader=ThreadHelper.InterlockedSet(ref _dataReader, null);
             if (dataReader != null) {
                 if (!dataReader.IsClosed)
-                    dataReader.Close();
+                    try { dataReader.Close(); } catch { }
                 dataReader.Dispose();
             }
             base.Dispose();

@@ -11,11 +11,14 @@ namespace Examples.Data {
 
             {
                 //创建数据上下文对象
-                IDataContext db = CreateDataContext("mssql2012");
+                //IDataContext db = CreateDataContext("mssql2012");
                 //IDataContext db = CreateDataContext("mysql");
+                IDataContext db = CreateDataContext("pgsql");
 
                 //增 删 改 查  常规操作
                 DatabaseCRUD(db);
+                //泛型
+                QueryGeneric(db);
 
                 //性能测试
                 QueryPerf(db);
@@ -38,6 +41,15 @@ namespace Examples.Data {
                     connectionOptions = new {
                         host = "192.168.247.119",               //服务器
                         port = 3306,                            //端口，可以与服务器写在一起，例如127.0.0.1:3306
+                        name = "test",                          //数据库名称
+                        account = "test",                       //登录账号
+                        password = "test",                      //登录密码
+                    };
+                    break;
+                case "pgsql":
+                    connectionOptions = new {
+                        host = "192.168.247.119",               //服务器
+                        port = 5432,                            //端口，可以与服务器写在一起，例如127.0.0.1:5432
                         name = "test",                          //数据库名称
                         account = "test",                       //登录账号
                         password = "test",                      //登录密码
@@ -93,7 +105,7 @@ namespace Examples.Data {
             Console.ReadKey();
         }
         static void QueryPerf(IDataContext db) {
-            var q = db.FindAll("test", "{ 'name':'test' }");
+            var q = db.FindAll("test", "{ 'name':['test','test214'] }");
 
             int max = 0;
             int count = 0;
@@ -140,6 +152,14 @@ namespace Examples.Data {
             }
             print();
         }
-       
+
+
+        static void QueryGeneric(IDataContext db) {
+            //t_User
+            foreach (var item in db.FindAll<t_User>("t_user")) {
+                Console.WriteLine($"{JSON.ToJSON(item)}");
+            }
+            Console.ReadKey();
+        }
     }
 }
