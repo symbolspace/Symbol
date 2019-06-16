@@ -534,14 +534,14 @@ public class FileLog : LogBase {
     private string _file;
     private System.IO.TextWriter _writer;
     private System.DateTime _lastDate;
-    private object _syncThis;
-
-    private static readonly System.Collections.Generic.Dictionary<string, FileLog> _caches;
+    private System.Collections.Concurrent.ConcurrentQueue<string> _list;
+    private int _doing;
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, FileLog> _caches;
     #endregion
 
     #region cctor
     static FileLog() {
-        _caches = new System.Collections.Generic.Dictionary<string, FileLog>(StringComparer.OrdinalIgnoreCase);
+        _caches = new System.Collections.Concurrent.ConcurrentDictionary<string, FileLog>(StringComparer.OrdinalIgnoreCase);
     }
     #endregion
 
@@ -561,7 +561,7 @@ public class FileLog : LogBase {
         AppHelper.CreateDirectory(path);
         _path = System.IO.Path.GetFullPath(path);
         _lastDate = System.DateTime.Today;
-        _syncThis = new object();
+        _list = new System.Collections.Concurrent.ConcurrentQueue<string>();
     }
     #endregion
 
@@ -604,15 +604,37 @@ public class FileLog : LogBase {
     /// <param name="level">级别</param>
     /// <param name="message">消息</param>
     protected override void OnWriteLine(string level, string message) {
-        ThreadHelper.Block(_syncThis, () => {
-            System.IO.TextWriter writer = CreateWriter();
+        message = string.Format("{0} {1}>{2}", System.DateTime.Now.ToString("HH:mm:ss.fffffff"), level, message);
+        var list = System.Threading.Interlocked.CompareExchange(ref _list, null, null);
+        if (list == null)
+            return;
+        list.Enqueue(message);
+        Flush();
+    }
+    void Flush() {
+        System.Threading.ThreadPool.QueueUserWorkItem(FlushBody, null);
+    }
+    void FlushBody(object state) {
+        if (System.Threading.Interlocked.CompareExchange(ref _doing, 1, 0) == 1)
+            return;
+        var list = System.Threading.Interlocked.CompareExchange(ref _list, null, null);
+        if (list == null || list.IsEmpty)
+            goto lb_End;
+        try {
+            var writer = CreateWriter();
             if (writer == null)
-                return;
-            try {
-                writer.WriteLine("{0} {1}>{2}", System.DateTime.Now.ToString("HH:mm:ss.fffffff"), level, message);
-            } catch { }
-            try { writer.Flush(); } catch { }
-        });
+                goto lb_End;
+
+            while (list.TryDequeue(out string message)) {
+                writer.WriteLine(message);
+            }
+            writer.Flush();
+        } catch {
+            goto lb_End;
+        }
+
+    lb_End:
+        System.Threading.Interlocked.CompareExchange(ref _doing, 0, 1);
     }
     #endregion
 
@@ -621,16 +643,9 @@ public class FileLog : LogBase {
         if (string.IsNullOrEmpty(path))
             path = AppHelper.MapPath("Log");
         string key = name + "|" + path;
-        FileLog result;
-        if (_caches.TryGetValue(key, out result))
-            return result;
-        lock (_caches) {
-            if (_caches.TryGetValue(key, out result))
-                return result;
-            result = new FileLog(name, path);
-            _caches.Add(key, result);
-            return result;
-        }
+        return _caches.GetOrAdd(key, (p) => {
+            return new FileLog(name, path);
+        });
     }
     /// <summary>
     /// 创建日志存储对象（类型，当前程序目录）。
@@ -682,14 +697,14 @@ public class FileLog : LogBase {
     /// <param name="disposing"></param>
     protected override void Dispose(bool disposing) {
         if (!_disposed && disposing) {
-            if (_writer != null) {
-                _writer.Dispose();
-                _writer = null;
+            Flush();
+            System.Threading.Interlocked.Exchange(ref _list, null);
+            var writer = System.Threading.Interlocked.Exchange(ref _writer, null);
+            if (writer != null) {
+                try { writer.Dispose(); } catch { }
             }
             string key = Name + "|" + _path;
-            lock (_caches) {
-                _caches.Remove(key);
-            }
+            _caches.TryRemove(key, out FileLog removed);
         }
         base.Dispose(disposing);
     }
