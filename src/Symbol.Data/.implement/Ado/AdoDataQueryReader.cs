@@ -205,7 +205,6 @@ namespace Symbol.Data {
         public override void Dispose() {
             var commandCache = ThreadHelper.InterlockedSet(ref _commandCache, null);
             commandCache?.DbCommand?.Cancel();
-            (Command as IAdoCommand)?.DestroyDbCommand(commandCache);
 
             var dataReader=ThreadHelper.InterlockedSet(ref _dataReader, null);
             if (dataReader != null) {
@@ -213,6 +212,7 @@ namespace Symbol.Data {
                     try { dataReader.Close(); } catch { }
                 dataReader.Dispose();
             }
+            (Command as IAdoCommand)?.DestroyDbCommand(commandCache);
             base.Dispose();
         }
 
