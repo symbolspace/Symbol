@@ -3,6 +3,7 @@
  *  e-mail：symbolspace@outlook.com
  */
 
+[assembly: Symbol.Data.Provider("sql2005", typeof(Symbol.Data.SqlServer2005Provider))]
 [assembly: Symbol.Data.Provider("mssql2005", typeof(Symbol.Data.SqlServer2005Provider))]
 [assembly: Symbol.Data.Provider("mssql.2005", typeof(Symbol.Data.SqlServer2005Provider))]
 namespace Symbol.Data {
