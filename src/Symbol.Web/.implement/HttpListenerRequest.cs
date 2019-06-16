@@ -322,12 +322,21 @@ namespace Symbol.Web {
                 if (_params == null) {
                     _params = new System.Collections.Specialized.NameValueCollection();
                     _params.Add(QueryString);
-                    if (HttpMethod == "POST")
-                        _params.Add(Form);
-                    if (_serverVariables != null)
-                        _params.Add(_serverVariables);
-                    if (_cookies != null)
-                        _params.Add(_cookies);
+                    if (HttpMethod == "POST") {
+                        foreach (var key in Form.AllKeys) {
+                            _params.Set(key, Form[key]);
+                        }
+                    }
+                    if (_serverVariables != null) {
+                        foreach (var key in _serverVariables.AllKeys) {
+                            _params.Set(key, _serverVariables[key]);
+                        }
+                    }
+                    if (_cookies != null) {
+                        foreach (var key in _cookies.AllKeys) {
+                            _params.Set(key, _cookies[key]);
+                        }
+                    }
                 }
                 return _params;
             }
@@ -353,29 +362,31 @@ namespace Symbol.Web {
         #endregion
         #region this[string key]
         /// <summary>
-        /// 获取组合值，注意它不是调用的Params，寻找顺序：QueryString、Form（仅POST时）、Cookies、ServerVariables。
+        /// 获取组合值，注意它不是调用的Params，寻找顺序：Form（仅POST时）、QueryString、Cookies、ServerVariables。
         /// </summary>
         /// <param name="key">要获取的集合成员的名称。</param>
         /// <returns>如果未找到指定的 key，则返回 null。</returns>
         public string this[string key] {
             get {
-                string value = QueryString[key];
-                if (value != null)
-                    return value;
+                string value = null;
                 if (HttpMethod == "POST") {
                     value = Form[key];
-                    if (value != null)
+                    if (!string.IsNullOrEmpty(value))
                         return value;
                 }
+                value = QueryString[key];
+                if (!string.IsNullOrEmpty(value))
+                    return value;
+
                 if (_cookies != null) {
                     value = _cookies[key];
-                    if (value != null)
+                    if (!string.IsNullOrEmpty(value))
                         return value;
                 }
 
                 if (_serverVariables != null) {
                     value = _serverVariables[key];
-                    if (value != null)
+                    if (string.IsNullOrEmpty(value))
                         return value;
                 }
                 return null;

@@ -134,7 +134,7 @@ namespace Symbol.Web {
         /// </summary>
         IHttpFileCollection Files { get; }
         /// <summary>
-        /// 获取组合值，注意它不是调用的Params，寻找顺序：QueryString、Form（仅POST时）、Cookies、ServerVariables。
+        /// 获取组合值，注意它不是调用的Params，寻找顺序：Form（仅POST时）、QueryString、Cookies、ServerVariables。
         /// </summary>
         /// <param name="key">要获取的集合成员的名称。</param>
         /// <returns>如果未找到指定的 key，则返回 null。</returns>

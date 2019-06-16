@@ -12,13 +12,14 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Web</AssemblyTitle>
     <AssemblyName>Symbol.Web</AssemblyName>
-    <VersionPrefix>4.0.0.2</VersionPrefix>
+    <VersionPrefix>4.0.0.3</VersionPrefix>
     <Title>Symbol.Web</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
     <Description>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Web.dll for more information.</Description>
     <PackageId>Symbol.Web</PackageId>
-    <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/symbolspace/Symbol/master/icon.png</PackageIconUrl>
     <PackageTags>web;symbol</PackageTags>
@@ -106,7 +107,12 @@
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
-  
+  <ItemGroup>
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
 
 </Project>
