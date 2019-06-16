@@ -8,8 +8,11 @@ namespace Examples.Enums {
         排序规则可以自己实现，包括顺序是否支持小数
         
     */
+
     class Program {
         static void Main(string[] args) {
+            
+
             //枚举示例
             EnumExample();
 
@@ -112,11 +115,17 @@ namespace Examples.Enums {
             Console.WriteLine(model.Const("Name", "Text"));
 
             //assembly上的也可以拿到的
+            Console.Write("来自[assembly:Const(\"Test\", \"Value\"]) ：");
             Console.WriteLine(type.Assembly.Const("Test"));
 
-            //继承并重写之后也能拿到
+            //获取基类中的
             var type_new = typeof(NewBookInfo);
+            Console.Write("来自基类Count属性[Const(\"数量\")] ：");
+            Console.WriteLine(type_new.GetProperty("Count").Const());
+            //继承并重写之后也能拿到
+            Console.Write("已经被重写[Const(\"继承测试\")] ：");
             Console.WriteLine(type_new.GetMethod("Foo").Const());
+
             //可以取到方法、参数上的值
             var buyMethod = type_new.GetMethod("Buy");
             var parameters = buyMethod.GetParameters();
@@ -124,6 +133,9 @@ namespace Examples.Enums {
 
             //实现类中，参数上没有值，所以取不到值
             Console.WriteLine(parameters.First(p => p.Name == "buyer").Const());
+            //正确取值方式
+            Console.WriteLine(buyMethod.ConstParameter("buyer"));
+
             //可以替换标记值
             Console.WriteLine(parameters.First(p => p.Name == "count").Const());
 
