@@ -23,20 +23,28 @@ namespace Symbol.Routing {
 
         #region properties
         /// <summary>
-        /// 获取原始网址；
+        /// 获取原始网址。
         /// </summary>
+        [Const("原始网址")]
+        [Formatting.Alias("url")]
         public string Url { get { return _url; } }
         /// <summary>
-        /// 获取权重网址；
+        /// 获取权重网址。
         /// </summary>
+        [Const("权重网址")]
+        [Formatting.Alias("weightUrl")]
         public string WeightUrl { get { return _weightUrl; } }
         /// <summary>
         /// 获取变量数量。
         /// </summary>
+        [Const("变量数量")]
+        [Formatting.Alias("count")]
         public int Count { get { return _list_type.Count; } }
         /// <summary>
         /// 获取变量名称列表。
         /// </summary>
+        [Const("变量名称列表")]
+        [Formatting.Alias("names")]
         public string[] Names {
             get { return _names; }
         }
