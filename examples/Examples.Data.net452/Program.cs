@@ -13,8 +13,11 @@ namespace Examples.Data {
                 //创建数据上下文对象
                 //IDataContext db = CreateDataContext("mssql2012");
                 //IDataContext db = CreateDataContext("mysql");
-                IDataContext db = CreateDataContext("pgsql");
+                //IDataContext db = CreateDataContext("pgsql");
+                IDataContext db = CreateDataContext("sqlite");
 
+                //初始化 &  数据
+                DatabaseSchema(db);
                 //增 删 改 查  常规操作
                 DatabaseCRUD(db);
                 //泛型
@@ -55,10 +58,119 @@ namespace Examples.Data {
                         password = "test",                      //登录密码
                     };
                     break;
+                case "sqlite":
+                    connectionOptions = new {
+                        name = "test",                          //数据库名称
+                        memory = true,                          //内存数据库
+                    };
+                    break;
             }
             //Provider 自动扫描Symbol.Data.*.dll
             return Symbol.Data.Provider.CreateDataContext(type, connectionOptions);
             //return new Symbol.Data.SqlServer2012Provider().CreateDataContext(connectionOptions);
+        }
+        static void DatabaseSchema(IDataContext db) {
+            switch (db.Provider.GetType().Name) {
+                case "PostgreSQLProvider": {
+
+                        #region 创建表：t_user
+                        if (!db.TableExists("t_user")){
+                            db.ExecuteNonQuery(@"
+                                create table t_user(
+                                    id bigserial not null,
+                                    ""type"" smallint  not null,
+                                    account character varying(64) not null,
+                                    ""password"" character varying(32) not null,
+                                    CONSTRAINT ""pk_t_User_id"" PRIMARY KEY(id)
+                                )
+                                WITH(
+                                    OIDS = FALSE
+                                );");
+                        }
+                        #endregion
+                        #region 创建表：test
+                        if (!db.TableExists("test")) {
+                            db.ExecuteNonQuery(@"
+                                create table test(
+                                   id bigserial not null,
+                                   name character varying(255),
+                                   ""count"" bigint  not null,
+                                   ""data"" jsonb null,
+                                   CONSTRAINT ""pk_test_id"" PRIMARY KEY(id)
+                                )
+                                WITH(
+                                  OIDS = FALSE
+                                ); ");
+                            #region 初始测试数据
+                            db.Insert("test", new {
+                                name= "test",
+                                count= 24234
+                            });
+                            db.Insert("test", new {
+                                name = "test24",
+                                count = 466
+                            });
+                            db.Insert("test", new {
+                                name = "test214",
+                                count = 347693,
+                                data=new {
+                                    a=true,
+                                    list=new object[] { 32,"test" }
+                                }
+                            });
+                            for (int i = 0; i < 15; i++) {
+                                db.ExecuteNonQuery("insert into test(name,\"count\",\"data\") select name,\"count\", \"data\" from test;");
+                            }
+                            #endregion
+                        }
+                        #endregion
+
+                    }
+                    break;
+                case "SQLiteProvider": {
+                        #region 创建表
+                        db.ExecuteNonQuery(@"
+                            create table test(
+                                id integer primary key autoincrement not null,
+                                name nvarchar(64) not null,
+                                [count] bigint not null,
+                                [data] ntext null
+                            )
+                        ");
+                        db.ExecuteNonQuery(@"
+                            create table t_User(
+                                id integer primary key autoincrement not null,
+                                [type] tinyint not null,
+                                account nvarchar(64) not null,
+                                [password] varchar(32) null,
+                                [data] ntext null
+                            )
+                        ");
+                        #endregion
+                        #region 初始测试数据
+                        db.Insert("test", new {
+                            name = "test",
+                            count = 24234
+                        });
+                        db.Insert("test", new {
+                            name = "test24",
+                            count = 466
+                        });
+                        db.Insert("test", new {
+                            name = "test214",
+                            count = 347693,
+                            data = new {
+                                a = true,
+                                list = new object[] { 32, "test" }
+                            }
+                        });
+                        for (int i = 0; i < 15; i++) {
+                            db.ExecuteNonQuery("insert into test(name,[count],[data]) select name,[count], [data] from test;");
+                        }
+                        #endregion
+                    }
+                    break;
+            }
         }
         static void DatabaseCRUD(IDataContext db) {
             //常规测试
