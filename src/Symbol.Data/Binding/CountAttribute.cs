@@ -2,34 +2,24 @@
  *  author：symbolspace
  *  e-mail：symbolspace@outlook.com
  */
+
 using System;
 
 namespace Symbol.Data.Binding {
 
     /// <summary>
-    /// Join数据绑定特性（将字段的值拼接起来，以spliter分隔）。
+    /// 求数量数据绑定特性。
     /// </summary>
-    public class JoinAttribute : ListAttribute {
-
-        #region properties
-        /// <summary>
-        /// 获取或设置分隔符。
-        /// </summary>
-        public string Spliter { get; set; }
-        #endregion
+    public class CountAttribute : DataBinderAttribute {
 
         #region ctor
         /// <summary>
-        /// 创建JoinAttribute实例。
+        /// 创建实例。
         /// </summary>
         /// <param name="sourceName">源名称。</param>
         /// <param name="condition">过虑规则。</param>
-        /// <param name="field">输出字段，输出为单值时。</param>
-        /// <param name="spliter">分隔符。</param>
-        /// <param name="sort">排序规则。</param>
-        public JoinAttribute(string sourceName, string condition, string field, string spliter = "，", string sort = "{}")
-            : base(sourceName, condition, field, sort) {
-            Spliter = spliter;
+        public CountAttribute(string sourceName, string condition)
+            : base(sourceName, condition, "1", "{}") {
         }
         #endregion
 
@@ -47,16 +37,21 @@ namespace Symbol.Data.Binding {
         /// <param name="cache">缓存。</param>
         /// <returns>返回绑定的数据。</returns>
         public override object Bind(IDataContext dataContext, IDataQueryReader reader, object entity, string field, Type type, IDataBinderObjectCache cache) {
-            var list = (System.Collections.Generic.IList<string>)base.Bind(dataContext, reader, entity, field, typeof(System.Collections.Generic.List<string>), cache);
-#if net20 || net35
-            return StringExtensions.Join(list, Spliter);
-#else
-            return string.Join(Spliter, list);
-#endif
+            using (var builder = dataContext.CreateSelect(SourceName)) {
+                builder.Count();
+               
+                var condition = MapObject(Condition, dataContext, entity, reader);
+                builder.Query(condition);
+                return CacheFunc(cache, builder, "count", type, () => {
+                    var value = dataContext.ExecuteScalar(builder.CommandText, builder.Parameters);
+                    if (value == null && type.IsValueType)
+                        return TypeExtensions.DefaultValue(type);
+                    return TypeExtensions.Convert(value, type);
+                });
+            }
         }
         #endregion
 
         #endregion
-
     }
 }

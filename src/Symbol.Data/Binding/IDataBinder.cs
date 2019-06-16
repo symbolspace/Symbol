@@ -40,12 +40,12 @@ namespace Symbol.Data.Binding {
         /// 绑定数据
         /// </summary>
         /// <param name="dataContext">数据上下文对象。</param>
-        /// <param name="dataReader">数据读取对象。</param>
+        /// <param name="reader">数据查询读取器。</param>
         /// <param name="entity">当前实体对象。</param>
         /// <param name="field">当前字段。</param>
         /// <param name="type">实体中字段的类型。</param>
         /// <param name="cache">缓存。</param>
         /// <returns>返回绑定的数据。</returns>
-        object Bind(IDataContext dataContext, System.Data.IDataReader dataReader, object entity, string field, Type type, IDataBinderObjectCache cache);
+        object Bind(IDataContext dataContext, IDataQueryReader reader, object entity, string field, Type type, IDataBinderObjectCache cache);
     }
 }

@@ -12,8 +12,8 @@ namespace Symbol.Data.Binding {
     public class DataBinderObjectCache : IDataBinderObjectCache {
 
         #region fields
-        private System.Collections.Generic.Dictionary<object, System.Collections.Generic.Dictionary<string, object>> _list_object;
-        private System.Collections.Generic.Dictionary<string, object> _list_key;
+        private System.Collections.Concurrent.ConcurrentDictionary<object, System.Collections.Concurrent.ConcurrentDictionary<string, object>> _list_object;
+        private System.Collections.Concurrent.ConcurrentDictionary<string, object> _list_key;
         #endregion
 
         #region properties
@@ -25,8 +25,8 @@ namespace Symbol.Data.Binding {
         /// 创建DataBinderObjectCache实例
         /// </summary>
         public DataBinderObjectCache() {
-            _list_object = new System.Collections.Generic.Dictionary<object, System.Collections.Generic.Dictionary<string, object>>();
-            _list_key = new System.Collections.Generic.Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            _list_object = new System.Collections.Concurrent.ConcurrentDictionary<object, System.Collections.Concurrent.ConcurrentDictionary<string, object>>();
+            _list_key = new System.Collections.Concurrent.ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         }
 
         #endregion
@@ -47,7 +47,7 @@ namespace Symbol.Data.Binding {
             value = null;
             if (string.IsNullOrEmpty(key))
                 return false;
-            return _list_key.TryGetValue(key, out value);
+            return ThreadHelper.InterlockedGet(ref _list_key)?.TryGetValue(key, out value) ?? false;
         }
         #endregion
         #region Set
@@ -59,20 +59,12 @@ namespace Symbol.Data.Binding {
         public void Set(string key, object value) {
             if (string.IsNullOrEmpty(key))
                 return;
-            object value2;
-            //if (!_list_key.TryGetValue(key, out value2)) {
-                ThreadHelper.Block(_list_key, () => {
-                    if (!_list_key.TryGetValue(key, out value2)) {
-                        _list_key.Add(key, value);
-                    } else {
-                        _list_key[key] = value;
-                    }
-                });
-            //} else {
-            //    ThreadHelper.Block(_list_key, () => {
-            //        _list_key[key] = value;
-            //    });
-            //}
+            var list = ThreadHelper.InterlockedGet(ref _list_key);
+            if (list == null)
+                return;
+            if (!list.TryAdd(key, value)) {
+                list.TryUpdate(key, value, value);
+            }
         }
         #endregion
 
@@ -94,9 +86,11 @@ namespace Symbol.Data.Binding {
             if (entity == null || string.IsNullOrEmpty(field))
                 return false;
 
-
-            System.Collections.Generic.Dictionary<string, object> list;
-            if (!_list_object.TryGetValue(entity, out list))
+            var list_object = ThreadHelper.InterlockedGet(ref _list_object);
+            if (list_object == null)
+                return false;
+            System.Collections.Concurrent.ConcurrentDictionary<string, object> list;
+            if (!list_object.TryGetValue(entity, out list))
                 return false;
             return list.TryGetValue(field, out value);
         }
@@ -111,29 +105,13 @@ namespace Symbol.Data.Binding {
         public void Set(object entity, string field, object value) {
             if (entity == null || string.IsNullOrEmpty(field))
                 return;
-            System.Collections.Generic.Dictionary<string, object> list;
-            if (!_list_object.TryGetValue(entity, out list)) {
-                ThreadHelper.Block(_list_object, () => {
-                    if (!_list_object.TryGetValue(entity, out list)) {
-                        list = new System.Collections.Generic.Dictionary<string, object>();
-                        _list_object.Add(entity, list);
-                    }
-                });
+            var list_object = ThreadHelper.InterlockedGet(ref _list_object);
+            if (list_object == null)
+                return;
+            var list = list_object.GetOrAdd(entity, (p) => new System.Collections.Concurrent.ConcurrentDictionary<string, object>());
+            if (!list.TryAdd(field, value)) {
+                list.TryUpdate(field, value, value);
             }
-            object value2;
-            //if (!list.TryGetValue(field, out value2)) {
-                ThreadHelper.Block(list, () => {
-                    if (!list.TryGetValue(field, out value2)) {
-                        list.Add(field, value);
-                    } else {
-                        list[field] = value;
-                    }
-                });
-            //} else {
-            //    ThreadHelper.Block(list, () => {
-            //        list[field] = value;
-            //    });
-            //}
         }
         #endregion
 
@@ -145,14 +123,8 @@ namespace Symbol.Data.Binding {
         /// 释放所有资源。
         /// </summary>
         public void Dispose() {
-            if (_list_object != null) {
-                _list_object.Clear();
-            }
-            _list_object = null;
-            if (_list_key != null) {
-                _list_key.Clear();
-            }
-            _list_key = null;
+            ThreadHelper.InterlockedSet(ref _list_object, null)?.Clear();
+            ThreadHelper.InterlockedSet(ref _list_key, null)?.Clear();
         }
         #endregion
 

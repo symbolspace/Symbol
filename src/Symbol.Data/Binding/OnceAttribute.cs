@@ -31,13 +31,13 @@ namespace Symbol.Data.Binding {
         /// 绑定数据。
         /// </summary>
         /// <param name="dataContext">数据上下文对象。</param>
-        /// <param name="dataReader">数据读取对象。</param>
+        /// <param name="reader">数据查询读取器。</param>
         /// <param name="entity">当前实体对象。</param>
         /// <param name="field">当前字段。</param>
         /// <param name="type">实体中字段的类型。</param>
         /// <param name="cache">缓存。</param>
         /// <returns>返回绑定的数据。</returns>
-        public override object Bind(IDataContext dataContext, System.Data.IDataReader dataReader, object entity, string field, Type type, IDataBinderObjectCache cache) {
+        public override object Bind(IDataContext dataContext, IDataQueryReader reader, object entity, string field, Type type, IDataBinderObjectCache cache) {
             bool isSingleValue = (type == typeof(string) || type.IsValueType || TypeExtensions.IsNullableType(type));
 
             if (isSingleValue && (string.IsNullOrEmpty(Field) || Field == "*"))
@@ -48,12 +48,18 @@ namespace Symbol.Data.Binding {
                 if (isSingleValue) {
                     builder.Select(Field);
                 }
-                var conditiion = MapObject(Condition, dataContext, entity, dataReader);
+                var conditiion = MapObject(Condition, dataContext, entity, reader);
                 builder.Query(conditiion).Sort(Sorter);
                 return CacheFunc(cache, builder, "once", type, () => {
-                    var q = dataContext.CreateQuery(type, builder.CommandText, builder.Parameters);
-                    q.DataBinderObjectCache = cache;
-                    return TypeExtensions.Convert(q.FirstOrDefault(), type);
+                    object value = null;
+                    if (builder.WhereCommandText.Length > 0) {
+                        var q = dataContext.CreateQuery(type, builder.CommandText, builder.Parameters);
+                        q.DataBinderObjectCache = cache;
+                        value = q.FirstOrDefault();
+                    }
+                    if (value == null && type.IsValueType)
+                        return TypeExtensions.DefaultValue(type);
+                    return TypeExtensions.Convert(value, type);
                 });
             }
         }

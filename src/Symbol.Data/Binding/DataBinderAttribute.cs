@@ -14,7 +14,6 @@ namespace Symbol.Data.Binding {
 
         #region fields
         private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, System.Collections.Generic.List<BindItem>> _list_key=new System.Collections.Concurrent.ConcurrentDictionary<string, System.Collections.Generic.List<BindItem>>();
-        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, PreSelectBuilderFunc> _list_condition_func = new System.Collections.Concurrent.ConcurrentDictionary<string, PreSelectBuilderFunc>();
         #endregion
 
         #region properties
@@ -71,18 +70,18 @@ namespace Symbol.Data.Binding {
         /// 绑定数据。
         /// </summary>
         /// <param name="dataContext">数据上下文对象。</param>
-        /// <param name="dataReader">数据读取对象。</param>
+        /// <param name="reader">数据读取对象。</param>
         /// <param name="entity">当前实体对象。</param>
         /// <param name="type">类型。</param>
         /// <param name="cache">缓存。</param>
-        public static void Bind(IDataContext dataContext, System.Data.IDataReader dataReader, object entity, System.Type type, IDataBinderObjectCache cache) {
+        public static void Bind(IDataContext dataContext, IDataQueryReader reader, object entity, System.Type type, IDataBinderObjectCache cache) {
             if (entity == null)
                 return;
             var list = TryGetBind(type);
             if (list == null || list.Count == 0)
                 return;
             for (int i = 0; i < list.Count; i++) {
-                list[i].Bind(dataContext, dataReader, entity, cache);
+                list[i].Bind(dataContext, reader, entity, cache);
             }
         }
 
@@ -91,75 +90,16 @@ namespace Symbol.Data.Binding {
         /// 绑定数据。
         /// </summary>
         /// <param name="dataContext">数据上下文对象。</param>
-        /// <param name="dataReader">数据读取对象。</param>
+        /// <param name="reader">数据查询读取器。</param>
         /// <param name="entity">当前实体对象。</param>
         /// <param name="field">当前字段。</param>
         /// <param name="type">实体中字段的类型。</param>
         /// <param name="cache">缓存。</param>
         /// <returns>返回绑定的数据。</returns>
-        public abstract object Bind(IDataContext dataContext, System.Data.IDataReader dataReader, object entity, string field, Type type, IDataBinderObjectCache cache);
+        public abstract object Bind(IDataContext dataContext, IDataQueryReader reader, object entity, string field, Type type, IDataBinderObjectCache cache);
         #endregion
 
-        #region PreSelectBuilder
-        /// <summary>
-        /// select命令构造器预处理（处理$this.xx值引用）。
-        /// </summary>
-        /// <param name="dataContext">数据上下文对象。</param>
-        /// <param name="dataReader">数据读取对象。</param>
-        /// <param name="entity">当前实体对象。</param>
-        /// <param name="builder">select命令构造器。</param>
-        /// <param name="cache">缓存。</param>
-        protected virtual void PreSelectBuilder(IDataContext dataContext, System.Data.IDataReader dataReader, object entity, Symbol.Data.ISelectCommandBuilder builder, IDataBinderObjectCache cache) {
-            var baseAddCommandParameter = builder.AddCommandParameter;
-            builder.AddCommandParameter = (p) => {
-                string p10 = p as string;
-                if (p10 != null && p10[0] == '$' && p10.Length > 1) {
-                    var value = CacheFunc(cache, entity, p10, () => {
-                        var func = GetPreSelectBuilderFunc(entity.GetType(), p10);
-                        return func?.Invoke(dataContext, dataReader, entity);
-                    });
-                    //var value = GetPreSelectBuilderFunc(entity.GetType(), p10)?.Invoke(dataContext, dataReader, entity);
-                    return baseAddCommandParameter(value);
-                }
-                return baseAddCommandParameter(p);
-            };
-        }
-        //_list_condition_func
-        PreSelectBuilderFunc GetPreSelectBuilderFunc(System.Type type, string value) {
-            PreSelectBuilderFunc func;
-            string key = type.AssemblyQualifiedName + "|" + value;
-            if (!_list_condition_func.TryGetValue(key, out func)) {
-                ThreadHelper.Block(_list_condition_func, () => {
-                    if (!_list_condition_func.TryGetValue(value, out func)) {
-                        if (value.StartsWith("$this.", StringComparison.OrdinalIgnoreCase)) {
-                            string path = value.Substring("$this.".Length);
-                            func = (dataContext, dataReader, entity) => {
-                                return FastObject.Path(entity, path);
-                            };
-                        }
-                        if (value.StartsWith("$reader.", StringComparison.OrdinalIgnoreCase)) {
-                            string p10 = value.Substring("$reader.".Length);
-                            if (p10.IndexOf('.') > -1) {
-                                string name = p10.Split('.')[0];
-                                string path = p10.Substring(name.Length + 1);
-                                func = (dataContext, dataReader, entity) => {
-                                    return FastObject.Path(DataReaderHelper.Current(dataReader, name), path);
-                                };
-                            } else {
-                                func = (dataContext, dataReader, entity) => {
-                                    return DataReaderHelper.Current(dataReader, p10);
-                                };
-                            }
-                        }
-                        _list_condition_func.TryAdd(key, func);
-                    }
-                });
-                
-            }
-            return func;
-        }
-        delegate object PreSelectBuilderFunc(IDataContext dataContext, System.Data.IDataReader dataReader, object entity);
-        #endregion
+     
         #region BuildCacheKey
         /// <summary>
         /// 构造缓存键值。
@@ -224,31 +164,24 @@ namespace Symbol.Data.Binding {
         #region TryGetBind
         static System.Collections.Generic.List<BindItem> TryGetBind(System.Type entityType) {
             string key = entityType.AssemblyQualifiedName;
-            System.Collections.Generic.List<BindItem> list;
-            if (!_list_key.TryGetValue(key, out list)) {
-                ThreadHelper.Block(_list_key, () => {
-                    if (!_list_key.TryGetValue(key, out list)) {
-                        if (entityType.IsValueType || entityType == typeof(string) || entityType==typeof(object) || TypeExtensions.IsNullableType(entityType)) {
-                            _list_key.TryAdd(key, null);
-                            return;
-                        }
-
-                        list = new System.Collections.Generic.List<BindItem>();
-                        foreach (System.Reflection.PropertyInfo propertyInfo in entityType.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.SetProperty)) {
-                            var binder = AttributeExtensions.GetCustomAttribute<DataBinderAttribute>(propertyInfo);
-                            if (binder == null)
-                                continue;
-                            BindItem bindItem = new BindItem() {
-                                propertyInfo = propertyInfo,
-                                binder = binder,
-                                bindAction = binder.Bind,
-                            };
-                            list.Add(bindItem);
-                        }
-                        _list_key.TryAdd(key, list.Count == 0 ? null : list);
-                    }
-                });
-            }
+            var list = _list_key.GetOrAdd(key, (p) => {
+                if (entityType.IsValueType || entityType == typeof(string) || entityType == typeof(object) || TypeExtensions.IsNullableType(entityType)) {
+                    return null;
+                }
+                var cache = new System.Collections.Generic.List<BindItem>();
+                foreach (System.Reflection.PropertyInfo propertyInfo in entityType.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.GetProperty | System.Reflection.BindingFlags.SetProperty)) {
+                    var binder = AttributeExtensions.GetCustomAttribute<DataBinderAttribute>(propertyInfo);
+                    if (binder == null)
+                        continue;
+                    BindItem bindItem = new BindItem() {
+                        propertyInfo = propertyInfo,
+                        binder = binder,
+                        bindAction = binder.Bind,
+                    };
+                    cache.Add(bindItem);
+                }
+                return cache;
+            });
             return list;
         }
         #endregion
@@ -261,22 +194,22 @@ namespace Symbol.Data.Binding {
         /// </summary>
         /// <returns>返回缓存值。</returns>
         protected delegate object CacheValueFunc();
-        delegate object BindAction(IDataContext dataContext, System.Data.IDataReader dataReader, object entity, string field, Type type, IDataBinderObjectCache cache);
+        delegate object BindAction(IDataContext dataContext, IDataQueryReader reader, object entity, string field, Type type, IDataBinderObjectCache cache);
         class BindItem {
             public System.Reflection.PropertyInfo propertyInfo;
             public DataBinderAttribute binder;
             public BindAction bindAction;
 
-            public void Bind(IDataContext dataContext, System.Data.IDataReader dataReader, object entity, IDataBinderObjectCache cache) {
+            public void Bind(IDataContext dataContext, IDataQueryReader reader, object entity, IDataBinderObjectCache cache) {
                 if (cache != null && binder.AllowCache) {
                     object value;
                     if (!cache.Get(entity, propertyInfo.Name, out value)) {
-                        value = binder.Bind(dataContext, dataReader, entity, propertyInfo.Name, propertyInfo.PropertyType, cache);
+                        value = binder.Bind(dataContext, reader, entity, propertyInfo.Name, propertyInfo.PropertyType, cache);
                         cache.Set(entity, propertyInfo.Name, value);
                     }
                     propertyInfo.SetValue(entity, value, null);
                 } else {
-                    var value2 = binder.Bind(dataContext, dataReader, entity, propertyInfo.Name, propertyInfo.PropertyType, cache);
+                    var value2 = binder.Bind(dataContext, reader, entity, propertyInfo.Name, propertyInfo.PropertyType, cache);
                     propertyInfo.SetValue(entity, value2, null);
                 }
             }
@@ -284,13 +217,13 @@ namespace Symbol.Data.Binding {
         class ObjectMapper {
             private IDataContext _dataContext;
             private object _entity;
-            private System.Data.IDataReader _dataReader;
+            private IDataQueryReader _reader;
             private FastObject _fastObject;
-            public ObjectMapper(string expression, IDataContext dataContext, object entity, System.Data.IDataReader dataReader) {
+            public ObjectMapper(string expression, IDataContext dataContext, object entity, IDataQueryReader reader) {
                 _fastObject = expression;
                 _dataContext = dataContext;
                 _entity = entity;
-                _dataReader = dataReader;
+                _reader = reader;
             }
 
             public object Map() {
@@ -357,16 +290,16 @@ namespace Symbol.Data.Binding {
                     if (p10.IndexOf('.') > -1) {
                         string name = p10.Split('.')[0];
                         string path = p10.Substring(name.Length + 1);
-                        fastObject[key] = FastObject.Path(DataReaderHelper.Current(_dataReader, name), path);
+                        fastObject[key] = FastObject.Path(_reader.GetValue(name, null), path);
                     } else {
-                        fastObject[key] = DataReaderHelper.Current(_dataReader, p10);
+                        fastObject[key] = _reader.GetValue(p10, null);
                     }
                 }
             }
             public void Dispose() {
                 _dataContext = null;
                 _entity = null;
-                _dataReader = null;
+                _reader = null;
                 _fastObject = null;
             }
 
@@ -377,12 +310,12 @@ namespace Symbol.Data.Binding {
         /// <param name="expression">表达式</param>
         /// <param name="dataContext"></param>
         /// <param name="entity">实体对象</param>
-        /// <param name="dataReader"></param>
+        /// <param name="reader">数据查询读取器。</param>
         /// <returns></returns>
-        public static object MapObject(string expression, IDataContext dataContext, object entity, System.Data.IDataReader dataReader) {
+        public static object MapObject(string expression, IDataContext dataContext, object entity, IDataQueryReader reader) {
             if (string.IsNullOrEmpty(expression))
                 return null;
-            var mapper = new ObjectMapper(expression, dataContext, entity, dataReader);
+            var mapper = new ObjectMapper(expression, dataContext, entity, reader);
             var result = mapper.Map();
             mapper.Dispose();
             return result;

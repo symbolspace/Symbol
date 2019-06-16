@@ -31,13 +31,13 @@ namespace Symbol.Data.Binding {
         /// 绑定数据。
         /// </summary>
         /// <param name="dataContext">数据上下文对象。</param>
-        /// <param name="dataReader">数据读取对象。</param>
+        /// <param name="reader">数据查询读取器。</param>
         /// <param name="entity">当前实体对象。</param>
         /// <param name="field">当前字段。</param>
         /// <param name="type">实体中字段的类型。</param>
         /// <param name="cache">缓存。</param>
         /// <returns>返回绑定的数据。</returns>
-        public override object Bind(IDataContext dataContext, System.Data.IDataReader dataReader, object entity, string field, Type type, IDataBinderObjectCache cache) {
+        public override object Bind(IDataContext dataContext, IDataQueryReader reader, object entity, string field, Type type, IDataBinderObjectCache cache) {
             var elementType = type.IsArray ? type.GetElementType() : type.GetGenericArguments()[0];
             bool isSingleValue = (elementType == typeof(string) || elementType.IsValueType || TypeExtensions.IsNullableType(elementType));
 
@@ -49,12 +49,12 @@ namespace Symbol.Data.Binding {
                 if (isSingleValue) {
                     builder.Select(Field);
                 }
-                var conditiion = MapObject(Condition, dataContext, entity, dataReader);
+                var conditiion = MapObject(Condition, dataContext, entity, reader);
                 builder.Query(conditiion).Sort(Sorter);
                 return CacheFunc(cache, builder, "list", type, () => {
+                    var list = (System.Collections.IList)FastWrapper.CreateInstance(type);
                     var q = dataContext.CreateQuery(elementType, builder.CommandText, builder.Parameters);
                     q.DataBinderObjectCache = cache;
-                    var list = (System.Collections.IList)FastWrapper.CreateInstance(type);
                     foreach (var item in q) {
                         list.Add(item);
                     }
