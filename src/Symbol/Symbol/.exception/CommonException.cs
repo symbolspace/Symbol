@@ -278,6 +278,15 @@ namespace Symbol {
         public static void ThrowArgument(string paramName) {
             throw new System.ArgumentException(paramName);
         }
+        /// <summary>
+        /// 抛出 参数无效 异常。
+        /// </summary>
+        /// <param name="paramName">参数名。</param>
+        /// <param name="message">错误消息。</param>
+        /// <exception cref="System.ArgumentException"> 对象。</exception>
+        public static void ThrowArgument(string paramName, string message) {
+            throw new System.ArgumentException(message, paramName);
+        }
 
         #region 数组异常
 
