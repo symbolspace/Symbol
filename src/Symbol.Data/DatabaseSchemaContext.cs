@@ -54,7 +54,7 @@ namespace Symbol.Data {
         /// <param name="dataContext">DataContext对象</param>
         public DatabaseSchemaContext(Symbol.Data.IDataContext dataContext) {
             _dataContext = dataContext;
-            _databaseName = dataContext.Connection.Database;
+            _databaseName = dataContext.Connection.DatabaseName;
             _log = LogBase.Empty;
             _vars = new Symbol.Collections.Generic.NameValueCollection<object>();
             _vars.Add("log", _log);

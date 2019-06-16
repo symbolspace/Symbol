@@ -76,6 +76,12 @@ namespace Symbol.Data {
         /// </summary>
         Symbol.Collections.Generic.HashSet<string> OrderBys { get; }
 
+        /// <summary>
+        /// 获取方言对象。
+        /// </summary>
+        IDialect Dialect { get; }
+
+
         #endregion
 
         #region PreName
@@ -84,6 +90,7 @@ namespace Symbol.Data {
         /// </summary>
         /// <param name="name">字段、通用名称</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string name)")]
         string PreName(string name);
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
@@ -91,12 +98,14 @@ namespace Symbol.Data {
         /// <param name="pairs">包含多级名称，如db.test.abc</param>
         /// <param name="spliter">多级分割符，如“.”</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string pairs, string spliter)")]
         string PreName(string pairs, string spliter);
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
         /// </summary>
         /// <param name="pairs">多级名称，如[ "db", "test", "abc" ]</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string[] pairs)")]
         string PreName(string[] pairs);
         #endregion
 
@@ -186,6 +195,21 @@ namespace Symbol.Data {
         #endregion
 
         #region Where Extensions
+
+        #region And Or
+        /// <summary>
+        /// And表达式。
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        ISelectCommandBuilder And(WhereExpressionAction action);
+        /// <summary>
+        /// Or表达式。
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        ISelectCommandBuilder Or(WhereExpressionAction action);
+        #endregion
 
         #region Equals
         /// <summary>
@@ -331,7 +355,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         ISelectCommandBuilder Like(string field, string value, bool reverse, string op = "and");
-        
+
 
         /// <summary>
         /// 模糊匹配（like value%，自动忽略空或空文本）。
@@ -668,8 +692,6 @@ namespace Symbol.Data {
 
     }
 
-
-
     /// <summary>
     /// 添加IDbCommand参数委托
     /// </summary>
@@ -698,7 +720,6 @@ namespace Symbol.Data {
     /// <param name="refer">引用关系。</param>
     /// <returns></returns>
     public delegate bool CommandReferFilterDelegate(ISelectCommandBuilder builder, NoSQL.Refer refer);
-
 
 
 }

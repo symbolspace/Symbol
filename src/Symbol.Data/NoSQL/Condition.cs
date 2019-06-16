@@ -325,6 +325,13 @@ namespace Symbol.Data.NoSQL {
                     #endregion
                     #region in notin
                     case "in": {
+                            if (jsonValue.Type == NodeValueTypes.String) {
+                                string text = ((string)jsonValue.Value)?.Trim();
+                                if (text[0] != '[') {
+                                    text = "[" + text + "]";
+                                }
+                                jsonValue = new NodeValue(JSON.Parse(text));
+                            }
                             if (jsonValue.Type == NodeValueTypes.Array && jsonValue.Length > 0) {
                                 pair._value = jsonValue.Value;
                                 return true;
@@ -334,11 +341,19 @@ namespace Symbol.Data.NoSQL {
                     case "!in":
                     case "nin":
                     case "notin": {
+                            if (jsonValue.Type == NodeValueTypes.String) {
+                                string text = ((string)jsonValue.Value)?.Trim();
+                                if (text[0] != '[') {
+                                    text = "[" + text + "]";
+                                }
+                                jsonValue = new NodeValue(JSON.Parse(text));
+                            }
                             if (jsonValue.Type == NodeValueTypes.Array && jsonValue.Length > 0) {
                                 pair._name = "notin";
                                 pair._value = jsonValue.Value;
                                 return true;
                             }
+
                             return false;
                         }
                     #endregion

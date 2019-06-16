@@ -3,10 +3,12 @@
  *  e-mail：symbolspace@outlook.com
  */
 
+using System;
+
 namespace Symbol.Data {
 
     /// <summary>
-    /// 插入命令构造器基类
+    /// 更新命令构造器基类
     /// </summary>
     public abstract class UpdateCommandBuilder :
         IUpdateCommandBuilder,
@@ -30,6 +32,8 @@ namespace Symbol.Data {
         /// 当前数据上下文对象。
         /// </summary>
         protected IDataContext _dataContext;
+
+        private IDialect _dialect;
 
         #endregion
 
@@ -65,6 +69,10 @@ namespace Symbol.Data {
                 return LinqHelper.ToArray(_fields.Values);
             }
         }
+        /// <summary>
+        /// 获取方言对象。
+        /// </summary>
+        public IDialect Dialect { get { return _dialect; } }
 
         #endregion
 
@@ -78,6 +86,8 @@ namespace Symbol.Data {
             _dataContext = dataContext;
             dataContext.DisposableObjects?.Add(this);
             _tableName = tableName;
+            _dialect = dataContext.Provider.CreateDialect();
+            _dialect.Keywords.Add("$self", _tableName);
             _removedFields = new Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
             _fields = new Collections.Generic.NameValueCollection<object>();
             _fields.NullValue = System.DBNull.Value;
@@ -93,31 +103,28 @@ namespace Symbol.Data {
         /// </summary>
         /// <param name="name">字段、通用名称</param>
         /// <returns>返回处理后的名称。</returns>
-        public abstract string PreName(string name);
+        [Obsolete("请更改为.Dialect.PreName(string name)")]
+        public virtual string PreName(string name) {
+            return _dialect.PreName(name);
+        }
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
         /// </summary>
         /// <param name="pairs">包含多级名称，如db.test.abc</param>
         /// <param name="spliter">多级分割符，如“.”</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string pairs, string spliter)")]
         public virtual string PreName(string pairs, string spliter) {
-            if (string.IsNullOrEmpty(pairs))
-                return "";
-            return PreName(pairs.Split(new string[] { spliter }, System.StringSplitOptions.RemoveEmptyEntries));
+            return _dialect.PreName(pairs, spliter);
         }
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
         /// </summary>
         /// <param name="pairs">多级名称，如[ "db", "test", "abc" ]</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string[] pairs)")]
         public virtual string PreName(string[] pairs) {
-            if (pairs == null || pairs.Length == 0)
-                return "";
-
-            for (int i = 0; i < pairs.Length; i++) {
-                pairs[i] = PreName(pairs[i]);
-            }
-            return string.Join(".", pairs);
+            return _dialect.PreName(pairs);
         }
         #endregion
 
@@ -150,8 +157,8 @@ namespace Symbol.Data {
         /// <returns></returns>
         protected virtual object FieldValueWrapper(System.ComponentModel.PropertyDescriptor propertyDescriptor, object value) {
             CommandParameter result = new CommandParameter() {
-                Name = propertyDescriptor.Name,
-                RealType = TypeExtensions.IsNullableType(propertyDescriptor.PropertyType) ? TypeExtensions.GetNullableType(propertyDescriptor.PropertyType) : propertyDescriptor.PropertyType,
+                Name = Dialect?.ParameterNameGrammar( propertyDescriptor.Name),
+                RealType = TypeExtensions.GetNullableType(propertyDescriptor.PropertyType),
                 Value = value,
             };
             System.Type type = propertyDescriptor.ComponentType;
@@ -163,18 +170,7 @@ namespace Symbol.Data {
             return result;
         }
         #endregion
-        #region PreFieldValueWrapper
-        /// <summary>
-        /// 预处理：字段值包装处理
-        /// </summary>
-        /// <param name="propertyDescriptor">反射对象。</param>
-        /// <param name="value">值。</param>
-        /// <param name="commandParameter">参数对象。</param>
-        protected virtual void PreFieldValueWrapper(System.ComponentModel.PropertyDescriptor propertyDescriptor, object value, CommandParameter commandParameter) {
-
-        }
-        #endregion
-
+       
         #region BuilderCommandText
         /// <summary>
         /// 构造命令脚本。
@@ -186,7 +182,7 @@ namespace Symbol.Data {
                 return string.Empty;
             System.Text.StringBuilder builder = new System.Text.StringBuilder();
             builder.Append(" update ")
-                   .Append(PreName(_tableName, "." ))
+                   .Append(_dialect.PreName(_tableName, "."))
                    .AppendLine()
                    .AppendLine(" set ");
             int i = 0;
@@ -198,7 +194,13 @@ namespace Symbol.Data {
                 if (i > 1) {
                     builder.AppendLine(",");
                 }
-                builder.Append("    ").Append(PreName(item.Key)).Append("=@p").Append(++pIndex);
+                builder.Append("    ").Append(_dialect.PreName(item.Key)).Append("=");
+                if (item.Value is CommandParameter commandParameter) {
+                    builder.Append(Dialect?.ParameterNameGrammar(commandParameter.Name));
+                } else {
+                    builder.Append(Dialect?.ParameterNameGrammar("p" +(++pIndex)));
+                }
+                
             }
 
             return builder.ToString();
@@ -252,7 +254,7 @@ namespace Symbol.Data {
                         builder.AppendLine(",");
                     }
 
-                    builder.AppendFormat("    {0}={0}+@p{1}", PreName(name), ++pIndex);
+                    builder.AppendFormat("    {0}={0}+@p{1}", _dialect.PreName(name), ++pIndex);
                     _fields[name] = value.Value;
                     return true;
                 } else if (
@@ -262,7 +264,7 @@ namespace Symbol.Data {
                     if (i > 1) {
                         builder.AppendLine(",");
                     }
-                    builder.AppendFormat("    {0}={0}-@p{1}", PreName(name), ++pIndex);
+                    builder.AppendFormat("    {0}={0}-@p{1}", _dialect.PreName(name), ++pIndex);
                     _fields[name] = value.Value;
                     return true;
                 } else if (
@@ -271,7 +273,7 @@ namespace Symbol.Data {
                     if (i > 1) {
                         builder.AppendLine(",");
                     }
-                    builder.Append("    ").Append(PreName(name)).Append('=').Append(DateTimeNowGrammar());
+                    builder.Append("    ").Append(_dialect.PreName(name)).Append('=').Append(_dialect.DateTimeNowGrammar());
                     _fields.Remove(name);
                     return true;
                 }
@@ -297,11 +299,6 @@ namespace Symbol.Data {
             return false;
         }
 
-        /// <summary>
-        /// Like 语法
-        /// </summary>
-        /// <returns></returns>
-        protected abstract string DateTimeNowGrammar();
         #endregion
 
         #region GetValues
@@ -382,7 +379,9 @@ namespace Symbol.Data {
         /// 创建Select命令构造器。
         /// </summary>
         /// <returns></returns>
-        protected abstract ISelectCommandBuilder CreateSelect();
+        protected virtual ISelectCommandBuilder CreateSelect() {
+            return _dataContext?.CreateSelect(_tableName, "");
+        }
         #endregion
 
         #region Dispose
@@ -396,6 +395,7 @@ namespace Symbol.Data {
             _fields?.Clear();
             _fields = null;
             _dataContext = null;
+            _dialect = null;
         }
         #endregion
 

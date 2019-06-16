@@ -11,7 +11,7 @@ namespace Symbol.Data {
     /// 数据库架构管理。
     /// </summary>
     public class DatabaseSchemaManager : System.IDisposable {
-        
+
         #region fields
         private System.Collections.Generic.List<DatabaseSchemaHandler> _list;
         private System.Collections.Generic.Dictionary<string, DatabaseSchemaHandler> _caches;
@@ -74,9 +74,9 @@ namespace Symbol.Data {
         /// <returns></returns>
         public System.Collections.Generic.List<DatabaseSchemaHandler> RegisterAssembly(System.Reflection.Assembly assembly) {
             System.Collections.Generic.List<DatabaseSchemaHandler> list = new System.Collections.Generic.List<DatabaseSchemaHandler>();
-            if (assembly == null 
-                || assembly.FullName.StartsWith("System") 
-                || assembly.FullName.StartsWith("mscorlib") 
+            if (assembly == null
+                || assembly.FullName.StartsWith("System")
+                || assembly.FullName.StartsWith("mscorlib")
                 //|| assembly.IsDynamic
                 ) {
                 return list;
@@ -120,9 +120,9 @@ namespace Symbol.Data {
                 _caches.Add(key, handler);
                 _list.Add(handler);
                 ClassOrder(handler.Attribute.TableName, handler.Attribute.Order);
-                CacheRef(type.Assembly,handler);
+                CacheRef(type.Assembly, handler);
                 return handler;
-            } catch(System.Exception error) {
+            } catch (System.Exception error) {
                 _log.Warning("创建实例失败：{0}\r\n{1}", fullName, LogBase.ExceptionToString(error));
                 return null;
             }
@@ -143,7 +143,7 @@ namespace Symbol.Data {
                 foreach (string item in references) {
                     int i = item.IndexOf('.');
                     if (i > -1) {
-                        order += (TypeExtensions.Convert(item.Substring(i+1), ClassOrder(item)));
+                        order += (TypeExtensions.Convert(item.Substring(i + 1), ClassOrder(item)));
                     } else {
                         order += ClassOrder(item);
                     }
@@ -196,7 +196,7 @@ namespace Symbol.Data {
             System.Collections.Generic.Dictionary<string, SortEntry> refOrders = new System.Collections.Generic.Dictionary<string, SortEntry>();
             System.Collections.Generic.List<AssemblyRef> all = LinqHelper.ToList(_refs.Values);
 
-            SortAction action = null;action = (p1, p2) => {
+            SortAction action = null; action = (p1, p2) => {
                 foreach (string p11 in p1.refs) {
                     AssemblyRef p12;
                     if (_refs.TryGetValue(p11, out p12)) {
@@ -215,7 +215,7 @@ namespace Symbol.Data {
             while (all.Count > 0) {
                 AssemblyRef item = all[0];
                 all.RemoveAt(0);
-                action(item,-1);
+                action(item, -1);
             }
             SortFunc classOrderGetter = (p1) => p1.Attribute.Order + GetClassRef(p1.Attribute.TableName, p1.Attribute.References);
 
@@ -237,7 +237,7 @@ namespace Symbol.Data {
         public bool Process(DatabaseSchemaContext context) {
             System.Collections.Generic.List<DatabaseSchemaHandler> list = Sort();
             context.Log.Info("数据库架构 {0}项", list.Count);
-            context.Log.Info("数据库架构处理[{0}] 开始", context.DataContext.Connection.Database);
+            context.Log.Info("数据库架构处理[{0}] 开始", context.DataContext.Connection.DatabaseName);
             bool success = true;
             int[] counts = new int[3];
             int t = Environment.TickCount;
@@ -247,25 +247,26 @@ namespace Symbol.Data {
                 if (result == DatabaseSchemaProcessResults.Error)
                     success = false;
             }
-            using (context.DataContext.BeginTransaction()) {
-                foreach (DatabaseSchemaHandler item in list.FindAll(p=>p.Attribute.Type!= DatabaseSchemaTypes.TableSpace)) {
+            {
+                context.DataContext.BeginTransaction();
+                foreach (DatabaseSchemaHandler item in list.FindAll(p => p.Attribute.Type != DatabaseSchemaTypes.TableSpace)) {
                     DatabaseSchemaProcessResults result = item.Process(context);
                     counts[(int)result]++;
                     if (result == DatabaseSchemaProcessResults.Error)
                         success = false;
                 }
-                context.Log.Info("数据库架构处理[{0}] 成功：{1}，错误：{2}，忽略：{3}", context.DataContext.Connection.Database,
+                context.Log.Info("数据库架构处理[{0}] 成功：{1}，错误：{2}，忽略：{3}", context.DataContext.Connection.DatabaseName,
                     counts[0], counts[1], counts[2]);
                 if (!success) {
-                    context.Log.Info("数据库架构处理[{0}] 回滚", context.DataContext.Connection.Database);
+                    context.Log.Info("数据库架构处理[{0}] 回滚", context.DataContext.Connection.DatabaseName);
                     context.DataContext.RollbackTransaction();
                 } else {
-                    context.Log.Info("数据库架构处理[{0}] 提交", context.DataContext.Connection.Database);
+                    context.Log.Info("数据库架构处理[{0}] 提交", context.DataContext.Connection.DatabaseName);
                     context.DataContext.CommitTransaction();
                 }
             }
             t = Environment.TickCount - t;
-            context.Log.Info("数据库架构处理[{0}] 完成，用时{1}ms", context.DataContext.Connection.Database, t);
+            context.Log.Info("数据库架构处理[{0}] 完成，用时{1}ms", context.DataContext.Connection.DatabaseName, t);
 
             return success;
         }

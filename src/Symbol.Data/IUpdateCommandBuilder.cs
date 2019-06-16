@@ -3,6 +3,8 @@
  *  e-mail：symbolspace@outlook.com
  */
 
+using System;
+
 namespace Symbol.Data {
 
     /// <summary>
@@ -36,12 +38,18 @@ namespace Symbol.Data {
         /// </summary>
         object[] Values { get; }
 
+        /// <summary>
+        /// 获取方言对象。
+        /// </summary>
+        IDialect Dialect { get; }
+
         #region PreName
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
         /// </summary>
         /// <param name="name">字段、通用名称</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string name)")]
         string PreName(string name);
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
@@ -49,12 +57,14 @@ namespace Symbol.Data {
         /// <param name="pairs">包含多级名称，如db.test.abc</param>
         /// <param name="spliter">多级分割符，如“.”</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string pairs, string spliter)")]
         string PreName(string pairs, string spliter);
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
         /// </summary>
         /// <param name="pairs">多级名称，如[ "db", "test", "abc" ]</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string[] pairs)")]
         string PreName(string[] pairs);
         #endregion
 

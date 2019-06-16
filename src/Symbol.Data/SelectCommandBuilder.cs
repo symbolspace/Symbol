@@ -28,10 +28,6 @@ namespace Symbol.Data {
         /// </summary>
         protected Symbol.Collections.Generic.HashSet<string> _whereBefores;
         /// <summary>
-        /// where列表
-        /// </summary>
-        protected System.Collections.Generic.Dictionary<string, WhereOperators> _wheres;
-        /// <summary>
         /// 排序列表
         /// </summary>
         protected Symbol.Collections.Generic.HashSet<string> _orderbys;
@@ -40,11 +36,13 @@ namespace Symbol.Data {
         /// </summary>
         protected IDataContext _dataContext;
 
+        private IDialect _dialect;
+
+
         private bool _ended = false;
 
-        private AddCommandParameterDelegate _addCommandParameter;
         private System.Collections.Generic.List<object> _parameters;
-
+        private IWhereExpression _whereExpression;
         private static readonly string[] _customTableChars = new string[] { "@", "select ", " where", " as", "*", " from", "(" };
 
         #endregion
@@ -63,9 +61,11 @@ namespace Symbol.Data {
         /// 获取或设置 添加IDbCommand参数委托，默认追加至Parameters。
         /// </summary>
         public virtual AddCommandParameterDelegate AddCommandParameter {
-            get { return _addCommandParameter; }
+            get { return _whereExpression?.AddCommandParameter; }
             set {
-                _addCommandParameter = value ?? AddCommandParameterDefault;
+                if (_whereExpression == null)
+                    return;
+                _whereExpression.AddCommandParameter = value ?? AddCommandParameterDefault;
             }
         }
         /// <summary>
@@ -99,7 +99,7 @@ namespace Symbol.Data {
                 if (IsCustomTable)
                     return "";
                 System.Text.StringBuilder builder = new System.Text.StringBuilder();
-                builder.Append("delete").AppendFormat(" from {0}", PreName(_tableName));
+                builder.Append("delete").AppendFormat(" from {0}", _dialect.PreName(_tableName));
                 BuildWhere(builder);
                 return builder.ToString();
             }
@@ -117,7 +117,7 @@ namespace Symbol.Data {
         /// <summary>
         /// 获取where命令。
         /// </summary>
-        public System.Collections.Generic.Dictionary<string, WhereOperators> Wheres { get { return _wheres; } }
+        public System.Collections.Generic.Dictionary<string, WhereOperators> Wheres { get { return _whereExpression?.Items; } }
 
         /// <summary>
         /// 获取或设置数据取出条数。
@@ -150,6 +150,10 @@ namespace Symbol.Data {
                 return false;
             }
         }
+        /// <summary>
+        /// 获取方言对象。
+        /// </summary>
+        public IDialect Dialect { get { return _dialect; } }
 
         #endregion
 
@@ -167,18 +171,28 @@ namespace Symbol.Data {
             _fields = new Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
             _whereBefores = new Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
             _orderbys = new Collections.Generic.HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-            _wheres = new System.Collections.Generic.Dictionary<string, WhereOperators>(System.StringComparer.OrdinalIgnoreCase);
             TakeCount = -1;
             _parameters = new System.Collections.Generic.List<object>();
-            _addCommandParameter = AddCommandParameterDefault;
-
+            _dialect = dataContext.Provider.CreateDialect();
+            _whereExpression = CreateWhereExpression();
+            _whereExpression.AddCommandParameter = AddCommandParameterDefault;
             if (!string.IsNullOrEmpty(commandText)) {
                 Parse(commandText);
             }
+            _dialect.Keywords.Add("$self", _tableName);
         }
         #endregion
 
         #region methods
+
+        /// <summary>
+        /// 创建WhereExpression对象。
+        /// </summary>
+        /// <returns>返回WhereExpression对象。</returns>
+        protected virtual IWhereExpression CreateWhereExpression() {
+            IWhereExpression whereExpression = new WhereExpression(_dataContext, _dialect, _whereExpression == null ? AddCommandParameterDefault : _whereExpression.AddCommandParameter);
+            return whereExpression;
+        }
 
         #region PreName
         /// <summary>
@@ -186,31 +200,28 @@ namespace Symbol.Data {
         /// </summary>
         /// <param name="name">字段、通用名称</param>
         /// <returns>返回处理后的名称。</returns>
-        public abstract string PreName(string name);
+        [Obsolete("请更改为.Dialect.PreName(string name)")]
+        public virtual string PreName(string name) {
+            return _dialect.PreName(name);
+        }
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
         /// </summary>
         /// <param name="pairs">包含多级名称，如db.test.abc</param>
         /// <param name="spliter">多级分割符，如“.”</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string pairs, string spliter)")]
         public virtual string PreName(string pairs, string spliter) {
-            if (string.IsNullOrEmpty(pairs))
-                return "";
-            return PreName(pairs.Split(new string[] { spliter }, System.StringSplitOptions.RemoveEmptyEntries));
+            return _dialect.PreName(pairs, spliter);
         }
         /// <summary>
         /// 对字段、通用名称进行预处理（语法、方言等）
         /// </summary>
         /// <param name="pairs">多级名称，如[ "db", "test", "abc" ]</param>
         /// <returns>返回处理后的名称。</returns>
+        [Obsolete("请更改为.Dialect.PreName(string[] pairs)")]
         public virtual string PreName(string[] pairs) {
-            if (pairs == null || pairs.Length == 0)
-                return "";
-
-            for (int i = 0; i < pairs.Length; i++) {
-                pairs[i] = PreName(pairs[i]);
-            }
-            return string.Join(".", pairs);
+            return _dialect.PreName(pairs);
         }
         #endregion
         #region Parse
@@ -263,7 +274,7 @@ namespace Symbol.Data {
                         isFirstField = false;
                     else
                         builder.Append(',').AppendLine();
-                    builder.Append("    ").Append(PreName(field));
+                    builder.Append("    ").Append(_dialect.PreName(field));
                 }
             }
         }
@@ -272,7 +283,7 @@ namespace Symbol.Data {
         /// </summary>
         /// <param name="builder">构造缓存。</param>
         protected virtual void BuildFrom(System.Text.StringBuilder builder) {
-            builder.AppendLine().Append(" from ").Append(PreName(_tableName)).Append(" ").AppendLine();
+            builder.AppendLine().Append(" from ").Append(_dialect.PreName(_tableName)).Append(" ").AppendLine();
         }
         /// <summary>
         /// 构造where before脚本。
@@ -295,17 +306,7 @@ namespace Symbol.Data {
             if (Wheres.Count == 0)
                 return;
             builder.AppendLine(" where ");
-            bool isFirstWhere = true;
-            foreach (System.Collections.Generic.KeyValuePair<string, WhereOperators> expression in Wheres) {
-                builder.Append("    ");
-                if (isFirstWhere) {
-                    isFirstWhere = false;
-                } else if (expression.Value != WhereOperators.None) {
-                    builder.Append(expression.Value.ToString().ToLower());
-                    builder.Append(" ");
-                }
-                builder.Append(expression.Key).AppendLine();
-            }
+            builder.Append(_whereExpression.CommandText);
         }
         /// <summary>
         /// 构造order by脚本。
@@ -383,7 +384,7 @@ namespace Symbol.Data {
                 _orderbys.Clear();
                 _fields.Clear();
             }
-            _fields.Add(string.Format("sum({0})", PreName(field)));
+            _fields.Add(string.Format("sum({0})", _dialect.PreName(field)));
             return this;
         }
         /// <summary>
@@ -406,7 +407,7 @@ namespace Symbol.Data {
                 _orderbys.Clear();
                 _fields.Clear();
             }
-            _fields.Add(string.Format("min({0})", PreName(field)));
+            _fields.Add(string.Format("min({0})", _dialect.PreName(field)));
             return this;
         }
         /// <summary>
@@ -429,7 +430,7 @@ namespace Symbol.Data {
                 _orderbys.Clear();
                 _fields.Clear();
             }
-            _fields.Add(string.Format("max({0})", PreName(field)));
+            _fields.Add(string.Format("max({0})", _dialect.PreName(field)));
             return this;
         }
         /// <summary>
@@ -452,7 +453,7 @@ namespace Symbol.Data {
                 _orderbys.Clear();
                 _fields.Clear();
             }
-            _fields.Add(string.Format("avg({0})", PreName(field)));
+            _fields.Add(string.Format("avg({0})", _dialect.PreName(field)));
             return this;
         }
         #endregion
@@ -493,7 +494,27 @@ namespace Symbol.Data {
         #endregion
 
         #region Where
+        #region And Or
 
+        /// <summary>
+        /// And表达式。
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public virtual ISelectCommandBuilder And(WhereExpressionAction action) {
+            _whereExpression?.And(action);
+            return this;
+        }
+        /// <summary>
+        /// Or表达式。
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public virtual ISelectCommandBuilder Or(WhereExpressionAction action) {
+            _whereExpression?.Or(action);
+            return this;
+        }
+        #endregion
         /// <summary>
         /// 生成where语句之前的命令。
         /// </summary>
@@ -504,7 +525,7 @@ namespace Symbol.Data {
                 foreach (string p in befores) {
                     if (string.IsNullOrEmpty(p))
                         continue;
-                    string p10 = StringExtensions.Replace(p, "$self", PreName(_tableName), true);
+                    string p10 = StringExtensions.Replace(p, "$self", _dialect.PreName(_tableName), true);
                     _whereBefores.Add(p10);
                 }
             }
@@ -515,7 +536,7 @@ namespace Symbol.Data {
         /// </summary>
         /// <returns></returns>
         public virtual ISelectCommandBuilder WhereClear() {
-            _wheres.Clear();
+            _whereExpression.Clear();
             return this;
         }
 
@@ -526,16 +547,7 @@ namespace Symbol.Data {
         /// <param name="expressions">表达式。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Where(WhereOperators @operator, params string[] expressions) {
-            if (expressions != null) {
-                foreach (string expression in expressions) {
-                    if (string.IsNullOrEmpty(expression))
-                        continue;
-                    string key = StringExtensions.Replace(expression, "$self", PreName(_tableName), true);
-                    if (_wheres.ContainsKey(key))
-                        continue;
-                    _wheres.Add(key, @operator);
-                }
-            }
+            _whereExpression?.Where(@operator, expressions);
             return this;
         }
         /// <summary>
@@ -545,11 +557,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Where(string expression, string op = "and") {
-            if (!string.IsNullOrEmpty(expression)) {
-                if (string.IsNullOrEmpty(op))
-                    op = "and";
-                return Where(TypeExtensions.Convert<WhereOperators>(op), expression);
-            }
+            _whereExpression?.Where(expression, op);
             return this;
         }
         #endregion
@@ -563,8 +571,7 @@ namespace Symbol.Data {
         /// <param name="valueFilter">值过虑器，value不为null或string.Empty时。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder WhereIf(string expression, string value, string op = "and", WhereIfValueFilterDelegate<string> valueFilter = null) {
-            if (!string.IsNullOrEmpty(expression) && !string.IsNullOrEmpty(value))
-                return Where(string.Format(expression, AddCommandParameter(valueFilter == null ? value : valueFilter(value))), op);
+            _whereExpression?.WhereIf(expression, value, op, valueFilter);
             return this;
         }
         /// <summary>
@@ -576,8 +583,7 @@ namespace Symbol.Data {
         /// <param name="valueFilter">值过虑器，value不为null或string.Empty时。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder WhereIf(string expression, string value, WhereOperators @operator, WhereIfValueFilterDelegate<string> valueFilter = null) {
-            if (!string.IsNullOrEmpty(expression) && !string.IsNullOrEmpty(value))
-                return Where(@operator, string.Format(expression, AddCommandParameter(valueFilter == null ? value : valueFilter(value))));
+            _whereExpression?.WhereIf(expression, value, @operator, valueFilter);
             return this;
         }
         /// <summary>
@@ -590,8 +596,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder WhereIf(string expression, decimal? value, decimal? min = null, decimal? max = null, string op = "and") {
-            if (value != null && (min == null || value >= min) && (max == null || value <= max))
-                return Where(string.Format(expression, AddCommandParameter(value)), op);
+            _whereExpression?.WhereIf(expression, value, min, max, op);
             return this;
         }
         /// <summary>
@@ -603,11 +608,7 @@ namespace Symbol.Data {
         /// <param name="valueFilter">值过虑器，value不为null或string.Empty时。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder WhereIf(string expression, object value, string op = "and", WhereIfValueFilterDelegate<object> valueFilter = null) {
-            if (!string.IsNullOrEmpty(expression) && value != null) {
-                if (value is string && string.IsNullOrEmpty((string)value))
-                    return this;
-                return Where(string.Format(expression, AddCommandParameter(valueFilter == null ? value : valueFilter(value))), op);
-            }
+            _whereExpression?.WhereIf(expression, value, op, valueFilter);
             return this;
         }
         /// <summary>
@@ -619,11 +620,7 @@ namespace Symbol.Data {
         /// <param name="valueFilter">值过虑器，value不为null或string.Empty时。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder WhereIf(string expression, object value, WhereOperators @operator, WhereIfValueFilterDelegate<object> valueFilter = null) {
-            if (!string.IsNullOrEmpty(expression) && value != null) {
-                if (value is string && string.IsNullOrEmpty((string)value))
-                    return this;
-                return Where(@operator, string.Format(expression, AddCommandParameter(valueFilter == null ? value : valueFilter(value))));
-            }
+            _whereExpression?.WhereIf(expression, value, @operator, valueFilter);
             return this;
         }
 
@@ -640,8 +637,7 @@ namespace Symbol.Data {
         /// <param name="value">文本内容</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Equals(WhereOperators @operator, string field, string value) {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + "={0}", value, @operator);
+            _whereExpression?.Equals(@operator, field, value);
             return this;
         }
         /// <summary>
@@ -652,21 +648,12 @@ namespace Symbol.Data {
         /// <param name="value">内容</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Equals(WhereOperators @operator, string field, object value) {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + "={0}", value, @operator);
+            _whereExpression?.Equals(@operator, field, value);
             return this;
         }
         #endregion
 
         #region Match
-        /// <summary>
-        /// 匹配操作符预处理。
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        protected virtual string MatchOperatorPre(string value) {
-            return value;
-        }
         /// <summary>
         /// 操作符匹配（自动忽略空或空文本）。
         /// </summary>
@@ -676,8 +663,7 @@ namespace Symbol.Data {
         /// <param name="matchOperator">匹配操作符</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Match(WhereOperators @operator, string field, string value, MatchOpertaors matchOperator = MatchOpertaors.Equals) {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre(EnumExtensions.GetProperty(matchOperator, "Keyword")) + "{0}", value, @operator);
+            _whereExpression?.Match(@operator, field, value, matchOperator);
             return this;
         }
         /// <summary>
@@ -689,8 +675,7 @@ namespace Symbol.Data {
         /// <param name="matchOperator">匹配操作符</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Match(WhereOperators @operator, string field, object value, MatchOpertaors matchOperator = MatchOpertaors.Equals) {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre(EnumExtensions.GetProperty(matchOperator, "Keyword")) + "{0}", value, @operator);
+            _whereExpression?.Match(@operator, field, value, matchOperator);
             return this;
         }
 
@@ -703,8 +688,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Match(string field, string value, MatchOpertaors matchOperator = MatchOpertaors.Equals, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre(EnumExtensions.GetProperty(matchOperator, "Keyword")) + "{0}", value, op);
+            _whereExpression?.Match(field, value, matchOperator, op);
             return this;
         }
         /// <summary>
@@ -716,8 +700,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Match(string field, object value, MatchOpertaors matchOperator = MatchOpertaors.Equals, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre(EnumExtensions.GetProperty(matchOperator, "Keyword")) + "{0}", value, op);
+            _whereExpression?.Match(field, value, matchOperator, op);
             return this;
         }
         #endregion
@@ -731,8 +714,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Eq(string field, string value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre("=") + "{0}", value, op);
+            _whereExpression?.Eq(field, value, op);
             return this;
         }
         /// <summary>
@@ -743,8 +725,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Eq(string field, object value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre("=") + "{0}", value, op);
+            _whereExpression?.Eq(field, value, op);
             return this;
         }
         /// <summary>
@@ -755,8 +736,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder NotEq(string field, object value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre("!=") + "{0}", value, op);
+            _whereExpression?.NotEq(field, value, op);
             return this;
         }
         /// <summary>
@@ -767,8 +747,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Lt(string field, object value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre("<") + "{0}", value, op);
+            _whereExpression?.Lt(field, value, op);
             return this;
         }
         /// <summary>
@@ -779,8 +758,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Lte(string field, object value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre("<=") + "{0}", value, op);
+            _whereExpression?.Lte(field, value, op);
             return this;
         }
         /// <summary>
@@ -791,8 +769,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Gt(string field, object value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre(">") + "{0}", value, op);
+            _whereExpression?.Gt(field, value, op);
             return this;
         }
         /// <summary>
@@ -803,8 +780,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Gte(string field, object value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(PreName(field) + MatchOperatorPre(">=") + "{0}", value, op);
+            _whereExpression?.Gte(field, value, op);
             return this;
         }
 
@@ -812,44 +788,6 @@ namespace Symbol.Data {
         #endregion
 
         #region Like 
-
-        /// <summary>
-        /// Like 值过滤器
-        /// </summary>
-        /// <param name="value">值</param>
-        /// <param name="left">允许起始</param>
-        /// <param name="right">允许末尾</param>
-        /// <param name="reverse">倒转，为true时表示value like field。</param>
-        /// <returns></returns>
-        protected virtual string LikeValueFilter(string value, bool left, bool right, bool reverse) {
-            if (reverse)
-                return value;
-            if (left)
-                value = "%" + value;
-            if (right)
-                value += "%";
-            return value;
-        }
-        /// <summary>
-        /// Like 语法
-        /// </summary>
-        /// <param name="field">列，例：aa</param>
-        /// <param name="left">允许起始</param>
-        /// <param name="right">允许末尾</param>
-        /// <param name="reverse">倒转，为true时表示value like field。</param>
-        /// <returns></returns>
-        protected virtual string LikeGrammar(string field, bool left, bool right, bool reverse) {
-            if (reverse) {
-                field = PreName(field);
-                if (left)
-                    field = "'%'+" + field;
-                if (right)
-                    field += "+'%'";
-                return "{0} like " + field;
-            } else {
-                return PreName(field) + " like {0}";
-            }
-        }
         /// <summary>
         /// 模糊匹配（like %value%，自动忽略空或空文本）。
         /// </summary>
@@ -858,8 +796,7 @@ namespace Symbol.Data {
         /// <param name="value">文本内容</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Like(WhereOperators @operator, string field, string value) {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, true, true, false), value, @operator, p => LikeValueFilter(p, true, true, false));
+            _whereExpression?.Like(@operator, field, value);
             return this;
         }
         /// <summary>
@@ -870,8 +807,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Like(string field, string value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, true, true, false), value, op, p => LikeValueFilter(p, true, true, false));
+            _whereExpression?.Like(field, value, op);
             return this;
         }
         /// <summary>
@@ -883,8 +819,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder Like(string field, string value, bool reverse, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, true, true, reverse), value, op, p => LikeValueFilter(p, true, true, reverse));
+            _whereExpression?.Like(field, value, reverse, op);
             return this;
         }
 
@@ -896,8 +831,7 @@ namespace Symbol.Data {
         /// <param name="value">文本内容</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder StartsWith(WhereOperators @operator, string field, string value) {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, false, true, false), value, @operator, p => LikeValueFilter(p, false, true, false));
+            _whereExpression?.StartsWith(@operator, field, value);
             return this;
         }
         /// <summary>
@@ -908,8 +842,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder StartsWith(string field, string value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, false, true, false), value, op, p => LikeValueFilter(p, false, true, false));
+            _whereExpression?.StartsWith(field, value, op);
             return this;
         }
         /// <summary>
@@ -921,8 +854,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder StartsWith(string field, string value, bool reverse, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, false, true, reverse), value, op, p => LikeValueFilter(p, false, true, reverse));
+            _whereExpression?.StartsWith(field, value, reverse, op);
             return this;
         }
 
@@ -934,8 +866,7 @@ namespace Symbol.Data {
         /// <param name="value">文本内容</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder EndsWith(WhereOperators @operator, string field, string value) {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, true, false, false), value, @operator, p => LikeValueFilter(p, true, false, false));
+            _whereExpression?.EndsWith(@operator, field, value);
             return this;
         }
         /// <summary>
@@ -946,8 +877,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder EndsWith(string field, string value, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, true, false, false), value, op, p => LikeValueFilter(p, true, false, false));
+            _whereExpression?.EndsWith(field, value, op);
             return this;
         }
         /// <summary>
@@ -959,31 +889,13 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder EndsWith(string field, string value, bool reverse, string op = "and") {
-            if (!string.IsNullOrEmpty(field))
-                return WhereIf(LikeGrammar(field, true, false, reverse), value, op, p => LikeValueFilter(p, true, false, reverse));
+            _whereExpression?.EndsWith(field, value, reverse, op);
             return this;
         }
 
         #endregion
 
         #region In NotIn
-        /// <summary>
-        /// 将数组添加到参数列表。
-        /// </summary>
-        /// <param name="values">通常是数组或List</param>
-        /// <returns></returns>
-        protected virtual string ArrayToParameter(System.Collections.IEnumerable values) {
-            System.Text.StringBuilder builder = new System.Text.StringBuilder();
-            foreach (object value in values) {
-                if (value == null || (value is string && (string)value == ""))
-                    continue;
-                if (builder.Length > 0)
-                    builder.Append(',');
-                builder.Append(AddCommandParameter(value));
-            }
-            return builder.ToString();
-        }
-
         /// <summary>
         /// 包含（自动忽略空或空文本）。
         /// </summary>
@@ -992,7 +904,8 @@ namespace Symbol.Data {
         /// <param name="values">文本内容列表</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder In(WhereOperators @operator, string field, System.Collections.Generic.IEnumerable<string> values) {
-            return In(@operator, field, (System.Collections.IEnumerable)values);
+            _whereExpression?.In(@operator, field, values);
+            return this;
         }
         /// <summary>
         /// 包含（自动忽略空）。
@@ -1002,12 +915,7 @@ namespace Symbol.Data {
         /// <param name="values">内容列表</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder In(WhereOperators @operator, string field, System.Collections.IEnumerable values) {
-            if (string.IsNullOrEmpty(field) || values == null)
-                return this;
-            string args = ArrayToParameter(values);
-            if (args.Length > 0) {
-                return Where(@operator, PreName(field) + " in(" + args + ")");
-            }
+            _whereExpression?.In(@operator, field, values);
             return this;
         }
         /// <summary>
@@ -1018,12 +926,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder In(string field, System.Collections.IEnumerable values, string op = "and") {
-            if (string.IsNullOrEmpty(field) || values == null)
-                return this;
-            string args = ArrayToParameter(values);
-            if (args.Length > 0) {
-                return Where(PreName(field) + " in(" + args + ")", op);
-            }
+            _whereExpression?.In(field, values, op);
             return this;
         }
 
@@ -1035,8 +938,8 @@ namespace Symbol.Data {
         /// <param name="values">文本内容列表</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder NotIn(WhereOperators @operator, string field, System.Collections.Generic.IEnumerable<string> values) {
-            return NotIn(@operator, field, (System.Collections.IEnumerable)values);
-
+            _whereExpression?.NotIn(@operator, field, values);
+            return this;
         }
         /// <summary>
         /// 不包含（自动忽略空）。
@@ -1046,12 +949,7 @@ namespace Symbol.Data {
         /// <param name="values">内容列表</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder NotIn(WhereOperators @operator, string field, System.Collections.IEnumerable values) {
-            if (string.IsNullOrEmpty(field) || values == null)
-                return this;
-            string args = ArrayToParameter(values);
-            if (args.Length > 0) {
-                return Where(@operator, "not " + PreName(field) + " in(" + args + ")");
-            }
+            _whereExpression?.NotIn(@operator, field, values);
             return this;
         }
         /// <summary>
@@ -1062,12 +960,7 @@ namespace Symbol.Data {
         /// <param name="op">逻辑操作符：and、or，不区分大小写。</param>
         /// <returns></returns>
         public virtual ISelectCommandBuilder NotIn(string field, System.Collections.IEnumerable values, string op = "and") {
-            if (string.IsNullOrEmpty(field) || values == null)
-                return this;
-            string args = ArrayToParameter(values);
-            if (args.Length > 0) {
-                return Where("not " + PreName(field) + " in(" + args + ")", op);
-            }
+            _whereExpression.NotIn(field, values, op);
             return this;
         }
 
@@ -1094,7 +987,7 @@ namespace Symbol.Data {
         public virtual ISelectCommandBuilder OrderBy(string field, OrderBys orderby) {
             if (string.IsNullOrEmpty(field))
                 return this;
-            return OrderBy(PreName(field) + " " + EnumExtensions.GetProperty(orderby, "Keyword"));
+            return OrderBy(_dialect.PreName(field) + " " + EnumExtensions.GetProperty(orderby, "Keyword"));
         }
         #endregion
 
@@ -1132,11 +1025,11 @@ namespace Symbol.Data {
                     continue;
                 }
                 _whereBefores.Add(string.Format(" left join {0} as {1} on {1}.{2}={3}.{4}",
-                    PreName(PreSelfName(item.Source, selfSource), "."),
-                    PreName(item.Name),
-                    PreName(item.SourceField),
-                    PreName(PreSelfName(item.Target, selfSource)),
-                    PreName(item.TargetField, "."))
+                    _dialect.PreName(PreSelfName(item.Source, selfSource), "."),
+                    _dialect.PreName(item.Name),
+                    _dialect.PreName(item.SourceField),
+                    _dialect.PreName(PreSelfName(item.Target, selfSource)),
+                    _dialect.PreName(item.TargetField, "."))
                 );
             }
             return this;
@@ -1177,269 +1070,8 @@ namespace Symbol.Data {
                 return this;
             if (filter != null && !filter(this, condition))
                 return this;
-
-            if (condition.Children.Count == 0)
-                return this;
-            System.Text.StringBuilder builder = new System.Text.StringBuilder();
-            using (System.IO.StringWriter writer = new System.IO.StringWriter(builder)) {
-                QueryChildren(condition.Children, writer);
-                writer.Flush();
-            }
-            if (builder.Length > 0) {
-                string commandText = builder.ToString();
-            lb_Next:
-                bool b = false;
-                if (!string.IsNullOrEmpty(commandText)) {
-                    if (commandText.StartsWith(" and (", System.StringComparison.OrdinalIgnoreCase)) {
-                        b = true;
-                        commandText = commandText.Substring(6, commandText.Length - 8);
-                    }
-                    if (commandText.StartsWith(" or (", System.StringComparison.OrdinalIgnoreCase)) {
-                        b = true;
-                        commandText = commandText.Substring(5, commandText.Length - 7);
-                    }
-                    if (b)
-                        goto lb_Next;
-                }
-                if (!string.IsNullOrEmpty(commandText)) {
-                    Where(WhereOperators.And, " ( " + commandText + " ) ");
-                }
-            }
+            _whereExpression?.Query(condition);
             return this;
-        }
-        /// <summary>
-        /// 查询规则（NoSQL）子集。
-        /// </summary>
-        /// <param name="list">规则列表</param>
-        /// <param name="writer">输出对象</param>
-        /// <param name="innerOperation">内联操作符</param>
-        protected virtual void QueryChildren(NoSQL.ConditionCollection list, System.IO.TextWriter writer, string innerOperation = " and ") {
-            bool b = true;
-            foreach (NoSQL.Condition item in list) {
-                if (item.Type == NoSQL.ConditionTypes.Field) {
-                    if (list.Owner.Type == NoSQL.ConditionTypes.Field) {
-                        //throw new System.NotSupportedException("暂不支持 NoSQL.Condition 多级字段:" +list.Owner.Name+"."+ item.Name);
-                        continue;
-                    }
-                    if (item.Children.Count == 1 && item.Children[0].Type == NoSQL.ConditionTypes.Field) {
-                        continue;
-                    }
-                    if (!b)
-                        writer.Write(innerOperation);
-                    if (QueryChildrenFieldPre(item, writer, b ? "" : innerOperation, ref b))
-                        continue;
-                    writer.Write(PreName(item.GetNames()));
-                    QueryChildren(item.Children, writer);
-                } else if (item.Type == NoSQL.ConditionTypes.Logical) {
-                    QueryChildrenLogical(item, writer, b ? "" : innerOperation);
-                }
-                b = false;
-            }
-        }
-        /// <summary>
-        /// 查询规则（NoSQL）子集字段预处理。
-        /// </summary>
-        /// <param name="item">规则</param>
-        /// <param name="writer">输出对象</param>
-        /// <param name="innerOperation">内联操作符</param>
-        /// <param name="firstOperation">第一个操作</param>
-        /// <returns>返加是否处理。</returns>
-        protected virtual bool QueryChildrenFieldPre(NoSQL.Condition item, System.IO.TextWriter writer, string innerOperation, ref bool firstOperation) {
-            switch (item.Children[0].Name) {
-                case "$min":
-                case "$max":
-                case "$sum":
-                case "$count": {
-                        if (item.Children.Count != 1)
-                            return false;
-                        writer.Write("{0}({1})", item.Children[0].Name.Substring(1), PreName(item.GetNames()));
-                        QueryChildren(item.Children[0].Children, writer);
-                        return true;
-                    }
-                case "$notnull": {
-                        if (item.Children.Count != 1)
-                            return false;
-                        writer.Write("not {0} is null", PreName(item.GetNames()));
-                        return true;
-                    }
-                case "$ref": {
-                        if (item.Children.Count != 1)
-                            return false;
-                        writer.Write("{0}={1}", PreName(item.GetNames()), PreName(item.Children[0].Value as string, "."));
-                        return true;
-                    }
-                case "$like": {
-                        firstOperation = false;
-                        string value = item.Children[0].Value as string;
-                        bool reverse = TypeExtensions.Convert(QueryChildrenFieldPre_Extend(item, "reverse"), false);
-                        writer.Write(LikeGrammar(PreName(item.GetNames()), true, true, reverse),
-                            AddCommandParameter(LikeValueFilter(value, true, true, reverse)));
-                        return true;
-                    }
-                case "$start": {
-                        firstOperation = false;
-                        string value = item.Children[0].Value as string;
-                        bool reverse = TypeExtensions.Convert(QueryChildrenFieldPre_Extend(item, "reverse"), false);
-                        writer.Write(LikeGrammar(PreName(item.GetNames()), false, true, reverse),
-                            AddCommandParameter(LikeValueFilter(value, false, true, reverse)));
-                        return true;
-                    }
-                case "$end": {
-                        firstOperation = false;
-                        string value = item.Children[0].Value as string;
-                        bool reverse = TypeExtensions.Convert(QueryChildrenFieldPre_Extend(item, "reverse"), false);
-                        writer.Write(LikeGrammar(PreName(item.GetNames()), true, false, reverse),
-                            AddCommandParameter(LikeValueFilter(value, true, false, reverse)));
-                        return true;
-                    }
-
-                default:
-                    return false;
-            }
-        }
-        object QueryChildrenFieldPre_Extend(NoSQL.Condition item, string name) {
-            if (item.Children.Count < 2)
-                return null;
-            return item.Children.Find(p => string.Equals(p.Name, name, System.StringComparison.OrdinalIgnoreCase))?.Children[0].Value;
-        }
-        /// <summary>
-        /// 查询规则（NoSQL）子集自动处理值。
-        /// </summary>
-        /// <param name="item">规则</param>
-        /// <param name="writer">输出对象</param>
-        protected virtual void QueryChildrenAutoValue(NoSQL.Condition item, System.IO.TextWriter writer) {
-            if (item.Children.Count > 0) {
-                //throw new System.NotSupportedException("暂不支持 NoSQL.Condition 多级字段:"+item.Name);
-                QueryChildren(item.Children, writer);
-            } else {
-                writer.Write(AddCommandParameter(item.Value));
-            }
-        }
-        /// <summary>
-        /// 查询规则（NoSQL）子集数组。
-        /// </summary>
-        /// <param name="item">规则</param>
-        /// <param name="format">格式串</param>
-        /// <param name="writer">输出对象</param>
-        protected virtual void QueryChildrenArray(NoSQL.Condition item, string format, System.IO.TextWriter writer) {
-            System.Text.StringBuilder builder = new System.Text.StringBuilder();
-            foreach (object value in (System.Collections.IEnumerable)item.Value) {
-                if (value == null || (value is string && (string)value == ""))
-                    continue;
-                if (builder.Length > 0)
-                    builder.Append(',');
-                builder.Append(AddCommandParameter(value));
-            }
-            if (builder.Length == 0)
-                return;
-            writer.Write(format, builder.ToString());
-        }
-        /// <summary>
-        /// 查询规则（NoSQL）子集逻辑操作。
-        /// </summary>
-        /// <param name="item">规则</param>
-        /// <param name="writer">输出对象</param>
-        /// <param name="innerOperation">内联操作符</param>
-        protected void QueryChildrenLogical(NoSQL.Condition item, System.IO.TextWriter writer, string innerOperation) {
-            switch (item.Name) {
-                case "$eq": {
-                        writer.Write(MatchOperatorPre("="));
-                        QueryChildrenAutoValue(item, writer);
-                        break;
-                    }
-                case "$gt": {
-                        writer.Write(MatchOperatorPre(">"));
-                        QueryChildrenAutoValue(item, writer);
-                        break;
-                    }
-                case "$gteq": {
-                        writer.Write(MatchOperatorPre(">="));
-                        QueryChildrenAutoValue(item, writer);
-                        break;
-                    }
-                case "$lt": {
-                        writer.Write(MatchOperatorPre("<"));
-                        QueryChildrenAutoValue(item, writer);
-                        break;
-                    }
-                case "$lteq": {
-                        writer.Write(MatchOperatorPre("<="));
-                        QueryChildrenAutoValue(item, writer);
-                        break;
-                    }
-                case "$noteq": {
-                        writer.Write(MatchOperatorPre("!="));
-                        QueryChildrenAutoValue(item, writer);
-                        break;
-                    }
-                case "$like":
-                case "$start":
-                case "$end":
-                    break;
-                //case "$like": {
-                //        string value = item.Value as string;
-                //        writer.Write(LikeGrammar(item.Parent.Name,false),
-                //            AddCommandParameter(LikeValueFilter(value, true, true)));
-                //        break;
-                //    }
-                //case "$start": {
-                //        string value = item.Value as string;
-                //        writer.Write(LikeGrammar(item.Parent.Name, false),
-                //            AddCommandParameter(LikeValueFilter(value, false, true)));
-                //        break;
-                //    }
-                //case "$end": {
-                //        string value = item.Value as string;
-                //        writer.Write(LikeGrammar(item.Parent.Name, false),
-                //            AddCommandParameter(LikeValueFilter(value, true, false)));
-                //        break;
-                //    }
-                case "$null": {
-                        writer.Write(" is null");
-                        break;
-                    }
-                case "$in": {
-                        QueryChildrenArray(item, " in({0})", writer);
-                        break;
-                    }
-                case "$notin": {
-                        QueryChildrenArray(item, " not in({0})", writer);
-                        break;
-                    }
-                case "$and": {
-                        writer.Write(" and (");
-                        QueryChildren(item.Children, writer);
-                        writer.Write(") ");
-                        break;
-                    }
-                case "$or": {
-                        if (item.Children.IsArray) {
-                            writer.Write(" and (");
-                            QueryChildren(item.Children, writer, " or ");
-                            writer.Write(") ");
-                        } else {
-                            writer.Write(" or (");
-                            QueryChildren(item.Children, writer);
-                            writer.Write(") ");
-                        }
-                        break;
-                    }
-                case "$not": {
-                        writer.Write(" not (");
-                        QueryChildren(item.Children, writer);
-                        writer.Write(") ");
-                        break;
-                    }
-                case "$min":
-                case "$max":
-                case "$sum":
-                case "$count": {
-
-                        break;
-                    }
-                default:
-                    throw new System.NotSupportedException("暂不支持NoSQL.Condition.Name=" + item.Name);
-            }
         }
         #endregion
 
@@ -1460,7 +1092,7 @@ namespace Symbol.Data {
         public virtual ISelectCommandBuilder Sort(NoSQL.Sorter sorter) {
             if (sorter != null) {
                 foreach (System.Collections.Generic.KeyValuePair<string, object> pair in sorter.ToObject()) {
-                    OrderBy(PreName(pair.Key, ".") + " " + pair.Value);
+                    OrderBy(_dialect.PreName(pair.Key, ".") + " " + pair.Value);
                 }
             }
             return this;
@@ -1616,15 +1248,18 @@ namespace Symbol.Data {
             _fields = null;
             _whereBefores?.Clear();
             _whereBefores = null;
-            _wheres?.Clear();
-            _wheres = null;
+            _whereExpression?.Clear();
+            _whereExpression?.Dispose();
+            _whereExpression = null;
             _orderbys?.Clear();
             _orderbys = null;
             _dataContext = null;
 
-            _addCommandParameter = null;
             _parameters?.Clear();
             _parameters = null;
+
+            _dialect = null;
+            
         }
         #endregion
 

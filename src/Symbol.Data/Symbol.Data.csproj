@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
+  <PropertyGroup Label="NuGet">
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;net45;net4;net35;net2</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -12,17 +12,18 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Data</AssemblyTitle>
     <AssemblyName>Symbol.Data</AssemblyName>
-    <VersionPrefix>4.0.0.4</VersionPrefix>
+    <VersionPrefix>4.1.0.0</VersionPrefix>
     <Title>Symbol.Data</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
     <Description>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Data.dll for more information.</Description>
     <Copyright>© symbolspace All rights reserved.</Copyright>
     <PackageId>Symbol.Data</PackageId>
-    <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/symbolspace/Symbol/master/icon.png</PackageIconUrl>
-    <PackageTags>mssql;postgresql;sqlite;mysql;nosql;ado;symbol</PackageTags>
+    <PackageTags>nosql;ado;orm;symbol</PackageTags>
     <PackageReleaseNotes>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Data.dll for more information.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
@@ -35,17 +36,17 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>bin</OutputPath>
+    <OutputPath>bin\Debug</OutputPath>
     <DefineConstants></DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>bin</OutputPath>
+    <OutputPath>bin\Release</OutputPath>
     <DefineConstants></DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
@@ -78,16 +79,61 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Reflection" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
+    <!--<PackageReference Include="System.Reflection" Version="4.3.0" />-->
+    <!--<PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />-->
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="DataReaderHelper.cs" />
+    <Compile Remove="IDbCommandExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include=".implement\Ado\AdoDataQuery`1.cs" />
+    <Compile Include=".implement\Ado\AdoDataQueryReader.cs" />
+    <Compile Include=".implement\Ado\AdoDataContext.cs" />
+    <Compile Include=".implement\Ado\AdoProvider.cs" />
+    <Compile Include=".implement\Ado\AdoConnection.cs" />
+    <Compile Include=".implement\Ado\AdoCommand.cs" />
+    <Compile Include=".implement\Ado\AdoTransaction.cs" />
+    <Compile Include=".implement\DataQueryEnumerator`1.cs" />
+    <Compile Include=".implement\DataQueryReader.cs" />
+    <Compile Include=".implement\DataQuery`1.cs" />
+    <Compile Include=".implement\Command.cs" />
+    <Compile Include=".implement\CommandParameterList.cs" />
+    <Compile Include=".implement\DataContext.cs" />
+    <Compile Include=".implement\Provider.cs" />
     <Compile Include=".enum\DatabaseSchemaProcessResults.cs" />
     <Compile Include=".enum\OrderBys.cs" />
     <Compile Include=".enum\MatchOpertaors.cs" />
     <Compile Include=".enum\WhereOperators.cs" />
     <Compile Include=".enum\DatabaseSchemaTypes.cs" />
+    <Compile Include=".implement\Connection.cs" />
+    <Compile Include=".implement\ConnectionPool.cs" />
+    <Compile Include=".implement\Dialect.cs" />
+    <Compile Include=".implement\Transaction.cs" />
+    <Compile Include=".implement\WhereExpression.cs" />
+    <Compile Include=".interface\Ado\IAdoDataQueryEnumerator`1.cs" />
+    <Compile Include=".interface\Ado\IAdoDataQueryReader.cs" />
+    <Compile Include=".interface\Ado\IAdoDataContext.cs" />
+    <Compile Include=".interface\Ado\IAdoDataQuery`1.cs" />
+    <Compile Include=".interface\Ado\IAdoProvider.cs" />
+    <Compile Include=".interface\Ado\IAdoCommand.cs" />
+    <Compile Include=".interface\Ado\IAdoConnection.cs" />
+    <Compile Include=".interface\Ado\IAdoTransaction.cs" />
+    <Compile Include=".interface\IDataQueryEnumerator`1.cs" />
+    <Compile Include=".interface\IDataQueryReader.cs" />
+    <Compile Include=".interface\ICommand.cs" />
+    <Compile Include=".interface\ICommandParameterList.cs" />
+    <Compile Include=".interface\IConnection.cs" />
+    <Compile Include=".interface\IConnectionPool.cs" />
+    <Compile Include=".interface\IDataContext.cs" />
+    <Compile Include=".interface\IDataContextNoSQL.cs" />
+    <Compile Include=".interface\IDataQuery`1.cs" />
+    <Compile Include=".interface\IDialect.cs" />
+    <Compile Include=".interface\IProvider.cs" />
+    <Compile Include=".interface\ITransaction.cs" />
+    <Compile Include=".interface\IWhereExpression.cs" />
     <Compile Include="NoSQL\.enum\DefineValueTypes.cs" />
     <Compile Include="NoSQL\.enum\ConditionTypes.cs" />
     <Compile Include="NoSQL\.enum\NodeValueTypes.cs" />
@@ -99,112 +145,47 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Collections.NonGeneric">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Specialized">
-      <Version>4.3.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Data.Common">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Data.SqlClient">
+    <!--<PackageReference Include="System.Data.SqlClient">
       <Version>4.6.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.Emit">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Reflection.Emit.ILGeneration">
+    <PackageReference Include="System.Reflection.Emit.Lightweight">
       <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Extensions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Primitives">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.Serialization.Formatters">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading.Thread">
-      <Version>4.3.0</Version>
-    </PackageReference>
+    </PackageReference>-->
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
-    <PackageReference Include="System.Collections.NonGeneric">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Collections.Specialized">
-      <Version>4.3.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Data.Common">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Data.SqlClient">
+    <!--<PackageReference Include="System.Data.SqlClient">
       <Version>4.6.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.Emit">
       <Version>4.3.0</Version>
     </PackageReference>
-    <PackageReference Include="System.Reflection.Emit.ILGeneration">
-      <Version>4.3.0</Version>
-    </PackageReference>
     <PackageReference Include="System.Reflection.Emit.Lightweight">
       <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Extensions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Primitives">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime.Serialization.Formatters">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading.Thread">
-      <Version>4.3.0</Version>
-    </PackageReference>
+    </PackageReference>-->
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="System.Reflection.Emit">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Emit.ILGeneration">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Emit.Lightweight">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Extensions">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Reflection.Primitives">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Runtime">
-      <Version>4.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Threading">
-      <Version>4.3.0</Version>
-    </PackageReference>
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Symbol\Symbol.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
   
 </Project>
