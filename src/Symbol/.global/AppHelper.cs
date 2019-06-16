@@ -118,8 +118,8 @@ public class AppHelper
     /// <param name="encoding">文件编码</param>
     /// <returns>返回文件内容，文件不存时直接返回string.Empty。</returns>
     public static string LoadTextFile(string path, System.Text.Encoding encoding) {
+        string file = MapPath(path);
         return ThreadHelper.ParallelLock("file", path).Block(() => {
-            string file = MapPath(path);
             if (!System.IO.File.Exists(file))
                 return string.Empty;
             if (encoding == null) {
@@ -165,8 +165,8 @@ public class AppHelper
     /// <param name="isAppend">是否为追加模式</param>
     /// <param name="encoding">文件编码</param>
     public static void SaveTextFile(string path, string contents, bool isAppend, System.Text.Encoding encoding) {
+        string file = MapPath(path);
         ThreadHelper.ParallelLock("file", path).Block(() => {
-            string file = MapPath(path);
             string directory = System.IO.Path.GetDirectoryName(file);
             if (!System.IO.Directory.Exists(directory))
                 System.IO.Directory.CreateDirectory(directory);
