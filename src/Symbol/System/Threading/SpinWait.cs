@@ -206,13 +206,7 @@ namespace System.Threading
         /// <exception cref="ArgumentNullException">The <paramref name="condition"/> argument is null.</exception>
         public static void SpinUntil(Func<bool> condition)
         {
-#if DEBUG
-            bool result = 
-#endif
             SpinUntil(condition, Timeout.Infinite);
-#if DEBUG
-            Contract.Assert(result);
-#endif
         }
 
         /// <summary>
