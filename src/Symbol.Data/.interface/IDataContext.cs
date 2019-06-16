@@ -8,6 +8,7 @@ using System.Data;
 
 namespace Symbol.Data {
 
+
     /// <summary>
     /// 数据上下文接口。
     /// </summary>
@@ -28,20 +29,27 @@ namespace Symbol.Data {
         /// <summary>
         /// 获取数据库提供者。
         /// </summary>
-        IDatabaseProvider Provider { get; }
+        IProvider Provider { get; }
+
         /// <summary>
-        /// 获取当前数据库连接对象。
+        /// 获取连接池。
         /// </summary>
-        IDbConnection Connection { get; }
+        IConnectionPool Connections { get; }
+
+        /// <summary>
+        /// 获取连接对象。
+        /// </summary>
+        IConnection Connection { get; }
+        /// <summary>
+        /// 获取事务对象。
+        /// </summary>
+        ITransaction Transaction { get; }
+
         /// <summary>
         /// 获取当前数据库连接字符串。
         /// </summary>
         string ConnectionString { get; }
 
-        /// <summary>
-        /// 获取当前事务对象。
-        /// </summary>
-        IDbTransaction Transaction { get; }
         /// <summary>
         /// 获取或设置查询执行超时时间。默认100秒。
         /// </summary>
@@ -49,51 +57,18 @@ namespace Symbol.Data {
         #endregion
 
         #region methods
-
-        #region 连接
-        /// <summary>
-        /// 关闭数据库连接，仅仅是Close，不会释放，还可以再次Open的。
-        /// </summary>
-        void CloseConnection();
-        /// <summary>
-        /// 打开数据库连接
-        /// </summary>
-        void OpenConnection();
-        /// <summary>
-        /// 打开数据库连接
-        /// </summary>
-        /// <param name="connection">连接，为null采用Connection。</param>
-        void OpenConnection(IDbConnection connection);
-        /// <summary>
-        /// 获取并移除连接池中的第一个成员，如果为空池，创建新连接。
-        /// </summary>
-        /// <returns>返回数据连接对象。</returns>
-        IDbConnection PopConnection();
-        /// <summary>
-        /// 将连接压入连接池顶部。
-        /// </summary>
-        /// <param name="connection">为null自动忽略。</param>
-        void PushConnection(IDbConnection connection);
-
-        #endregion
         #region 事务
         /// <summary>
         /// 开启事务，自动创建事务对象。
         /// </summary>
         /// <returns>返回相关联的事务对象。</returns>
-        IDbTransaction BeginTransaction();
+        void BeginTransaction();
         /// <summary>
-        /// 开始事务，用指定的事务对象。（内部已加锁）
-        /// </summary>
-        /// <param name="transaction">不能为null。</param>
-        /// <returns>返回相关联的事务对象。</returns>
-        IDbTransaction BeginTransaction(IDbTransaction transaction);
-        /// <summary>
-        /// 提交事务，如果没有开启事务，调用后没有任何效果。（内部已加锁）
+        /// 提交事务，如果没有开启事务，调用后没有任何效果。
         /// </summary>
         void CommitTransaction();
         /// <summary>
-        /// 回滚事务，如果没有开启事务，调用后没有任何效果。（内部已加锁）
+        /// 回滚事务，如果没有开启事务，调用后没有任何效果。
         /// </summary>
         void RollbackTransaction();
         #endregion
@@ -111,50 +86,23 @@ namespace Symbol.Data {
 
         #region 命令
 
-        #region PreParameter
-        /// <summary>
-        /// 预处理参数
-        /// </summary>
-        /// <param name="parameterName"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        object PreParameter(string parameterName, object value);
-        #endregion
         #region CreateCommand
         /// <summary>
         /// 创建原始命令执行器。
         /// </summary>
         /// <param name="commandText">查询语句文本。</param>
         /// <param name="action">附加操作回调，为null不影响。</param>
-        /// <param name="params">参数列表，可以直接是值，也可以是IDataParameter类型。</param>
+        /// <param name="params">参数列表，可以直接是值，也可以是CommandParameter类型。</param>
         /// <returns>返回命令执行器。</returns>
-        IDbCommand CreateCommand(string commandText, Action<IDbCommand> action, params object[] @params);
+        ICommand CreateCommand(string commandText, Action<ICommand> action, params object[] @params);
         /// <summary>
         /// 创建原始命令执行器。
         /// </summary>
         /// <param name="commandText">查询语句文本。</param>
         /// <param name="action">附加操作回调，为null不影响。</param>
-        /// <param name="params">参数列表，可以直接是值，也可以是IDataParameter类型。</param>
+        /// <param name="params">参数列表，可以直接是值，也可以是CommandParameter类型。</param>
         /// <returns>返回命令执行器。</returns>
-        IDbCommand CreateCommand(string commandText, Action<IDbCommand> action, IEnumerable<object> @params);
-        /// <summary>
-        /// 创建原始命令执行器。
-        /// </summary>
-        /// <param name="connection">连接，为null采用PopConnection()。</param>
-        /// <param name="commandText">查询语句文本。</param>
-        /// <param name="action">附加操作回调，为null不影响。</param>
-        /// <param name="params">参数列表，可以直接是值，也可以是IDataParameter类型。</param>
-        /// <returns>返回命令执行器。</returns>
-        IDbCommand CreateCommand(IDbConnection connection, string commandText, Action<IDbCommand> action, params object[] @params);
-        /// <summary>
-        /// 创建原始命令执行器。
-        /// </summary>
-        /// <param name="connection">连接，为null采用PopConnection()。</param>
-        /// <param name="commandText">查询语句文本。</param>
-        /// <param name="action">附加操作回调，为null不影响。</param>
-        /// <param name="params">参数列表，可以直接是值，也可以是IDataParameter类型。</param>
-        /// <returns>返回命令执行器。</returns>
-        IDbCommand CreateCommand(IDbConnection connection, string commandText, Action<IDbCommand> action, IEnumerable<object> @params);
+        ICommand CreateCommand(string commandText, Action<ICommand> action, IEnumerable<object> @params);
         #endregion
 
         #region ExecuteScalar
@@ -172,7 +120,7 @@ namespace Symbol.Data {
         /// <param name="action">可以对command对象进行操作，这发生在处理@params之前。</param>
         /// <param name="params">参数列表，可以为null或不填。</param>
         /// <returns>返回查询结果。</returns>
-        object ExecuteScalar(string commandText, Action<IDbCommand> action, params object[] @params);
+        object ExecuteScalar(string commandText, Action<ICommand> action, params object[] @params);
         /// <summary>
         /// 执行查询，并返回查询的第一条记录的第一个列。
         /// </summary>
@@ -207,7 +155,7 @@ namespace Symbol.Data {
         /// <param name="action">可以对command对象进行操作，这发生在处理@params之前。</param>
         /// <param name="params">参数列表，可以为null或不填。</param>
         /// <returns>不要期望返回的值当作影响的行数，实验证明这个返回值真的不靠谱，不同数据库实现结果不一样。</returns>
-        int ExecuteNonQuery(string commandText, Action<IDbCommand> action, params object[] @params);
+        int ExecuteNonQuery(string commandText, Action<ICommand> action, params object[] @params);
         #endregion
         #region ExecuteBlockQuery
         /// <summary>
@@ -281,7 +229,7 @@ namespace Symbol.Data {
         /// <param name="action">可对command对象进行操作，这发生在处理@params之前</param>
         /// <param name="params">参数列表，可以为null或不传。</param>
         /// <returns>返回一个数据查询对象，不遍历和读取数据，它不会产生数据查询行为。</returns>
-        IDataQuery<object> CreateQuery(string commandText, Action<IDbCommand> action, params object[] @params);
+        IDataQuery<object> CreateQuery(string commandText, Action<ICommand> action, params object[] @params);
         /// <summary>
         /// 创建一个普通查询
         /// </summary>
@@ -298,7 +246,7 @@ namespace Symbol.Data {
         /// <param name="action">可对command对象进行操作，这发生在处理@params之前</param>
         /// <param name="params">参数列表，可以为null或不传。</param>
         /// <returns>返回一个数据查询对象，不遍历和读取数据，它不会产生数据查询行为。</returns>
-        IDataQuery<object> CreateQuery(Type type, string commandText, Action<IDbCommand> action, params object[] @params);
+        IDataQuery<object> CreateQuery(Type type, string commandText, Action<ICommand> action, params object[] @params);
         #endregion
         #region CreateQuery`1
         /// <summary>
@@ -325,7 +273,7 @@ namespace Symbol.Data {
         /// <param name="action">回调，可以用command对象进行操作，这发生在处理@params之前。</param>
         /// <param name="params">参数，可以为null，自动以@p1开始</param>
         /// <returns>返回一个数据查询对象，不遍历和读取数据，它不会产生数据查询行为。</returns>
-        IDataQuery<T> CreateQuery<T>(string commandText, Action<IDbCommand> action, params object[] @params);
+        IDataQuery<T> CreateQuery<T>(string commandText, Action<ICommand> action, params object[] @params);
         /// <summary>
         /// 创建一个泛型查询
         /// </summary>
@@ -334,7 +282,7 @@ namespace Symbol.Data {
         /// <param name="action">回调，可以用command对象进行操作，这发生在处理@params之前。</param>
         /// <param name="params">参数，可以为null，自动以@p1开始</param>
         /// <returns>返回一个数据查询对象，不遍历和读取数据，它不会产生数据查询行为。</returns>
-        IDataQuery<T> CreateQuery<T>(string commandText, Action<IDbCommand> action, IEnumerable<object> @params);
+        IDataQuery<T> CreateQuery<T>(string commandText, Action<ICommand> action, IEnumerable<object> @params);
         #endregion
 
         #endregion
@@ -541,4 +489,6 @@ namespace Symbol.Data {
     /// <param name="data">数据。</param>
     /// <param name="error">异常对象。</param>
     public delegate void DataContextExecuteCallback<T>(IDataContext dataContext,T data, System.Exception error);
+
+
 }

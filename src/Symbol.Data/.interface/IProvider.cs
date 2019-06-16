@@ -10,31 +10,37 @@ namespace Symbol.Data {
     /// <summary>
     /// 数据库提供者接口
     /// </summary>
-    public interface IDatabaseProvider {
+    public interface IProvider {
 
         /// <summary>
-        /// 获取是否支持单个连接中多个查询。
+        /// 获取方言对象。
         /// </summary>
-        bool MultipleActiveResultSets { get; }
+        IDialect Dialect { get; }
 
         /// <summary>
         /// 创建数据库连接。
         /// </summary>
         /// <param name="connectionString">连接字符串。</param>
         /// <returns>返回数据库连接。</returns>
-        IDbConnection CreateConnection(string connectionString);
+        IConnection CreateConnection(string connectionString);
+        /// <summary>
+        /// 创建数据库连接。
+        /// </summary>
+        /// <param name="connectionOptions">连接参数，兼容string/object/ConnectionOptions。</param>
+        /// <returns>返回数据库连接。</returns>
+        IConnection CreateConnection(object connectionOptions);
         /// <summary>
         /// 创建数据库连接。
         /// </summary>
         /// <param name="connectionOptions">连接参数。</param>
         /// <returns>返回数据库连接。</returns>
-        IDbConnection CreateConnection(object connectionOptions);
+        IConnection CreateConnection(ConnectionOptions connectionOptions);
         /// <summary>
         /// 创建数据上下文。
         /// </summary>
         /// <param name="connection">数据库连接。</param>
         /// <returns>返回数据上下文。</returns>
-        IDataContext CreateDataContext(IDbConnection connection);
+        IDataContext CreateDataContext(IConnection connection);
         /// <summary>
         /// 创建数据上下文。
         /// </summary>
@@ -44,32 +50,21 @@ namespace Symbol.Data {
         /// <summary>
         /// 创建数据上下文。
         /// </summary>
-        /// <param name="connectionOptions">连接参数。</param>
+        /// <param name="connectionOptions">连接参数，兼容string/object/ConnectionOptions。</param>
         /// <returns>返回数据上下文。</returns>
         IDataContext CreateDataContext(object connectionOptions);
+        /// <summary>
+        /// 创建数据上下文。
+        /// </summary>
+        /// <param name="connectionOptions">连接参数。</param>
+        /// <returns>返回数据上下文。</returns>
+        IDataContext CreateDataContext(ConnectionOptions connectionOptions);
 
-
-        #region PreName
         /// <summary>
-        /// 对字段、通用名称进行预处理（语法、方言等）
+        /// 创建方言。
         /// </summary>
-        /// <param name="name">字段、通用名称</param>
-        /// <returns>返回处理后的名称。</returns>
-        string PreName(string name);
-        /// <summary>
-        /// 对字段、通用名称进行预处理（语法、方言等）
-        /// </summary>
-        /// <param name="pairs">包含多级名称，如db.test.abc</param>
-        /// <param name="spliter">多级分割符，如“.”</param>
-        /// <returns>返回处理后的名称。</returns>
-        string PreName(string pairs, string spliter);
-        /// <summary>
-        /// 对字段、通用名称进行预处理（语法、方言等）
-        /// </summary>
-        /// <param name="pairs">多级名称，如[ "db", "test", "abc" ]</param>
-        /// <returns>返回处理后的名称。</returns>
-        string PreName(string[] pairs);
-        #endregion
+        /// <returns>返回方言对象。</returns>
+        IDialect CreateDialect();
 
     }
 
