@@ -134,7 +134,7 @@ namespace Symbol.Data {
         /// <param name="field">字段名称</param>
         /// <param name="condition">过滤条件</param>
         /// <returns></returns>
-        TResult Min<TResult>(string collectionName, string field, object condition = null) where TResult : struct;
+        TResult Min<TResult>(string collectionName, string field, object condition = null) ;
         /// <summary>
         /// 求最小值
         /// </summary>
@@ -143,7 +143,7 @@ namespace Symbol.Data {
         /// <param name="field">字段名称</param>
         /// <param name="condition">过滤条件</param>
         /// <returns></returns>
-        TResult Min<TEntity, TResult>(string field, object condition = null) where TEntity : class where TResult : struct;
+        TResult Min<TEntity, TResult>(string field, object condition = null) where TEntity : class ;
         #endregion
         #region Max
         /// <summary>
@@ -154,7 +154,7 @@ namespace Symbol.Data {
         /// <param name="field">字段名称</param>
         /// <param name="condition">过滤条件</param>
         /// <returns></returns>
-        TResult Max<TResult>(string collectionName, string field, object condition = null) where TResult : struct;
+        TResult Max<TResult>(string collectionName, string field, object condition = null) ;
         /// <summary>
         /// 求最大值
         /// </summary>
@@ -163,7 +163,7 @@ namespace Symbol.Data {
         /// <param name="field">字段名称</param>
         /// <param name="condition">过滤条件</param>
         /// <returns></returns>
-        TResult Max<TEntity, TResult>(string field, object condition = null) where TEntity : class where TResult : struct;
+        TResult Max<TEntity, TResult>(string field, object condition = null) where TEntity : class ;
         #endregion
         #region Average
         /// <summary>

@@ -665,7 +665,7 @@ namespace Symbol.Data {
         /// <param name="field">字段名称</param>
         /// <param name="condition">过滤条件</param>
         /// <returns></returns>
-        public virtual TResult Min<TResult>(string collectionName, string field, object condition = null) where TResult : struct {
+        public virtual TResult Min<TResult>(string collectionName, string field, object condition = null)  {
             CommonException.CheckArgumentNull(collectionName, "collectionName");
             CommonException.CheckArgumentNull(field, "field");
 
@@ -685,7 +685,7 @@ namespace Symbol.Data {
         /// <param name="field">字段名称</param>
         /// <param name="condition">过滤条件</param>
         /// <returns></returns>
-        public virtual TResult Min<TEntity, TResult>(string field, object condition = null) where TEntity : class where TResult : struct {
+        public virtual TResult Min<TEntity, TResult>(string field, object condition = null) where TEntity : class  {
             return Min<TResult>(typeof(TEntity).Name, field, condition);
         }
         #endregion
@@ -698,7 +698,7 @@ namespace Symbol.Data {
         /// <param name="field">字段名称</param>
         /// <param name="condition">过滤条件</param>
         /// <returns></returns>
-        public virtual TResult Max<TResult>(string collectionName, string field, object condition = null) where TResult : struct {
+        public virtual TResult Max<TResult>(string collectionName, string field, object condition = null)  {
             CommonException.CheckArgumentNull(collectionName, "collectionName");
             CommonException.CheckArgumentNull(field, "field");
 
@@ -718,7 +718,7 @@ namespace Symbol.Data {
         /// <param name="field">字段名称</param>
         /// <param name="condition">过滤条件</param>
         /// <returns></returns>
-        public virtual TResult Max<TEntity, TResult>(string field, object condition = null) where TEntity : class where TResult : struct {
+        public virtual TResult Max<TEntity, TResult>(string field, object condition = null) where TEntity : class  {
             return Max<TResult>(typeof(TEntity).Name, field, condition);
         }
         #endregion
