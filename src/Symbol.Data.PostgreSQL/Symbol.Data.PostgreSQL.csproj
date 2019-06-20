@@ -12,7 +12,7 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Data.PostgreSQL</AssemblyTitle>
     <AssemblyName>Symbol.Data.PostgreSQL</AssemblyName>
-    <VersionPrefix>4.1.0.1</VersionPrefix>
+    <VersionPrefix>4.1.0.2</VersionPrefix>
     <Title>Symbol.Data.PostgreSQL</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>

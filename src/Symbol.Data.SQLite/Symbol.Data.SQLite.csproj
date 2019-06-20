@@ -12,7 +12,7 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Data.SQLite</AssemblyTitle>
     <AssemblyName>Symbol.Data.SQLite</AssemblyName>
-    <VersionPrefix>4.1.0.1</VersionPrefix>
+    <VersionPrefix>4.1.0.2</VersionPrefix>
     <Title>Symbol.Data.SQLite</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>

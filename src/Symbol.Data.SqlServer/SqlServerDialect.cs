@@ -20,9 +20,11 @@ namespace Symbol.Data {
         /// <returns>返回处理后的名称。</returns>
         public override string PreName(string name) {
             name = KeywordAs(name);
-            if (name.IndexOfAny(new char[] { '`', '.', '(', ')', '=', ' ', ':', '-', '>', '<' }) > -1)
+            if (name.IndexOfAny(new char[] { '[', ']', '(', ')', '=', ' ', ':', '>', '<' }) > -1)
                 return name;
-            if (System.Text.RegularExpressions.Regex.IsMatch(name, "^[0-9]+$"))
+            if (System.Text.RegularExpressions.Regex.IsMatch(name, "^[0-9\\-\\.]+$"))
+                return name;
+            if (name.IndexOfAny(new char[] { '.' }) > -1)
                 return name;
             return '[' + name + ']';
         }
