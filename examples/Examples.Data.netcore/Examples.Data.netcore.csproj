@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include=".enum\OrderStates.cs" />
+    <Compile Include=".enum\UserTypes.cs" />
+    <Compile Include=".model\t_User.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Symbol.Data.MySql\Symbol.Data.MySql.csproj" />
+    <ProjectReference Include="..\..\src\Symbol.Data.PostgreSQL\Symbol.Data.PostgreSQL.csproj" />
+    <ProjectReference Include="..\..\src\Symbol.Data.SQLite\Symbol.Data.SQLite.csproj" />
+    <ProjectReference Include="..\..\src\Symbol.Data.SqlServer\Symbol.Data.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\Symbol.Data\Symbol.Data.csproj" />
+  </ItemGroup>
+
+</Project>
