@@ -12,9 +12,9 @@ namespace Examples.Data {
             {
                 //创建数据上下文对象
                 //IDataContext db = CreateDataContext("mssql2012");
-                //IDataContext db = CreateDataContext("mysql");
+                IDataContext db = CreateDataContext("mysql");
                 //IDataContext db = CreateDataContext("pgsql");
-                IDataContext db = CreateDataContext("sqlite");
+                //IDataContext db = CreateDataContext("sqlite");
 
                 //初始化 &  数据
                 DatabaseSchema(db);
