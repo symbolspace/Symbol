@@ -20,7 +20,7 @@ namespace Symbol.Data {
         #region cctor
         static MySqlProvider() {
             _types = new Collections.Generic.NameValueCollection<System.Type>();
-#if netcore
+#if netcore || net452
             _types.Add("MySql.Data.MySqlClient.MySqlConnection", typeof(MySql.Data.MySqlClient.MySqlConnection));
             _types.Add("MySql.Data.MySqlClient.MySqlConnectionStringBuilder", typeof(MySql.Data.MySqlClient.MySqlConnectionStringBuilder));
             _types.Add("MySql.Data.MySqlClient.MySqlDbType", typeof(MySql.Data.MySqlClient.MySqlDbType));
