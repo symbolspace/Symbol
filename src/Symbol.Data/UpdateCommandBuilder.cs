@@ -186,9 +186,8 @@ namespace Symbol.Data {
                    .AppendLine()
                    .AppendLine(" set ");
             int i = 0;
-            int pIndex = 0;
-            foreach (System.Collections.Generic.KeyValuePair<string, object> item in LinqHelper.ToArray(_fields)) {
-                if (PreFieldValue(builder, item.Key, item.Value, ref i, ref pIndex))
+            foreach (var item in LinqHelper.ToArray(_fields)) {
+                if (PreFieldValue(builder, item.Key, item.Value, ref i))
                     continue;
                 i++;
                 if (i > 1) {
@@ -198,7 +197,13 @@ namespace Symbol.Data {
                 if (item.Value is CommandParameter commandParameter) {
                     builder.Append(Dialect?.ParameterNameGrammar(commandParameter.Name));
                 } else {
-                    builder.Append(Dialect?.ParameterNameGrammar("p" +(++pIndex)));
+                    var p = new CommandParameter() {
+                        Name = Dialect?.ParameterNameGrammar(item.Key),
+                        Value = item.Value,
+                        RealType = item.Value?.GetType(),
+                    };
+                    _fields[item.Key] = p;
+                    builder.Append(p.Name);
                 }
                 
             }
@@ -215,16 +220,15 @@ namespace Symbol.Data {
         /// <param name="name">字段名称。</param>
         /// <param name="value">字段值。</param>
         /// <param name="i">顺序。</param>
-        /// <param name="pIndex">参数顺序。</param>
         /// <returns>返回是否过滤。</returns>
-        protected virtual bool PreFieldValue(System.Text.StringBuilder builder, string name, object value, ref int i, ref int pIndex) {
+        protected virtual bool PreFieldValue(System.Text.StringBuilder builder, string name, object value, ref int i) {
             var p = value as CommandParameter;
             NoSQL.NodeValue nodeValue = new NoSQL.NodeValue(p == null ? value : p.Value);
             if (nodeValue.Type == NoSQL.NodeValueTypes.Dictionary) {
-                return PreFieldValue_Dictionary(builder, name, nodeValue, ref i, ref pIndex);
+                return PreFieldValue_Dictionary(builder, name, nodeValue, ref i);
             }
             if (nodeValue.Type == NoSQL.NodeValueTypes.String) {
-                return PreFieldValue_String(builder, name, nodeValue, ref i, ref pIndex);
+                return PreFieldValue_String(builder, name, nodeValue, ref i);
             }
             return false;
 
@@ -236,9 +240,8 @@ namespace Symbol.Data {
         /// <param name="name">字段名称。</param>
         /// <param name="nodeValue">值包装</param>
         /// <param name="i">顺序。</param>
-        /// <param name="pIndex">参数顺序。</param>
         /// <returns>返回是否过滤。</returns>
-        protected virtual bool PreFieldValue_Dictionary(System.Text.StringBuilder builder, string name, NoSQL.NodeValue nodeValue, ref int i, ref int pIndex) {
+        protected virtual bool PreFieldValue_Dictionary(System.Text.StringBuilder builder, string name, NoSQL.NodeValue nodeValue, ref int i) {
             if (nodeValue.Type == NoSQL.NodeValueTypes.Null)
                 return false;
             foreach (object item in (System.Collections.IEnumerable)nodeValue.Value) {
@@ -254,8 +257,13 @@ namespace Symbol.Data {
                         builder.AppendLine(",");
                     }
 
-                    builder.AppendFormat("    {0}={0}+@p{1}", _dialect.PreName(name), ++pIndex);
-                    _fields[name] = value.Value;
+                    var p = new CommandParameter() {
+                        Name = Dialect?.ParameterNameGrammar(name),
+                        Value = value.Value,
+                        RealType = value.Value?.GetType(),
+                    };
+                    _fields[name] = p;
+                    builder.AppendFormat("    {0}={0}+{1}", _dialect.PreName(name), p.Name);
                     return true;
                 } else if (
                      string.Equals(key, "$minus", System.StringComparison.OrdinalIgnoreCase)
@@ -264,8 +272,13 @@ namespace Symbol.Data {
                     if (i > 1) {
                         builder.AppendLine(",");
                     }
-                    builder.AppendFormat("    {0}={0}-@p{1}", _dialect.PreName(name), ++pIndex);
-                    _fields[name] = value.Value;
+                    var p = new CommandParameter() {
+                        Name = Dialect?.ParameterNameGrammar(name),
+                        Value = value.Value,
+                        RealType = value.Value?.GetType(),
+                    };
+                    _fields[name] = p;
+                    builder.AppendFormat("    {0}={0}-{1}", _dialect.PreName(name), p.Name);
                     return true;
                 } else if (
                     string.Equals(key, "$now", System.StringComparison.OrdinalIgnoreCase)) {
@@ -287,14 +300,13 @@ namespace Symbol.Data {
         /// <param name="name">字段名称。</param>
         /// <param name="nodeValue">值包装</param>
         /// <param name="i">顺序。</param>
-        /// <param name="pIndex">参数顺序。</param>
         /// <returns>返回是否过滤。</returns>
-        protected virtual bool PreFieldValue_String(System.Text.StringBuilder builder, string name, NoSQL.NodeValue nodeValue, ref int i, ref int pIndex) {
+        protected virtual bool PreFieldValue_String(System.Text.StringBuilder builder, string name, NoSQL.NodeValue nodeValue, ref int i) {
             string text = ((string)nodeValue.Value)?.Trim();
             if (string.IsNullOrEmpty(text))
                 return false;
             if (text.StartsWith("{") && text.EndsWith("}")) {
-                return PreFieldValue_Dictionary(builder, name, new NoSQL.NodeValue(JSON.Parse(text)), ref i, ref pIndex);
+                return PreFieldValue_Dictionary(builder, name, new NoSQL.NodeValue(JSON.Parse(text)), ref i);
             }
             return false;
         }
@@ -350,10 +362,14 @@ namespace Symbol.Data {
                 System.Collections.Generic.List<object> array = new System.Collections.Generic.List<object>();
                 System.Collections.Generic.List<string> names = new System.Collections.Generic.List<string>();
                 whereBuilder.AddCommandParameter = (p) => {
-                    array.Add(p);
-                    string name = "@p_" + (array.Count + _fields.Count);
-                    names.Add(name);
-                    return name;
+                    var arg = new CommandParameter() {
+                        Name= Dialect?.ParameterNameGrammar("phw"+ (array.Count + _fields.Count)),
+                        Value=p,
+                        RealType= p?.GetType(),
+                    };
+                    array.Add(arg);
+                    names.Add(arg.Name);
+                    return arg.Name;
                 };
                 whereBuilder.Select("1");
                 if (where != null) {
@@ -363,10 +379,10 @@ namespace Symbol.Data {
                 if (end != null) {
                     string commandText = BuilderCommandText();
                     string whereCommandText = whereBuilder.WhereCommandText;
-                    for (int i = 0; i < names.Count; i++) {
-                        string name = "@p" + (i + 1 + _fields.Count);
-                        whereCommandText = whereCommandText.Replace(names[i], name);
-                    }
+                    //for (int i = 0; i < names.Count; i++) {
+                    //    string name = "@p" + (i + 1 + _fields.Count);
+                    //    whereCommandText = whereCommandText.Replace(names[i], name);
+                    //}
                     return end(commandText + whereCommandText, GetValues(array.ToArray()));
                 }
                 return default(T);

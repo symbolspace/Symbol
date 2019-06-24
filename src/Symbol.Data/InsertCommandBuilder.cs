@@ -197,9 +197,9 @@ namespace Symbol.Data {
             System.Text.StringBuilder builderValues = new System.Text.StringBuilder();
             builder.Append(" insert into ").Append(_dialect.PreName(_tableName, ".")).AppendLine("( ");
             bool isFirst = true;
-            int i = 0;
-            foreach (System.Collections.Generic.KeyValuePair<string, object> item in _fields) {
-                i++;
+
+            var pairs = new System.Collections.Generic.Dictionary<string, CommandParameter>();
+            foreach (var item in LinqHelper.ToArray( _fields)) {
                 if (isFirst) {
                     isFirst = false;
                 } else {
@@ -210,10 +210,20 @@ namespace Symbol.Data {
 
                 builderValues.Append("    ");
                 if (item.Value is CommandParameter commandParameter) {
+                    commandParameter.Name = Dialect?.ParameterNameGrammar(commandParameter.Name);
                     builderValues.Append(Dialect?.ParameterNameGrammar(commandParameter.Name));
                 } else {
-                    builderValues.Append(Dialect?.ParameterNameGrammar("p"+i));
+                    var p = new CommandParameter() {
+                        Name = Dialect?.ParameterNameGrammar(item.Key),
+                        Value = item.Value,
+                        RealType = item.Value?.GetType(),
+                    };
+                    _fields[item.Key] = p;
+                    builderValues.Append(p.Name);
                 }
+            }
+            foreach (var item in pairs) {
+                _fields[item.Key] = item.Value;
             }
             builder.AppendLine().AppendLine(" ) values ( ");
             builder.AppendLine(builderValues.ToString());
