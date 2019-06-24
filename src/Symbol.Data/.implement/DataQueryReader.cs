@@ -296,6 +296,10 @@ namespace Symbol.Data {
         /// <param name="target">输出转换结果。</param>
         /// <returns>返回尝试结果，为true表示成功。</returns>
         protected virtual bool TryConvertValue(System.Type type, object value, int index, System.Type targetType, out object target) {
+            if (targetType != null) {
+                target = TypeExtensions.Convert(value, targetType);
+                return true;
+            }
             target = null;
             return false;
         }
