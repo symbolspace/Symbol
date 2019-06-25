@@ -4,7 +4,6 @@
 * Symbol.dll [![Available on NuGet https://www.nuget.org/packages/Symbol/](https://img.shields.io/nuget/v/Symbol.svg?style=flat)](https://www.nuget.org/packages/Symbol/)
 * Symbol.Net.dll [![Available on NuGet https://www.nuget.org/packages/Symbol.Net/](https://img.shields.io/nuget/v/Symbol.Net.svg?style=flat)](https://www.nuget.org/packages/Symbol.Net/)
 * Symbol.Web.dll [![Available on NuGet https://www.nuget.org/packages/Symbol.Web/](https://img.shields.io/nuget/v/Symbol.Web.svg?style=flat)](https://www.nuget.org/packages/Symbol.Web/) 
-* Symbol.IO.Packing.TreePackage.dll [![Available on NuGet https://www.nuget.org/packages/Symbol.IO.Packing.TreePackage/](https://img.shields.io/nuget/v/Symbol.IO.Packing.TreePackage.svg?style=flat)](https://www.nuget.org/packages/Symbol.IO.Packing.TreePackage/) 
 
 ## Release Notes   [More](https://github.com/symbolspace/Symbol/wiki/Version-history)
 # 2019-06-16 22:00
