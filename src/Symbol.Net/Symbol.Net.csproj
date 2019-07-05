@@ -1,31 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="NuGet">
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net45;net4;net35;net2</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net47;net461;net46;net452;net45;net4;net35</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <GeneratedAssemblyInfoFile>Properties\AssemblyInfo.cs</GeneratedAssemblyInfoFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Net</AssemblyTitle>
     <AssemblyName>Symbol.Net</AssemblyName>
-    <VersionPrefix>4.0.0.2</VersionPrefix>
+    <VersionPrefix>4.0.0.3</VersionPrefix>
     <Title>Symbol.Net</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
-    <Description>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Net.dll for more information.</Description>
+    <Description>Please see https://github.com/symbolspace/Symbol.Net/wiki/Home for more information.</Description>
     <Copyright>© symbolspace All rights reserved.</Copyright>
     <PackageId>Symbol.Net</PackageId>
-    <PackageLicenseUrl>https://github.com/symbolspace/Symbol/blob/master/LICENSE.txt</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/symbolspace/Symbol/</PackageProjectUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/symbolspace/Symbol.Net/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/symbolspace/Symbol/master/icon.png</PackageIconUrl>
     <PackageTags>net;http;socket;symbol</PackageTags>
-    <PackageReleaseNotes>Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Net.dll for more information.</PackageReleaseNotes>
+    <PackageReleaseNotes>Please see https://github.com/symbolspace/Symbol.Net/wiki/Home for more information.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <RepositoryUrl>https://github.com/symbolspace/Symbol/</RepositoryUrl>
+    <RepositoryUrl>https://github.com/symbolspace/Symbol.Net/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
@@ -35,24 +35,42 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>bin</OutputPath>
+    <OutputPath>bin\Release</OutputPath>
     <DefineConstants></DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>bin</OutputPath>
+    <OutputPath>bin\Debug</OutputPath>
     <DefineConstants></DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
     <DefineConstants>netapp20;netcore;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>netcore20;netcore;</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net47'">
+    <DefineConstants>net47</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net461'">
+    <DefineConstants>net461</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net46'">
+    <DefineConstants>net46</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
+    <DefineConstants>net45;net452</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
     <DefineConstants>net45</DefineConstants>
@@ -66,6 +84,26 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='net2'">
     <DefineConstants>net20</DefineConstants>
   </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
@@ -80,11 +118,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Symbol\Symbol.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>
