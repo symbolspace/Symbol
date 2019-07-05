@@ -4,14 +4,14 @@
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;net45;net4;net35;net2</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol</AssemblyTitle>
     <AssemblyName>Symbol</AssemblyName>
-    <VersionPrefix>4.0.0.7</VersionPrefix>
+    <VersionPrefix>4.0.0.8</VersionPrefix>
     <Title>Symbol</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
