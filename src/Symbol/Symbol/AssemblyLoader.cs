@@ -74,8 +74,14 @@ namespace Symbol {
                 foreach (var p in deps.CompileLibraries) {
                     if (predicate == null || predicate(p.Name, p.Version)) {
                         var assemblyName = new System.Reflection.AssemblyName($"{p.Name}, Version={p.Version}");
-                        var assembly = System.Reflection.Assembly.Load(assemblyName);
-                        yield return assembly;
+                        Assembly assembly = null;
+                        try {
+                            assembly = System.Reflection.Assembly.Load(assemblyName);
+                        } catch (System.Exception) {
+                            continue;
+                        }
+                        if(assembly!=null)
+                            yield return assembly;
                     }
                 }
                 yield break;
