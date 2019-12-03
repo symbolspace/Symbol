@@ -21,7 +21,7 @@ using Symbol.Formatting.Json;
 /// JSON
 /// </summary>
 public static class JSON {
-    
+
     #region fields
     /// <summary>
     /// Globally set-able parameters for controlling the serializer
@@ -78,7 +78,7 @@ public static class JSON {
             return "null";
 
 #if netcore
-            if (obj.GetType().GetTypeInfo().IsGenericType)
+        if (obj.GetType().GetTypeInfo().IsGenericType)
 #else
         if (obj.GetType().IsGenericType)
 #endif
@@ -122,7 +122,7 @@ public static class JSON {
     }
     #endregion
     #region ToDynamic
-#if net40
+#if !net20 && !net35
     /// <summary>
     /// Create a .net4 dynamic object from the json string
     /// </summary>
@@ -305,8 +305,8 @@ public static class JSON {
     public static void RegisterCustomType(Type type, JsonSerializeDelegate serializer, JsonDeserializeDelegate deserializer) {
         Reflection.Instance.RegisterCustomType(type, serializer, deserializer);
     }
-    public static void RegisterCustomType<T>(JsonSerializeDelegate<T> serializer, JsonDeserializeDelegate<T> deserializer) where T:class,new() {
-        Reflection.Instance.RegisterCustomType(typeof(T), p=>serializer((T)p), p=> {
+    public static void RegisterCustomType<T>(JsonSerializeDelegate<T> serializer, JsonDeserializeDelegate<T> deserializer) where T : class, new() {
+        Reflection.Instance.RegisterCustomType(typeof(T), p => serializer((T)p), p => {
             var model = new T();
             deserializer(model, p);
             return model;
@@ -345,6 +345,95 @@ public static class JSON {
 
     #endregion
 }
+
+#if !net20
+public static class JsonExtensions {
+
+    /// <summary>
+    /// 序列化为JSON文本。
+    /// </summary>
+    /// <param name="value">可序列化对象。</param>
+    /// <returns>返回JSON文本。</returns>
+    public static string ToJson(this object value) {
+        return JSON.ToJSON(value);
+    }
+    /// <summary>
+    /// 序列化为JSON文本。
+    /// </summary>
+    /// <param name="value">可序列化对象。</param>
+    /// <param name="param">序列化参数。</param>
+    /// <returns>返回JSON文本。</returns>
+    public static string ToJson(this object value, JSONParameters param) {
+        return JSON.ToJSON(value, param);
+    }
+    /// <summary>
+    /// 序列化为JSON格式化文本。
+    /// </summary>
+    /// <param name="value">可序列化对象。</param>
+    /// <returns>返回JSON文本。</returns>
+    public static string ToNiceJson(this object value) {
+        return JSON.ToNiceJSON(value);
+    }
+    /// <summary>
+    /// 序列化为JSON格式化文本。
+    /// </summary>
+    /// <param name="value">可序列化对象。</param>
+    /// <param name="param">序列化参数。</param>
+    /// <returns>返回JSON文本。</returns>
+    public static string ToNiceJson(this object value, JSONParameters param) {
+        return JSON.ToNiceJSON(value, param);
+    }
+
+    /// <summary>
+    /// 基于JSON的深度复制。
+    /// </summary>
+    /// <param name="value">可序列化对象。</param>
+    /// <returns>返回JSON对象。</returns>
+    public static object JsonDeepCopy(this object value) {
+        return JSON.DeepCopy(value);
+    }
+    /// <summary>
+    /// 基于JSON的深度复制。
+    /// </summary>
+    /// <typeparam name="T">期望的类型。</typeparam>
+    /// <param name="value">可序列化对象。</param>
+    /// <returns>返回期望的JSON对象。</returns>
+    public static T JsonDeepCopy<T>(this T value) {
+        return JSON.DeepCopy<T>(value);
+    }
+
+    /// <summary>
+    /// 解析json(泛型，忽略异常)
+    /// </summary>
+    /// <typeparam name="T">任意类型</typeparam>
+    /// <param name="json">json文本</param>
+    /// <returns>返回json对象</returns>
+    public static T ToJsonObject<T>(this string json) {
+        return JSON.ToObject<T>(json);
+    }
+    /// <summary>
+    /// 解析json(泛型)
+    /// </summary>
+    /// <typeparam name="T">任意类型</typeparam>
+    /// <param name="json">json文本</param>
+    /// <param name="throwError">是否需要抛出异常</param>
+    /// <returns>返回json对象</returns>
+    public static T ToJsonObject<T>(this string json, bool throwError) {
+        return JSON.ToObject<T>(json, throwError);
+    }
+
+#if !net20 && !net35
+    /// <summary>
+    /// Create a .net4 dynamic object from the json string
+    /// </summary>
+    /// <param name="json"></param>
+    /// <returns></returns>
+    public static dynamic ToJsonDynamic(this string json) {
+        return JSON.ToDynamic(json);
+    }
+#endif
+}
+#endif
 
 
 #region types
@@ -394,7 +483,7 @@ namespace Symbol.Formatting.Json {
             _params.FixValues();
             Type t = null;
 #if netcore
-        if (type != null && type.GetTypeInfo().IsGenericType)
+            if (type != null && type.GetTypeInfo().IsGenericType)
 #else
             if (type != null && type.IsGenericType)
 #endif
@@ -464,7 +553,7 @@ namespace Symbol.Formatting.Json {
             } else if (conversionType == typeof(string))
                 return (string)value;
 #if netcore
-        else if (conversionType.GetTypeInfo().IsEnum)
+            else if (conversionType.GetTypeInfo().IsEnum)
 #else
             else if (conversionType.IsEnum)
 #endif
@@ -534,7 +623,7 @@ namespace Symbol.Formatting.Json {
 
         private bool IsNullable(Type t) {
 #if netcore
-        if (!t.GetTypeInfo().IsGenericType) return false;
+            if (!t.GetTypeInfo().IsGenericType) return false;
 #else
             if (!t.IsGenericType) return false;
 #endif
@@ -657,7 +746,7 @@ namespace Symbol.Formatting.Json {
             if (o == null) {
                 if (_params.ParametricConstructorOverride) {
 #if netcore
-                o = TypeExtensions.DefaultValue(type);
+                    o = TypeExtensions.DefaultValue(type);
 #else
                     o = System.Runtime.Serialization.FormatterServices.GetUninitializedObject(type);
 #endif
@@ -875,7 +964,7 @@ namespace Symbol.Formatting.Json {
 
                     else if (ob is IList<object>) {
 #if netcore
-                    if (bt.GetTypeInfo().IsGenericType)
+                        if (bt.GetTypeInfo().IsGenericType)
 #else
                         if (bt.IsGenericType)
 #endif
@@ -1083,7 +1172,7 @@ namespace Symbol.Formatting.Json {
                 case JsonNodeTypes.String3:
                     string p = ParseString3();
                     if (string.Equals(p, "null", StringComparison.OrdinalIgnoreCase) || string.Equals(p, "undefined", StringComparison.OrdinalIgnoreCase))
-                       return null;
+                        return null;
                     //return ParseString();
                     return PreString(p);
 
@@ -1933,7 +2022,7 @@ namespace Symbol.Formatting.Json {
 #if !SILVERLIGHT && !netcore
             WriteStringFast(Convert.ToBase64String(bytes, 0, bytes.Length, Base64FormattingOptions.None));
 #else
-        WriteStringFast(Convert.ToBase64String(bytes, 0, bytes.Length));
+            WriteStringFast(Convert.ToBase64String(bytes, 0, bytes.Length));
 #endif
         }
         #endregion
@@ -2416,7 +2505,7 @@ namespace Symbol.Formatting.Json {
             CachePropertyInfo d = new CachePropertyInfo();
             PropertyInfoTypes d_type = PropertyInfoTypes.Unknown;
 #if netcore
-        var type2 = type.GetTypeInfo();
+            var type2 = type.GetTypeInfo();
 #else
             var type2 = type;
 #endif
@@ -2442,8 +2531,7 @@ namespace Symbol.Formatting.Json {
                     d_type = PropertyInfoTypes.StringKeyDictionary;
                 else
                     d_type = PropertyInfoTypes.Dictionary;
-            }
-            else if (IsTypeRegistered(type))
+            } else if (IsTypeRegistered(type))
                 d_type = PropertyInfoTypes.Custom;
 
             if (type2.IsValueType && !type2.IsPrimitive && !type2.IsEnum && type != typeof(decimal))
@@ -2468,7 +2556,7 @@ namespace Symbol.Formatting.Json {
         #region GetChangeType
         private Type GetChangeType(Type conversionType) {
 #if netcore
-        if (conversionType.GetTypeInfo().IsGenericType && conversionType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+            if (conversionType.GetTypeInfo().IsGenericType && conversionType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
 #else
             if (conversionType.IsGenericType && conversionType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
 #endif
@@ -2597,16 +2685,16 @@ namespace Symbol.Formatting.Json {
             MethodInfo setMethod = propertyInfo.GetSetMethod();
             if (setMethod == null)//非public
                 setMethod = propertyInfo.GetSetMethod(true);
-            if(setMethod==null && TypeExtensions.IsAnonymousType(type)) {
+            if (setMethod == null && TypeExtensions.IsAnonymousType(type)) {
                 string fix = "<" + propertyInfo.Name + ">";
-                foreach(var x in type.GetFields(BindingFlags.Instance| BindingFlags.NonPublic)) {
+                foreach (var x in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic)) {
                     if (x.Name.IndexOf(fix) > -1 || x.FieldType.Name.IndexOf(fix) > -1) {
                         return CreateSetField(type, x);
                     }
                 }
             }
             if (setMethod == null) {
-                Console.WriteLine("setMethod is null {0}.{1}",type.Name, propertyInfo.Name);
+                Console.WriteLine("setMethod is null {0}.{1}", type.Name, propertyInfo.Name);
                 return null;
             }
             Type[] arguments = new Type[2];
@@ -2767,7 +2855,7 @@ namespace Symbol.Formatting.Json {
             }
 
         }
-        
+
         void ScanExtras_ExtraPath(List<Getters> getters, GenericGetter g, IParameterInfo parameterInfo) {
             foreach (var info in AttributeExtensions.GetCustomAttributes<ExtraPathAttribute>(parameterInfo, false)) {
                 ScanExtras_ExtraPath_Item(getters, g, parameterInfo, info);
