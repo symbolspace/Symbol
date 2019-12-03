@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="NuGet">
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net47;net461;net46;net452;net45;net4;net35</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netstandard2.0;netcoreapp2.0;net47;net461;net46;net452;net45;net4;net35</TargetFrameworks>
     <IsPackable>true</IsPackable>
+    <IncludeSymbols>true</IncludeSymbols>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -11,7 +12,7 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Net</AssemblyTitle>
     <AssemblyName>Symbol.Net</AssemblyName>
-    <VersionPrefix>4.0.0.3</VersionPrefix>
+    <VersionPrefix>4.0.0.5</VersionPrefix>
     <Title>Symbol.Net</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
@@ -22,9 +23,10 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/symbolspace/Symbol.Net/</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/symbolspace/Symbol/master/icon.png</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageTags>net;http;socket;symbol</PackageTags>
     <PackageReleaseNotes>Please see https://github.com/symbolspace/Symbol.Net/wiki/Home for more information.</PackageReleaseNotes>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/symbolspace/Symbol.Net/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <SignAssembly>true</SignAssembly>
@@ -54,6 +56,17 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+   <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp3.0'">
+    <DefineConstants>netapp30;netcore;</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)'=='netcoreapp2.0'">
     <DefineConstants>netapp20;netcore;</DefineConstants>
   </PropertyGroup>
