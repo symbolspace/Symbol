@@ -15,11 +15,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Please see https://github.com/symbolspace/Symbol/wiki/Symbol.Web.dll for more inf" +
     "ormation.")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("4.0.0.5")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("4.0.0.5")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("4.1.0.2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("4.1.0.2")]
 [assembly: System.Reflection.AssemblyProductAttribute("Symbol.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Symbol.Web")]
-[assembly: System.Reflection.AssemblyVersionAttribute("4.0.0.5")]
+[assembly: System.Reflection.AssemblyVersionAttribute("4.1.0.2")]
 [assembly: System.Resources.NeutralResourcesLanguageAttribute("zh-CN")]
 
 // 由 MSBuild WriteCodeFragment 类生成。
