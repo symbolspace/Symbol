@@ -578,7 +578,7 @@ public class FileLog : LogBase {
                 try { _writer.Dispose(); } catch { }
                 _writer = null;
             }
-            string name = string.Format("{0}\\{1}-{2}.log", System.DateTime.Now.ToString("yyyy-MM-dd"), Name, System.DateTime.Now.ToString("HHmmss"));
+            string name = string.Format($"{System.DateTime.Now.ToString("yyyy-MM-dd")}{System.IO.Path.DirectorySeparatorChar}{Name}-{System.DateTime.Now.ToString("HHmmss")}.log");
             _file = System.IO.Path.Combine(_path, name);
             AppHelper.CreateDirectory(System.IO.Path.GetDirectoryName(_file));
             writer = new System.IO.StreamWriter(CreateFile(_file, true, true), System.Text.Encoding.UTF8, 1024);

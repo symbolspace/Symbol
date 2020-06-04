@@ -81,6 +81,19 @@ public class AppHelper
     }
     #endregion
 
+    #region 
+#if netcore
+    /// <summary>
+    /// 获取当前运行环境名称（例如：Production）。
+    /// </summary>
+    public static string EnvironmentName {
+        get {
+            return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        }
+    }
+#endif
+    #endregion
+
     #region methods
 
     #region MapPath
@@ -95,7 +108,7 @@ public class AppHelper
         if (string.IsNullOrEmpty(path))
             return AppPath;
         if (path.StartsWith("~"))
-            return (AppPath + path.Substring(1).Replace("/", "\\")).Replace("\\\\",System.IO.Path.DirectorySeparatorChar.ToString());
+            return (AppPath + path.Substring(1).Replace('/', System.IO.Path.DirectorySeparatorChar)).Replace('\\', System.IO.Path.DirectorySeparatorChar);
         if (path.IndexOf(':') > -1)
             return path;
         return System.IO.Path.Combine(AppPath, path);
@@ -287,12 +300,12 @@ public class AppHelper
         if (!System.IO.Directory.Exists(path))
             return;
         if (deleteSelf) {
-            System.IO.Directory.Delete(path,true);
+            System.IO.Directory.Delete(path, true);
             return;
         }
         string[] dirs = System.IO.Directory.GetDirectories(path, "*", System.IO.SearchOption.TopDirectoryOnly);
         foreach (string item in dirs) {
-            DeleteDirectory(item,true);
+            DeleteDirectory(item, true);
         }
         string[] files = System.IO.Directory.GetFiles(path, "*", System.IO.SearchOption.TopDirectoryOnly);
         foreach (string item in files) {
