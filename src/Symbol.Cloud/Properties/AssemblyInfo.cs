@@ -12,7 +12,7 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("symbolspace")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("© symbolspace All rights reserved.")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("cloud in Symbol")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("4.0.0.1")]
