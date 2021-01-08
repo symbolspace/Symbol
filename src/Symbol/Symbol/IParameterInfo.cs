@@ -563,7 +563,18 @@ namespace Symbol {
                 value = p3;
                 return true;
             }
-            return FastWrapper.TryGet(p10, p2.Name, p3, new object[0], out value);
+            bool ok = FastWrapper.TryGet(p10, p2.Name, p3, new object[0], out value);
+            if (ok) {
+                if (value == null)
+                    return true;
+                var p11 = value.GetType();
+                if (p2.Type == p11 || TypeExtensions.IsInheritFrom(p2.Type, p11)) {
+                    return true;
+                }
+                return true;
+            }
+            value = null;
+            return false;
         }
         bool TryGetValue_IDictionary_string_object(int p1, IParameterInfo p2, object p3, out object value) {
             var p10 = (System.Collections.Generic.IDictionary<string, object>)p3;
@@ -667,7 +678,17 @@ namespace Symbol {
                     if (_tryGetValues[i](index, paramter, _datas[i], out value)) {
                         finded = true;
                         if (value != null) {
-                            value = _convertValue(PreConvertValue(value, paramter.Type), paramter.Type);
+                            try {
+                                value = _convertValue(PreConvertValue(value, paramter.Type), paramter.Type);
+                            } catch (FormatException) {
+                                finded = false;
+                                value = null;
+                                continue;
+                            } catch (InvalidCastException) {
+                                finded = false;
+                                value = null;
+                                continue;
+                            }
                             break;
                         }
                     }
