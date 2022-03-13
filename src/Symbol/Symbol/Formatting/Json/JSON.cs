@@ -479,6 +479,8 @@ namespace Symbol.Formatting.Json {
         }
 
         public object ToObject(string json, Type type) {
+            if (type == typeof(object))
+                type = null;
             //_params = Parameters;
             _params.FixValues();
             Type t = null;
@@ -493,8 +495,8 @@ namespace Symbol.Formatting.Json {
             _usingglobals = _params.UsingGlobalTypes;
 
             object o = new JsonParser(json).Decode();
-            if (o == null)
-                return null;
+            if (o == null || type == null)
+                return o;
             if (o is IDictionary) {
                 if (type != null && t == typeof(Dictionary<,>)) // deserialize a dictionary
                     return RootDictionary(o, type);
