@@ -11,7 +11,10 @@ namespace Examples.Enums {
 
     class Program {
         static void Main(string[] args) {
-            
+
+            var json = "{ \"count\": 1 }";
+            var o = JSON.ToObject(json, typeof(object));
+            Console.WriteLine(o);
 
             //枚举示例
             EnumExample();
