@@ -580,8 +580,11 @@ namespace Symbol.IO.Packing {
                     if (string.IsNullOrEmpty(o.Name) || o.Offset < 0 || o.Length < 0)
                         continue;
                     o.Data = new byte[o.Length];
-                    if (compresStream.Read(o.Data, 0, o.Length) != o.Length)
-                        return false;
+                    var readedLength = 0;
+                    while(readedLength< o.Length) {
+                        var length = compresStream.Read(o.Data, readedLength, o.Length - readedLength);
+                        readedLength += length;
+                    }
                     Append(o);
                 }
             }
@@ -649,6 +652,7 @@ namespace Symbol.IO.Packing {
                 root.Add("version", _version);
                 System.Collections.Generic.Dictionary<string, object> items = new System.Collections.Generic.Dictionary<string, object>();
                 root.Add("items", items);
+                root.Add("time", HttpUtility.JsTick(false));
                 bool has = _list != null && _list.Count > 0;
                 if (has) {
                     int offset = 0;
@@ -715,7 +719,7 @@ namespace Symbol.IO.Packing {
 
         #region types
 
-        [System.Diagnostics.DebuggerDisplay("{Name} {Length} *{Offset}")]
+        [System.Diagnostics.DebuggerDisplay("{Name}:[{Offset}]{Length}")]
         class Resource {
             public string Name;
             public int Length;
