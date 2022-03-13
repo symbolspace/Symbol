@@ -651,12 +651,15 @@ namespace Symbol.IO.Packing {
                 root.Add("items", items);
                 bool has = _list != null && _list.Count > 0;
                 if (has) {
-                    for (int i = 0; i < _list.Count; i++) {
-                        Resource item = _list[i];
+                    int offset = 0;
+                    foreach(var pair in _list_name) {
+                        var item = pair.Value;
+                        item.Offset= offset;
                         items.Add(item.Name, new object[] {
-                        item.Offset,
-                        item.Length
-                    });
+                            item.Offset,
+                            item.Length
+                        });
+                        offset += item.Length;
                     }
                 }
                 {
@@ -668,8 +671,8 @@ namespace Symbol.IO.Packing {
                     compresStream.Write(buffer, 0, buffer.Length);
                 }
                 if (has) {
-                    for (int i = 0; i < _list.Count; i++) {
-                        Resource item = _list[i];
+                    foreach (var pair in _list_name) {
+                        var item = pair.Value;
                         compresStream.Write(item.Data, 0, item.Length);
                     }
                 }
