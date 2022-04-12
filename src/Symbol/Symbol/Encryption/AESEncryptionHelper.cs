@@ -28,7 +28,9 @@ namespace Symbol.Encryption {
             byte[] bVector = new byte[16];
             Array.Copy(System.Text.Encoding.UTF8.GetBytes(vector.PadRight(bVector.Length)), bVector, bVector.Length);
 
-
+#if net50 || net60
+#pragma warning disable SYSLIB0022 // 类型或成员已过时
+#endif
             using (var rijndaelAES = Rijndael.Create()) {
                 var outStream = new System.IO.MemoryStream();
                 using (var cryptoStream = new CryptoStream(
@@ -47,7 +49,10 @@ namespace Symbol.Encryption {
                     return outStream;
                 }
             }
-          
+#if net50 || net60
+#pragma warning restore SYSLIB0022 // 类型或成员已过时
+#endif
+
         }
         /// <summary>
         /// 加密指定的数据。
@@ -62,7 +67,9 @@ namespace Symbol.Encryption {
 
             byte[] bVector = new byte[16];
             Array.Copy(System.Text.Encoding.UTF8.GetBytes(vector.PadRight(bVector.Length)), bVector, bVector.Length);
-
+#if net50 || net60
+#pragma warning disable SYSLIB0022 // 类型或成员已过时
+#endif
             using (var rijndaelAES = Rijndael.Create()) {
                 var outStream = new System.IO.MemoryStream();
                 using (var cryptoStream = new CryptoStream(
@@ -76,6 +83,9 @@ namespace Symbol.Encryption {
                     return outStream.ToArray();
                 }
             }
+#if net50 || net60
+#pragma warning restore SYSLIB0022 // 类型或成员已过时
+#endif
         }
         /// <summary>
         /// 加密指定的数据（文本，UTF8编码）。
@@ -109,7 +119,13 @@ namespace Symbol.Encryption {
 
             CryptoStream cryptoStream = null;
             System.IO.MemoryStream memoryResult = null;
+#if net50 || net60
+#pragma warning disable SYSLIB0022 // 类型或成员已过时
+#endif
             Rijndael rijndaelAES = Rijndael.Create();
+#if net50 || net60
+#pragma warning restore SYSLIB0022 // 类型或成员已过时
+#endif
             try {
                 cryptoStream = new CryptoStream(stream,
                     rijndaelAES.CreateDecryptor(bKey, bVector),
@@ -152,12 +168,10 @@ namespace Symbol.Encryption {
                 if (memoryResult != null) {
                     memoryResult.Close();
                     memoryResult.Dispose();
-                    memoryResult = null;
                 }
                 if (memoryStream != null) {
                     memoryStream.Close();
                     memoryStream.Dispose();
-                    memoryStream = null;
                 }
             }
 
