@@ -77,6 +77,9 @@ namespace Symbol.Net {
         /// <summary>
         /// 创建 HttpWebClient 的实例。
         /// </summary>
+#if net60
+#pragma warning disable SYSLIB0014 // 类型或成员已过时
+#endif
         public HttpWebClient() {
             StringAccept = "*/*";
             DataAccept = "*/*";
@@ -96,6 +99,9 @@ namespace Symbol.Net {
             Credentials = CredentialCache.DefaultCredentials;
             //Headers.Add( HttpRequestHeader.KeepAlive,"TRUE");
         }
+#if net60
+#pragma warning restore SYSLIB0014 // 类型或成员已过时
+#endif
         #endregion
 
         #region methods

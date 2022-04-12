@@ -150,9 +150,14 @@ namespace Symbol.Net {
 
         #region cctor
         static PeekSocket() {
+            System.Net.Sockets.Socket socket = null;
             try {
-                var socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
+                socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.Tcp);
+#if net60
+#pragma warning disable CA1416 // 验证平台兼容性
                 socket.IOControl(System.Net.Sockets.IOControlCode.KeepAliveValues, null, null);
+#pragma warning restore CA1416 // 验证平台兼容性
+#endif
                 _supportSocketIOControlByCodeEnum = true;
             } catch (System.NotSupportedException) {
                 _supportSocketIOControlByCodeEnum = false;
@@ -160,6 +165,12 @@ namespace Symbol.Net {
                 _supportSocketIOControlByCodeEnum = false;
             } catch (System.Exception) {
                 _supportSocketIOControlByCodeEnum = true;
+            } finally {
+#if !net35
+                if (socket != null) {
+                    socket.Dispose();
+                }
+#endif
             }
         }
         #endregion
