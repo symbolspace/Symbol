@@ -22,7 +22,7 @@ public class AppHelper
     #region properties
 
     #region AppPath
-    private static string _appPath;
+    private static readonly string _appPath;
     /// <summary>
     /// 当前应用程序位置（目录）
     /// </summary>
@@ -34,7 +34,7 @@ public class AppHelper
     }
     #endregion
     #region AppFile
-    private static string _appFile;
+    private static readonly string _appFile;
     /// <summary>
     /// 当前应用程序主文件路径（Windows应用程序为exe的路径，ASP.NET应用程序为主dll的路径）
     /// </summary>
@@ -45,7 +45,7 @@ public class AppHelper
     }
     #endregion
     #region Assembly
-    private static System.Reflection.Assembly _assembly;
+    private static readonly System.Reflection.Assembly _assembly;
     /// <summary>
     /// 当前应用程序的主程序集
     /// </summary>
@@ -67,11 +67,16 @@ public class AppHelper
             _assembly = System.Reflection.Assembly.GetCallingAssembly();
 #endif
         _isWindows = System.IO.Path.DirectorySeparatorChar == '\\';
+#if net50 || net60
+        _appFile = _assembly.Location;
+#else
         if (!string.IsNullOrEmpty(_assembly.CodeBase)) {
-            _appFile = _assembly.CodeBase.Replace("file:///", "").Replace("/", System.IO.Path.DirectorySeparatorChar.ToString());
+            _appFile = _assembly.CodeBase;
         } else {
             _appFile = _assembly.Location;
         }
+#endif
+        _appFile= _appFile.Replace("file:///", "").Replace("/", System.IO.Path.DirectorySeparatorChar.ToString());
         if (!_isWindows) {
             if (_appFile[0] != System.IO.Path.DirectorySeparatorChar) {
                 _appFile = System.IO.Path.DirectorySeparatorChar + _appFile;
@@ -79,9 +84,9 @@ public class AppHelper
         }
         _appPath = System.IO.Path.GetDirectoryName(AppFile);
     }
-    #endregion
+#endregion
 
-    #region 
+#region 
 #if netcore
     /// <summary>
     /// 获取当前运行环境名称（例如：Production）。
@@ -92,11 +97,11 @@ public class AppHelper
         }
     }
 #endif
-    #endregion
+#endregion
 
-    #region methods
+#region methods
 
-    #region MapPath
+#region MapPath
     /// <summary>
     /// 映射路径，用于将相对路径变为绝对路径，相对于AppPath。
     /// </summary>
@@ -113,9 +118,9 @@ public class AppHelper
             return path;
         return System.IO.Path.Combine(AppPath, path);
     }
-    #endregion
+#endregion
 
-    #region LoadTextFile
+#region LoadTextFile
     /// <summary>
     /// 加载文本文件
     /// </summary>
@@ -142,8 +147,8 @@ public class AppHelper
             }
         });
     }
-    #endregion
-    #region SaveTextFile
+#endregion
+#region SaveTextFile
     /// <summary>
     /// 保存内容到文本文件
     /// </summary>
@@ -196,9 +201,9 @@ public class AppHelper
             }
         });
     }
-    #endregion
+#endregion
 
-    #region CopyFile
+#region CopyFile
     /// <summary>
     /// 复制文件（复制前会自动删除目标文件）
     /// </summary>
@@ -209,8 +214,8 @@ public class AppHelper
         DeleteFile(destFilename);
         System.IO.File.Copy(sourceFilename, destFilename);
     }
-    #endregion
-    #region DeleteFile
+#endregion
+#region DeleteFile
     /// <summary>
     /// 删除文件（只读文件、隐藏文件、系统文件都可以删除）
     /// </summary>
@@ -225,9 +230,9 @@ public class AppHelper
             System.IO.File.Delete(path);
         });
     }
-    #endregion
+#endregion
 
-    #region CreateDirectory
+#region CreateDirectory
     /// <summary>
     /// 创建目录
     /// </summary>
@@ -246,8 +251,8 @@ public class AppHelper
         if (!System.IO.Directory.Exists(path))
             System.IO.Directory.CreateDirectory(path);
     }
-    #endregion
-    #region CopyDirectory
+#endregion
+#region CopyDirectory
     /// <summary>
     /// 复制目录
     /// </summary>
@@ -279,8 +284,8 @@ public class AppHelper
             }
         }
     }
-    #endregion
-    #region DeleteDirectory
+#endregion
+#region DeleteDirectory
     /// <summary>
     /// 删除目录（包括目录自己）
     /// </summary>
@@ -317,9 +322,9 @@ public class AppHelper
         //    System.Threading.Thread.Sleep(200);
         //}
     }
-    #endregion
+#endregion
 
-    #region GetFiles
+#region GetFiles
     /// <summary>
     /// 返回指定目录中文件的名称，该目录与指定搜索模式匹配并使用某个值确定是否在子目录中搜索。
     /// </summary>
@@ -347,7 +352,7 @@ public class AppHelper
         }
         return list;
     }
-    #endregion
+#endregion
 
-    #endregion
+#endregion
 }
