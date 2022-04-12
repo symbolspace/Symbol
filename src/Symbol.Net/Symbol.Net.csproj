@@ -5,14 +5,14 @@
     <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Net</AssemblyTitle>
     <AssemblyName>Symbol.Net</AssemblyName>
-    <VersionPrefix>4.0.0.6</VersionPrefix>
+    <VersionPrefix>4.0.0.7</VersionPrefix>
     <Title>Symbol.Net</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
