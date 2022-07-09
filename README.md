@@ -6,12 +6,6 @@
 * Symbol.Web.dll [![Available on NuGet https://www.nuget.org/packages/Symbol.Web/](https://img.shields.io/nuget/v/Symbol.Web.svg?style=flat)](https://www.nuget.org/packages/Symbol.Web/) 
 
 ## Release Notes   [More](https://github.com/symbolspace/Symbol/wiki/Version-history)
-# 2019-06-16 22:00
-### Symbol v4.0.0.5
-* 提升并行性能；
-### Symbol.Data v4.1.0
-* 重构Data，分离数据库引擎
-
 
 ## Iteration plan
 * Symbol.Cloud 移植；
@@ -24,8 +18,14 @@
 * .net framework 3.5;
 * .net framework 4.0;
 * .net framework 4.5;
-* .net standard 2.0;
-* .net core app 2.0;
+* .net framework 4.5.2;
+* .net framework 4.6;
+* .net framework 4.6.1;
+* .net framework 4.7;
+* .net framework 4.8;
+* .net core app 3.1;
+* .net 5.0;
+* .net 6.0;
 
 
 ## Wiki
