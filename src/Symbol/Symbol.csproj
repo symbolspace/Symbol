@@ -12,7 +12,7 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol</AssemblyTitle>
     <AssemblyName>Symbol</AssemblyName>
-    <VersionPrefix>4.0.0.26</VersionPrefix>
+    <VersionPrefix>4.0.0.27</VersionPrefix>
     <Title>Symbol</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
@@ -33,7 +33,8 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <AssemblyOriginatorKeyFile>..\..\Symbol.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>10.0</LangVersion>
+	<Nullable>disable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
