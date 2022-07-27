@@ -3,6 +3,10 @@
  *  e-mail：symbolspace@outlook.com
  */
 
+#if netcore
+using Microsoft.AspNetCore.Http;
+#endif
+
 namespace Symbol.Web {
     /// <summary>
     /// 提供对客户端上载文件的访问，并组织这些文件。
@@ -13,7 +17,6 @@ namespace Symbol.Web {
         System.IDisposable {
         #region fields
         private System.Collections.Generic.Dictionary<string, HttpPostedFile> _values = null;
-
         #endregion
 
         #region ctor
@@ -86,10 +89,10 @@ namespace Symbol.Web {
             return null;
         }
         /// <summary>
-        /// 
+        /// 添加
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
+        /// <param name="name">名称</param>
+        /// <param name="value">文件</param>
         public void Add(string name, HttpPostedFile value) {
             if (string.IsNullOrEmpty(name))
                 return;
@@ -97,10 +100,25 @@ namespace Symbol.Web {
                 return;
             _values.Add(name, value);
         }
+#if netcore
         /// <summary>
-        /// 
+        /// 添加
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">名称</param>
+        /// <param name="value">文件</param>
+        public void Add(string name, IFormFile value) {
+            if (string.IsNullOrEmpty(name))
+                return;
+            if (_values.ContainsKey(name))
+                return;
+            var file = new HttpPostedFile(value);
+            _values.Add(name, file);
+        }
+#endif
+        /// <summary>
+        /// 移除
+        /// </summary>
+        /// <param name="name">名称</param>
         public void Remove(string name) {
             if (name == null)
                 return;
@@ -111,9 +129,9 @@ namespace Symbol.Web {
             }
         }
         /// <summary>
-        /// 
+        /// 移除（按索引）
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="index">索引</param>
         public void RemoveAt(int index) {
             if (_values.Count == 0 || index < 0 || index > (_values.Count - 1))
                 return;
@@ -132,7 +150,7 @@ namespace Symbol.Web {
             item.Dispose();
         }
         /// <summary>
-        /// 
+        /// 清空
         /// </summary>
         public void Clear() {
             foreach (HttpPostedFile item in _values.Values) {

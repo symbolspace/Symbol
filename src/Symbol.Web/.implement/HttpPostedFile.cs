@@ -2,6 +2,9 @@
  *  author：symbolspace
  *  e-mail：symbolspace@outlook.com
  */
+#if netcore
+using Microsoft.AspNetCore.Http;
+#endif
 
 namespace Symbol.Web {
     /// <summary>
@@ -18,9 +21,25 @@ namespace Symbol.Web {
         private string _contentType = null;
         private int _contentLength = -1;
         private InputStreamGetter _inputStreamGetter;
+#if netcore
+        private IFormFile _file;
+#endif
         #endregion
 
         #region ctor
+#if netcore
+        /// <summary>
+        /// 创建HttpPostedFile实例。
+        /// </summary>
+        /// <param name="file">文件对象。</param>
+        public HttpPostedFile(IFormFile file) {
+            _filename = file.FileName;
+            _contentType = file.ContentType;
+            _contentLength = (int)file.Length;
+            _file = file;
+            _inputStreamGetter = _file.OpenReadStream;
+        }
+#endif
         /// <summary>
         /// 创建HttpPostedFile实例。
         /// </summary>
@@ -125,6 +144,9 @@ namespace Symbol.Web {
                     stream = null;
                 }
                 _filename = null;
+#if netcore
+                _file = null;
+#endif
                 //System.GC.Collect(0);
                 //System.GC.Collect();
             }
