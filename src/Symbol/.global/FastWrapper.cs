@@ -448,7 +448,7 @@ public partial class FastWrapper {
         if (instance == null) {
             methodInfo = type.GetMethod(name, DefaultBindingFlags | BindingFlags.Static | BindingFlags.InvokeMethod);
         } else {
-            methodInfo = type.GetMethod(name, DefaultBindingFlags | BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Static);
+            methodInfo = type.GetMethod(name, DefaultBindingFlags | BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Instance);
         }
         if (methodInfo == null)
             Symbol.CommonException.ThrowNotSupported(string.Format("未找到方法 {0}.{1}", type.FullName2(), name));
