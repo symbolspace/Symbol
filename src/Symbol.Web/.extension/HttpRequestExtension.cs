@@ -43,7 +43,7 @@ namespace Microsoft.AspNetCore.Http {
                 && httpRequest.ContentLength>0
                 && (
                      httpRequest.ContentType.IndexOf("form-urlencoded", System.StringComparison.OrdinalIgnoreCase)>-1
-                  || httpRequest.ContentType.IndexOf("mulit", System.StringComparison.OrdinalIgnoreCase) > -1
+                  || httpRequest.ContentType.IndexOf("multi", System.StringComparison.OrdinalIgnoreCase) > -1
                 )) {
                 foreach (var p in httpRequest.Form) {
                     list[p.Key] = p.Value.ToString();
@@ -70,7 +70,7 @@ namespace Microsoft.AspNetCore.Http {
                 && httpRequest.ContentLength > 0
                 && (
                      httpRequest.ContentType.IndexOf("form-urlencoded", System.StringComparison.OrdinalIgnoreCase) > -1
-                  || httpRequest.ContentType.IndexOf("mulit", System.StringComparison.OrdinalIgnoreCase) > -1
+                  || httpRequest.ContentType.IndexOf("multi", System.StringComparison.OrdinalIgnoreCase) > -1
                 )) {
                 value = httpRequest.Form[name];
                 if (!string.IsNullOrEmpty(value))
