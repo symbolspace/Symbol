@@ -127,7 +127,7 @@ public static class EnumExtensions {
         if (!defineName) {
             var type = value.GetType();
             for (int i = 0; i < values.Length; i++) {
-                string name = ConstAttributeExtensions.Const(type.GetField(values[i]));
+                string name = ToName_Field(type.GetField(values[i]), "Text");
                 if (!string.IsNullOrEmpty(name))
                     values[i] = name;
             }
@@ -137,6 +137,26 @@ public static class EnumExtensions {
     #endregion
 
     #region ToName
+
+    static string ToName_Field(System.Reflection.FieldInfo fieldInfo, string key) {
+
+        var value = ConstAttributeExtensions.Const(fieldInfo, key);
+        if (!string.IsNullOrEmpty(value))
+            return value;
+        if (key == "Text") {
+            value = Symbol.AttributeExtensions.GetCustomAttribute<System.ComponentModel.DisplayNameAttribute>(fieldInfo)?.DisplayName;
+            if (string.IsNullOrEmpty(value)) {
+                key = "Description";
+                goto lb_Description;
+            }
+        }
+    lb_Description:
+        if (key == "Description") {
+            value = Symbol.AttributeExtensions.GetCustomAttribute<System.ComponentModel.DescriptionAttribute>(fieldInfo)?.Description;
+        }
+        return value;
+    }
+
     /// <summary>
     /// 将当前枚举的值，变成名称串（特性），通常用于多值的枚举。比如将 Abc.A | Abc.B 变成Abc[]{ Abc.A,Abc.B }。
     /// </summary>
@@ -164,7 +184,7 @@ public static class EnumExtensions {
         if (!defineName) {
             var type = value.GetType();
             for (int i = 0; i < values.Length; i++) {
-                string name = ConstAttributeExtensions.Const(type.GetField(values[i]));
+                string name = ToName_Field(type.GetField(values[i]), "Text");
                 if (!string.IsNullOrEmpty(name))
                     values[i] = name;
             }
@@ -188,7 +208,7 @@ public static class EnumExtensions {
         string[] values = value.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
         var type = value.GetType();
         for (int i = 0; i < values.Length; i++) {
-            string name = ConstAttributeExtensions.Const(type.GetField(values[i]), key);
+            string name = ToName_Field(type.GetField(values[i]), key);
             if (!string.IsNullOrEmpty(name))
                 values[i] = name;
         }
@@ -214,7 +234,7 @@ public static class EnumExtensions {
         string[] values = value.ToString().Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
         var type = value.GetType();
         for (int i = 0; i < values.Length; i++) {
-            string name = ConstAttributeExtensions.Const(type.GetField(values[i]), key);
+            string name = ToName_Field(type.GetField(values[i]), key);
             if (!string.IsNullOrEmpty(name))
                 return name;
         }

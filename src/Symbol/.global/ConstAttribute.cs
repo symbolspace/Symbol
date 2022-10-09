@@ -137,6 +137,46 @@ public static class ConstAttributeExtensions {
                 }
             }
         }
+        bool isEmptyText = string.IsNullOrEmpty(list["Text"]);
+        bool isEmptyDisplayName = true;
+        {
+            var attributes = provider.GetCustomAttributes(typeof(System.ComponentModel.DisplayNameAttribute), true);
+            if (attributes != null) {
+                foreach (System.ComponentModel.DisplayNameAttribute p in attributes) {
+                    if (!string.IsNullOrEmpty(p.DisplayName)) {
+                        isEmptyDisplayName = false;
+                        list["DisplayName"] = p.DisplayName;
+                        if (isEmptyText) {
+                            isEmptyText = false;
+                            list["Text"] = p.DisplayName;
+                        }
+                    }
+                }
+            }
+            if (isEmptyDisplayName) {
+                isEmptyDisplayName = isEmptyText;
+                list["DisplayName"] = list["Text"];
+            }
+        }
+        {
+            var attributes = provider.GetCustomAttributes(typeof(System.ComponentModel.DescriptionAttribute), true);
+            if (attributes != null) {
+                foreach (System.ComponentModel.DescriptionAttribute p in attributes) {
+                    if (!string.IsNullOrEmpty(p.Description)) {
+                        isEmptyDisplayName = false;
+                        list["Description"] = p.Description;
+                        if (isEmptyText) {
+                            isEmptyText = false;
+                            list["Text"] = p.Description;
+                        }
+                        if (isEmptyDisplayName) {
+                            isEmptyDisplayName = false;
+                            list["DisplayName"] = p.Description;
+                        }
+                    }
+                }
+            }
+        }
     }
     #endregion
 
