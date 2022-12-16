@@ -124,6 +124,58 @@ namespace Microsoft.AspNetCore.Http {
             return (data,realLength);
         }
         #endregion
+
+        /// <summary>
+        /// 获取HttpContext.Request当前请求Scheme
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static string GetScheme(this HttpRequest request) {
+            string scheme = request.Headers["X-Scheme"];
+            if (string.IsNullOrWhiteSpace(scheme))
+                scheme = request.Scheme;
+            return scheme;
+        }
+
+        /// <summary>
+        /// 获取HttpContext.Request当前请求ApplicationPath
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static string GetApplicationPath(this HttpRequest request) {
+            return new System.Text.StringBuilder()
+                       .Append(request.PathBase)
+                       .Append(request.Path)
+                       .ToString();
+        }
+        /// <summary>
+        /// 获取HttpContext.Request当前请求URL
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static string GetUrl(this HttpRequest request) {
+            return new System.Text.StringBuilder()
+                       .Append(request.PathBase)
+                       .Append(request.Path)
+                       .Append(request.QueryString)
+                       .ToString();
+        }
+
+        /// <summary>
+        /// 获取HttpContext.Request当前请求绝对URI
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static string GetAbsoluteUri(this HttpRequest request) {
+            return new System.Text.StringBuilder()
+                       .Append(request.GetScheme())
+                       .Append("://")
+                       .Append(request.Host)
+                       .Append(request.PathBase)
+                       .Append(request.Path)
+                       .Append(request.QueryString)
+                       .ToString();
+        }
     }
 
 }
