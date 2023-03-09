@@ -2696,7 +2696,7 @@ namespace Symbol.Formatting.Json {
                 }
             }
             if (setMethod == null) {
-                Console.WriteLine("setMethod is null {0}.{1}", type.Name, propertyInfo.Name);
+                //Console.WriteLine("setMethod is null {0}.{1}", type.Name, propertyInfo.Name);
                 return null;
             }
             Type[] arguments = new Type[2];

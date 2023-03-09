@@ -13,6 +13,21 @@ public class CallResult<T> : CallResult {
         get {
             return (T)ResultData;
         }
+        protected set {
+            ResultData = value;
+        }
+    }
+    /// <summary>
+    /// 返回数据。
+    /// </summary>
+    [Formatting.Ignore]
+    public override object ResultData {
+        get {
+            return base.ResultData;
+        }
+        set {
+            base.ResultData = value;
+        }
     }
 
     /// <summary>
