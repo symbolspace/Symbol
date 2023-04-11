@@ -2618,12 +2618,20 @@ namespace Symbol.Formatting.Json {
                         } else {
                             //解决空参数构造函数为非public时
                             var ctor = objtype.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
-                            //typeOwner用于解决非public构造函数
-                            DynamicMethod dynMethod = new DynamicMethod("DM_" + System.Guid.NewGuid().ToString("N"), objtype, null, objtype);
-                            ILGenerator ilGen = dynMethod.GetILGenerator();
-                            ilGen.Emit(OpCodes.Newobj, ctor);
-                            ilGen.Emit(OpCodes.Ret);
-                            c = (CreateObject)dynMethod.CreateDelegate(typeof(CreateObject));
+#if !netcore
+                            if (objtype.IsGenericType) {
+                                c = () => FastWrapper.CreateInstance(objtype);
+                            } else {
+#endif
+                                //typeOwner用于解决非public构造函数
+                                DynamicMethod dynMethod = new DynamicMethod("DM_" + System.Guid.NewGuid().ToString("N"), objtype, null, objtype);
+                                ILGenerator ilGen = dynMethod.GetILGenerator();
+                                ilGen.Emit(OpCodes.Newobj, ctor);
+                                ilGen.Emit(OpCodes.Ret);
+                                c = (CreateObject)dynMethod.CreateDelegate(typeof(CreateObject));
+#if !netcore
+                            }
+#endif
                         }
                         _constrcache.Add(objtype, c);
                     } else // structs
@@ -3003,7 +3011,7 @@ namespace Symbol.Formatting.Json {
 
         //    return false;
         //}
-        #endregion
+#endregion
         #region ResetPropertyCache
         internal void ResetPropertyCache() {
             _propertycache = new SafeDictionary<string, Dictionary<string, CachePropertyInfo>>();
@@ -3021,7 +3029,7 @@ namespace Symbol.Formatting.Json {
         }
         #endregion
 
-        #endregion
+#endregion
 
         #region types
         internal delegate object GenericSetter(object target, object value);

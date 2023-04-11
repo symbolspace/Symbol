@@ -67,7 +67,7 @@ public class AppHelper
             _assembly = System.Reflection.Assembly.GetCallingAssembly();
 #endif
         _isWindows = System.IO.Path.DirectorySeparatorChar == '\\';
-#if net50 || net60
+#if net50 || net60 || net70 || net80
         _appFile = _assembly.Location;
 #else
         if (!string.IsNullOrEmpty(_assembly.CodeBase)) {

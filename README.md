@@ -23,9 +23,11 @@
 * .net framework 4.6.1;
 * .net framework 4.7;
 * .net framework 4.8;
+* .net core app 2.1;
 * .net core app 3.1;
 * .net 5.0;
 * .net 6.0;
+* .net 7.0;
 
 
 ## Wiki

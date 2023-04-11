@@ -440,6 +440,35 @@ public static class StringExtensions {
     }
     #endregion
 
+    #region FormatEntity
+    /// <summary>
+    /// 支持实体取值路径的格式串
+    /// </summary>
+    /// <param name="format">格式串，处理{}格式串，支持深度路径。</param>
+    /// <param name="entity">额外实体，传递数据的对象</param>
+    /// <returns></returns>
+    public static string FormatEntity(
+#if !net20
+        this
+#endif
+        string format, object entity) {
+
+        if (string.IsNullOrEmpty(format) || entity == null)
+            return format ?? "";
+        foreach (var key in Symbol.Text.StringExtractHelper.RulesStringsStartEnd(format, "{", new string[] { "}" }, 0, true, true, true)) {
+            var name = Symbol.Text.StringExtractHelper.StringsStartEnd(key, "{", ":", "}")?.Trim();
+            if (string.IsNullOrEmpty(name)) {
+                format = format.Replace(key, "");
+                continue;
+            }
+            object p = FastObject.Path(entity, name);
+            string v = string.Format(key.Replace(name, "0"), p);
+            format = format.Replace(key, v);
+        }
+        return format;
+    }
+    #endregion
+
     #endregion
 
 }

@@ -28,7 +28,7 @@ namespace Symbol.Encryption {
             byte[] bVector = new byte[16];
             Array.Copy(System.Text.Encoding.UTF8.GetBytes(vector.PadRight(bVector.Length)), bVector, bVector.Length);
 
-#if net50 || net60
+#if net50 || net60 || net70 || net80
 #pragma warning disable SYSLIB0022 // 类型或成员已过时
 #endif
             using (var rijndaelAES = Rijndael.Create()) {
@@ -49,7 +49,7 @@ namespace Symbol.Encryption {
                     return outStream;
                 }
             }
-#if net50 || net60
+#if net50 || net60 || net70 || net80
 #pragma warning restore SYSLIB0022 // 类型或成员已过时
 #endif
 
@@ -67,7 +67,7 @@ namespace Symbol.Encryption {
 
             byte[] bVector = new byte[16];
             Array.Copy(System.Text.Encoding.UTF8.GetBytes(vector.PadRight(bVector.Length)), bVector, bVector.Length);
-#if net50 || net60
+#if net50 || net60 || net70 || net80
 #pragma warning disable SYSLIB0022 // 类型或成员已过时
 #endif
             using (var rijndaelAES = Rijndael.Create()) {
@@ -83,7 +83,7 @@ namespace Symbol.Encryption {
                     return outStream.ToArray();
                 }
             }
-#if net50 || net60
+#if net50 || net60 || net70 || net80
 #pragma warning restore SYSLIB0022 // 类型或成员已过时
 #endif
         }
@@ -119,11 +119,11 @@ namespace Symbol.Encryption {
 
             CryptoStream cryptoStream = null;
             System.IO.MemoryStream memoryResult = null;
-#if net50 || net60
+#if net50 || net60 || net70 || net80
 #pragma warning disable SYSLIB0022 // 类型或成员已过时
 #endif
             Rijndael rijndaelAES = Rijndael.Create();
-#if net50 || net60
+#if net50 || net60 || net70 || net80
 #pragma warning restore SYSLIB0022 // 类型或成员已过时
 #endif
             try {
