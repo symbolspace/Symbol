@@ -11,7 +11,7 @@ namespace Examples.Enums {
 
     class Program {
         static void Main(string[] args) {
-
+            JSONListT();
             var json = "{ \"count\": 1 }";
             var o = JSON.ToObject(json, typeof(object));
             Console.WriteLine(o);
@@ -23,6 +23,22 @@ namespace Examples.Enums {
             ConstExample();
 
         }
+
+        static void JSONListT() {
+            var userBook = new UserBook() {
+                User = new User() { Name = "张三" },
+                Books = new System.Collections.Generic.List<BookInfo>() {
+                     new BookInfo() {
+                          Name="人文英语",
+                           Count=1
+                     }
+                 }
+            };
+            var json = JSON.ToNiceJSON(userBook);
+            var userBook2 = JSON.ToObject<UserBook>(json, true);
+            Console.WriteLine(userBook2);
+        }
+
 
         static void EnumExample() {
             //输出定义

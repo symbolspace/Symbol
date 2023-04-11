@@ -25,6 +25,9 @@ namespace Examples.Enums {
         [Const("数量")]
         public int Count { get; set; }
 
+        public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+
+
         [Const("继承测试")]
         public virtual void Foo() {
         }
