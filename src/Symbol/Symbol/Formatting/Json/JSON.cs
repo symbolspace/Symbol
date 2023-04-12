@@ -495,25 +495,25 @@ namespace Symbol.Formatting.Json {
             _usingglobals = _params.UsingGlobalTypes;
 
             object o = new JsonParser(json).Decode();
-            if (o == null || type == null)
+            if (o == null || type == null || type==typeof(object))
                 return o;
             if (o is IDictionary) {
-                if (type != null && t == typeof(Dictionary<,>)) // deserialize a dictionary
+                if (t == typeof(Dictionary<,>)) // deserialize a dictionary
                     return RootDictionary(o, type);
                 else // deserialize an object
                     return ParseDictionary(o as IDictionary<string, object>, null, type, null);
             } else if (o is List<object>) {
-                if (type != null && t == typeof(Dictionary<,>)) // kv format
+                if (t == typeof(Dictionary<,>)) {
                     return RootDictionary(o, type);
-                else if (type != null && t == typeof(List<>)) // deserialize to generic list
+                } else if (t == typeof(List<>)) // deserialize to generic list
                     return RootList(o, type);
-                else if (type != null && type.IsArray)
+                else if (type.IsArray)
                     return RootArray(o, type);
                 else if (type == typeof(Hashtable))
                     return RootHashTable((List<object>)o);
                 else
                     return (o as List<object>).ToArray();
-            } else if (type != null && o.GetType() != type)
+            } else if (o.GetType() != type)
                 return ChangeType(o, type);
 
             return o;
@@ -540,6 +540,8 @@ namespace Symbol.Formatting.Json {
         }
 
         private object ChangeType(object value, Type conversionType) {
+            if (conversionType == typeof(object))
+                return value;
             if (conversionType == typeof(int)) {
                 string s = value as string;
                 if (s == null)
@@ -707,6 +709,8 @@ namespace Symbol.Formatting.Json {
         }
 
         internal object ParseDictionary(IDictionary<string, object> d, IDictionary<string, object> globaltypes, Type type, object input) {
+            if (type == typeof(object))
+                return d;
             object tn = "";
             if (type == typeof(NameValueCollection))
                 return CreateNV(d);
@@ -809,6 +813,7 @@ namespace Symbol.Formatting.Json {
                             case PropertyInfoTypes.StringDictionary: oset = CreateSD((IDictionary<string, object>)v); break;
                             case PropertyInfoTypes.Custom: oset = Reflection.Instance.CreateCustom((string)v, pi.MemberType); break;
                             default: {
+                                    
                                     if (pi.IsGenericType && pi.IsValueType == false && v is IList<object>)
                                         oset = CreateGenericList((IList<object>)v, pi.MemberType, pi.ElementType, globaltypes);
 
