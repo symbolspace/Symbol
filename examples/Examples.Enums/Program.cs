@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Symbol;
+using Symbol.Text;
 
 namespace Examples.Enums {
     /*
@@ -11,6 +12,37 @@ namespace Examples.Enums {
 
     class Program {
         static void Main(string[] args) {
+            {
+                var text = "select id from test left join user as u on u.id=test.uid group by type having min(age)>15 order by type desc offset 3 limit 8";
+                var beginIndex = 0;
+                int endIndex;
+                Action<string, string[]> action = (start, ends) => {
+                    var content = StringExtractHelper.StringsStartEnd(text, start, ends, beginIndex, false, false, false, out endIndex);
+                    Console.WriteLine($"StringsStartEnd(begin={start},beginIndex={beginIndex},ends={{{ends.Join(";")}}}");
+                    Console.WriteLine($"    =>length={content?.Length??0},endIndex={endIndex}");
+                    Console.WriteLine(content);
+                    Console.WriteLine();
+                };
+
+                //select
+                action("select ", new string[] { " from " });
+
+                //wherebefore
+                action(" from ", new string[] { " where ", " group by ", " order by ", " offset ", " limit ", "[*]$" });
+                //where
+                action(" where ", new string[] { " group by ", " order by ", " offset ", " limit ", "[*]$" });
+                //group by
+                action(" group by ", new string[] { " having ", " order by ", " offset ", " limit ", "[*]$" });
+                //having
+                action(" having ", new string[] { " order by ", " offset ", " limit ", "[*]$" });
+                //order by
+                action(" order by ", new string[] { " offset ", " limit ", "[*]$" });
+                //offset
+                action(" offset ", new string[] { " limit ", "[*]$" });
+                //limit
+                action(" limit ", new string[] { "[*]$" });
+            }
+
             JSONListT();
             var json = "{ \"count\": 1 }";
             var o = JSON.ToObject(json, typeof(object));
