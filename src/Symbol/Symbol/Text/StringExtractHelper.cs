@@ -165,7 +165,7 @@ namespace Symbol.Text {
             if (endIndex != 0) {
                 foreach (string item in ends) {
                     string end = item;
-                    int i = StringIndexOf(text, ref end, startIndex2 + (b ? start.Length : 0), isCase);
+                    int i = end == "[*]$" ? text.Length : StringIndexOf(text, ref end, startIndex2 + (b ? start.Length : 0), isCase);
                     if (i != -1) {
                         if (i != 0 && isCantionEnd) {
                             i += end.Length;
