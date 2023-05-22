@@ -914,17 +914,19 @@ namespace Symbol.Formatting.Json {
             int year;
             int month;
             int day;
-            int hour;
-            int min;
-            int sec;
+            int hour=0;
+            int min=0;
+            int sec=0;
             int ms = 0;
 
             year = CreateInteger(value, 0, 4);
             month = CreateInteger(value, 5, 2);
             day = CreateInteger(value, 8, 2);
-            hour = CreateInteger(value, 11, 2);
-            min = CreateInteger(value, 14, 2);
-            sec = CreateInteger(value, 17, 2);
+            if (value.Length > 11) {
+                hour = CreateInteger(value, 11, 2);
+                min = CreateInteger(value, 14, 2);
+                sec = CreateInteger(value, 17, 2);
+            }
             if (value.Length > 21 && value[19] == '.')
                 ms = CreateInteger(value, 20, 3);
 
