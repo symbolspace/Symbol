@@ -1159,10 +1159,24 @@ namespace Symbol.Formatting.Json {
                 if (!value.StartsWith("/Date(") || !value.EndsWith(")/"))
                     return value;
                 string text = value.Substring(6, value.Length - 8);
+                var z = text.IndexOf('+');
                 long n;
-                if (!long.TryParse(text, out n))
-                    return value;
-                return HttpUtility.FromJsTick(n);
+                if (z > -1) {
+                    if (!long.TryParse(text.Substring(0, z), out n))
+                        return value;
+                    text = text.Substring(z + 1);
+                    var result = HttpUtility.FromJsTick(n);
+                    if (text.Length == 4) {
+                        result = result.ToUniversalTime()
+                                       .AddHours(TypeExtensions.Convert(text.Substring(0, 2), 0))
+                                       .AddMinutes(TypeExtensions.Convert(text.Substring(2, 2), 0));
+                    }
+                    return result;
+                } else {
+                    if (!long.TryParse(text, out n))
+                        return value;
+                    return HttpUtility.FromJsTick(n);
+                }
             }
         }
         #endregion
