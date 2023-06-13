@@ -13,6 +13,10 @@ namespace Examples.Enums {
     class Program {
         static void Main(string[] args) {
             {
+                var json = "{\"Timestamp\":\"/Date(1686658327629+0800)/\"}";
+                var values = JSON.Parse(json);
+            }
+            {
                 var text = "select id from test left join user as u on u.id=test.uid group by type having min(age)>15 order by type desc offset 3 limit 8";
                 var beginIndex = 0;
                 int endIndex;
@@ -42,11 +46,12 @@ namespace Examples.Enums {
                 //limit
                 action(" limit ", new string[] { "[*]$" });
             }
-
-            JSONListT();
-            var json = "{ \"count\": 1 }";
-            var o = JSON.ToObject(json, typeof(object));
-            Console.WriteLine(o);
+            {
+                JSONListT();
+                var json = "{ \"count\": 1 }";
+                var o = JSON.ToObject(json, typeof(object));
+                Console.WriteLine(o);
+            }
 
             //枚举示例
             EnumExample();
