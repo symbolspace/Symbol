@@ -73,9 +73,9 @@ namespace Symbol {
                 var deps = Microsoft.Extensions.DependencyModel.DependencyContext.Default;
                 foreach (var p in deps.CompileLibraries) {
                     if (predicate == null || predicate(p.Name, p.Version)) {
-                        var assemblyName = new System.Reflection.AssemblyName($"{p.Name}, Version={p.Version}");
                         Assembly assembly = null;
                         try {
+                            var assemblyName = new System.Reflection.AssemblyName($"{p.Name}, Version={p.Version}");
                             assembly = System.Reflection.Assembly.Load(assemblyName);
                         } catch (System.Exception) {
                             continue;
