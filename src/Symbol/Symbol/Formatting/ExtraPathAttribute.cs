@@ -7,8 +7,9 @@ using System;
 namespace Symbol.Formatting {
 
     /// <summary>
-    /// 标记在序列化时额外输出path结果。
+    /// 特性：Path提取扩展。
     /// </summary>
+    /// <remarks>标记在序列化时额外输出path结果。</remarks>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
     public class ExtraPathAttribute : FormatAttribute {
         /// <summary>

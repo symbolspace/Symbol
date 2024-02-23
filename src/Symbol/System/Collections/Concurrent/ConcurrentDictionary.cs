@@ -1,5 +1,5 @@
 ﻿#pragma warning disable 1591
-#if net20 || net35
+#if NET20 || NET35
 
 #define FEATURE_RANDOMIZED_STRING_HASHING
 #define FEATURE_PAL
@@ -42,8 +42,9 @@ using System.Collections.ObjectModel;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using Symbol;
 
-#if !net20 && !net35 && !CDS_COMPILE_JUST_THIS
+#if !NET20 && !NET35 && !CDS_COMPILE_JUST_THIS
 using System.Diagnostics.Contracts;
 #endif
 
@@ -1640,7 +1641,7 @@ namespace System.Collections.Concurrent
         private  static readonly int MaxArrayLength = GetMaxArrayLength();
         static int GetMaxArrayLength() {
             try {
-                return TypeExtensions.Convert<int>(FastWrapper.Get(typeof(Array), "MaxArrayLength"));
+                return ConvertExtensions.Convert<int>(FastWrapper.Get(typeof(Array), "MaxArrayLength"));
             } catch {
                 return 2146435071;
             }
@@ -1844,7 +1845,7 @@ namespace System.Collections.Concurrent
         private static readonly int ProcessorCount = GetProcessorCount();
         static int GetProcessorCount() {
             try {
-                return TypeExtensions.Convert<int>(FastWrapper.Get(FastWrapper.GetWarpperType("System.Threading.PlatformHelper"), "ProcessorCount"));
+                return ConvertExtensions.Convert<int>(FastWrapper.Get(FastWrapper.GetWarpperType("System.Threading.PlatformHelper"), "ProcessorCount"));
             } catch {
                 try {
                     return Environment.ProcessorCount;
@@ -2126,7 +2127,7 @@ namespace System.Collections.Concurrent
 
         // Methods
         public Mscorlib_DictionaryDebugView(IDictionary<K, V> dictionary) {
-            Symbol.CommonException.CheckArgumentNull(dictionary, "dictionary");
+            Throw.CheckArgumentNull(dictionary, "dictionary");
 
             this.dict = dictionary;
         }
@@ -2149,7 +2150,7 @@ namespace System.Collections.Concurrent
         public static bool s_UseRandomizedStringHashing = GetStringUseRandomizedHashing();
         static bool GetStringUseRandomizedHashing() {
             try {
-                return TypeExtensions.Convert<bool>(FastWrapper.Get(typeof(String), "UseRandomizedHashing"));
+                return ConvertExtensions.Convert<bool>(FastWrapper.Get(typeof(String), "UseRandomizedHashing"));
             } catch {
                 return true;
             }
@@ -2224,7 +2225,7 @@ namespace System.Collections.Concurrent
         private static readonly int HashtableHashPrime = GetHashtableHashPrime();
         static int GetHashtableHashPrime() {
             try {
-                return TypeExtensions.Convert<int>(FastWrapper.Get(typeof(System.Collections.Hashtable), "HashPrime"));
+                return ConvertExtensions.Convert<int>(FastWrapper.Get(typeof(System.Collections.Hashtable), "HashPrime"));
             } catch {
                 return 101;
             }
@@ -2261,13 +2262,13 @@ namespace System.Collections.Concurrent
         {
 
             if(comparer == null) {
-                return (IEqualityComparer)FastWrapper.CreateInstance(FastWrapper.GetWarpperType("System.Collections.Generic.RandomizedObjectEqualityComparer"));
+                return (IEqualityComparer)FastObject.CreateInstance(FastWrapper.GetWarpperType("System.Collections.Generic.RandomizedObjectEqualityComparer"));
                 //return new System.Collections.Generic.RandomizedObjectEqualityComparer();
             } 
 
             if(comparer == System.Collections.Generic.EqualityComparer<string>.Default) {
                 //return new System.Collections.Generic.RandomizedStringEqualityComparer();
-                return (IEqualityComparer)FastWrapper.CreateInstance(FastWrapper.GetWarpperType("System.Collections.Generic.RandomizedStringEqualityComparer"));
+                return (IEqualityComparer)FastObject.CreateInstance(FastWrapper.GetWarpperType("System.Collections.Generic.RandomizedStringEqualityComparer"));
 
             }
             if (comparer.GetType().FullName == "System.IWellKnownStringEqualityComparer") {

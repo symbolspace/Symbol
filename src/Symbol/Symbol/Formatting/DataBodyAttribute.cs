@@ -7,8 +7,9 @@ using System;
 namespace Symbol.Formatting {
 
     /// <summary>
-    /// 数据主体特性（表示参数可以尝试从数据主体构建）。
+    /// 特性：数据主体。
     /// </summary>
+    /// <remarks>表示参数可以尝试从数据主体构建。</remarks>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
     public class DataBodyAttribute : Attribute {
         /// <summary>

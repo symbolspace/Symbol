@@ -7,8 +7,9 @@ using System;
 namespace Symbol.Formatting {
 
     /// <summary>
-    /// 标记在序列化时输出的名称。
+    /// 特性：别名。
     /// </summary>
+    /// <remarks>标记在序列化时输出的名称。</remarks>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public sealed class AliasAttribute : Attribute {
         /// <summary>

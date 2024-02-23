@@ -18,6 +18,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Symbol;
 
 namespace System.Collections.Concurrent
 {
@@ -100,7 +101,7 @@ namespace System.Collections.Concurrent
         /// <param name="collection">A collection to browse in the debugger.</param>
         public SystemCollectionsConcurrent_ProducerConsumerCollectionDebugView(IProducerConsumerCollection<T> collection)
         {
-            Symbol.CommonException.CheckArgumentNull(collection, "collection");
+            Throw.CheckArgumentNull(collection, "collection");
 
             m_collection = collection;
         }

@@ -444,7 +444,7 @@ namespace Symbol.Net {
         /// <returns>返回文本</returns>
         public string ToData(object values,string valueSpliter="=",string pairSpliter="&", bool ignoreEmptyValue=true) {
 
-            var values2 = Symbol.Collections.Generic.NameValueCollection<object>.As(values);
+            var values2 = FastObject.As(values);
             System.Text.StringBuilder builder = new System.Text.StringBuilder();
             bool first = true;
             foreach (var item in values2) {

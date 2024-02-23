@@ -224,7 +224,7 @@ public static class JSON {
         try {
             return new JsonDeserializer(Parameters).ToObject(json, type);
         } catch {
-            return TypeExtensions.DefaultValue(type);
+            return FastObject.DefaultValue(type);
         }
     }
     #endregion
@@ -587,7 +587,7 @@ namespace Symbol.Formatting.Json {
             // 2016-04-02 - Enrico Padovani - proper conversion of byte[] back from string
             if (conversionType == typeof(byte[]))
                 return Convert.FromBase64String((string)value);
-            return TypeExtensions.Convert(value, conversionType);
+            return ConvertExtensions.Convert(value, conversionType);
             //return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
         }
 
@@ -745,7 +745,7 @@ namespace Symbol.Formatting.Json {
                 }
                 type = Reflection.Instance.GetTypeFromCache((string)tn);
             }
-            Symbol.CommonException.CheckArgumentNull(type, "type");
+            Throw.CheckArgumentNull(type, "type");
 
             string typename = type.AssemblyQualifiedName;
             object o = input;
@@ -785,10 +785,10 @@ namespace Symbol.Formatting.Json {
                         object oset = null;
 
                         switch (pi.Type) {
-                            case PropertyInfoTypes.Int: oset = TypeExtensions.Convert(v, 0); break;
-                            case PropertyInfoTypes.Long: oset = TypeExtensions.Convert(v, 0L); break;
-                            case PropertyInfoTypes.String: oset = TypeExtensions.Convert<string>(v); break;
-                            case PropertyInfoTypes.Bool: oset = TypeExtensions.Convert(v, false); break;
+                            case PropertyInfoTypes.Int: oset = ConvertExtensions.Convert(v, 0); break;
+                            case PropertyInfoTypes.Long: oset = ConvertExtensions.Convert(v, 0L); break;
+                            case PropertyInfoTypes.String: oset = ConvertExtensions.Convert<string>(v); break;
+                            case PropertyInfoTypes.Bool: oset = ConvertExtensions.Convert(v, false); break;
                             case PropertyInfoTypes.DateTime: {
                                     if (v is System.DateTime)
                                         oset = v;
@@ -1084,7 +1084,7 @@ namespace Symbol.Formatting.Json {
         #endregion
         #region ParseObject
         private System.Collections.Generic.IDictionary<string, object> ParseObject() {
-            var table = new Symbol.Collections.Generic.NameValueCollection<object>(StringComparer.Ordinal);
+            var table = new Dictionary<string, object>();
 
             ConsumeToken(); // {
 
@@ -1120,8 +1120,7 @@ namespace Symbol.Formatting.Json {
 
                             // value
                             object value = ParseValue();
-
-                            table[name] = value;
+                            IDictionaryExtensions.SetValue(table, name, value);
                         }
                         break;
                 }
@@ -1168,8 +1167,8 @@ namespace Symbol.Formatting.Json {
                     var result = HttpUtility.FromJsTick(n);
                     if (text.Length == 4) {
                         result = result.ToUniversalTime()
-                                       .AddHours(TypeExtensions.Convert(text.Substring(0, 2), 0))
-                                       .AddMinutes(TypeExtensions.Convert(text.Substring(2, 2), 0));
+                                       .AddHours(ConvertExtensions.Convert(text.Substring(0, 2), 0))
+                                       .AddMinutes(ConvertExtensions.Convert(text.Substring(2, 2), 0));
                     }
                     return result;
                 } else {
@@ -2391,6 +2390,7 @@ namespace Symbol.Formatting.Json {
         public string Name;
         public string LowerCaseName;
         public Reflection.GenericGetter Getter;
+        public int Sort;
     }
     #endregion
     #region Reflection
@@ -2635,13 +2635,13 @@ namespace Symbol.Formatting.Json {
                             for (int i = 0; i < parameters.Length; i++) {
                                 args[i] = TypeExtensions.DefaultValue(parameters[i].ParameterType);
                             }
-                            c = () => FastWrapper.CreateInstance(objtype, args);
+                            c = () => FastObject.CreateInstance(objtype, args);
                         } else {
                             //解决空参数构造函数为非public时
                             var ctor = objtype.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
 #if !netcore
                             if (objtype.IsGenericType) {
-                                c = () => FastWrapper.CreateInstance(objtype);
+                                c = () => FastObject.CreateInstance(objtype);
                             } else {
 #endif
                                 //typeOwner用于解决非public构造函数
@@ -2871,6 +2871,7 @@ namespace Symbol.Formatting.Json {
                     },
                     LowerCaseName = parameterInfo.AliasName.ToLower() + "string",
                     Name = parameterInfo.AliasName + "String",
+                    Sort = parameterInfo.MetadataToken,
                 });
             }
             if (AttributeExtensions.IsDefined<ExtraEnumTextAttribute>(parameterInfo)) {
@@ -2882,6 +2883,7 @@ namespace Symbol.Formatting.Json {
                     },
                     LowerCaseName = parameterInfo.AliasName.ToLower() + "text",
                     Name = parameterInfo.AliasName + "Text",
+                    Sort = parameterInfo.MetadataToken
                 });
             }
 
@@ -2913,6 +2915,7 @@ namespace Symbol.Formatting.Json {
                 Getter = getter,
                 LowerCaseName = info.Name.ToLower(),
                 Name = info.Name,
+                Sort = parameterInfo.MetadataToken
             });
         }
         internal Getters[] GetGetters(Type type, bool ShowReadOnlyProperties, List<Type> IgnoreAttributes) {
@@ -2951,7 +2954,12 @@ namespace Symbol.Formatting.Json {
                 if (g != null) {
                     IParameterInfo parameterInfo = PropertyParameterInfo.As(p);
                     g = GetterFilter(g, parameterInfo);
-                    getters.Add(new Getters { Getter = g, Name = parameterInfo.AliasName, LowerCaseName = parameterInfo.AliasName.ToLower() });
+                    getters.Add(new Getters { 
+                        Getter = g, 
+                        Name = parameterInfo.AliasName, 
+                        LowerCaseName = parameterInfo.AliasName.ToLower(), 
+                        Sort=parameterInfo.MetadataToken 
+                    });
                     ScanExtras(getters, g, parameterInfo);
                 }
             }
@@ -2976,11 +2984,17 @@ namespace Symbol.Formatting.Json {
                     if (g != null) {
                         IParameterInfo parameterInfo = FieldParameterInfo.As(f);
                         g = GetterFilter(g, parameterInfo);
-                        getters.Add(new Getters { Getter = g, Name = parameterInfo.Name, LowerCaseName = parameterInfo.Name.ToLower() });
+                        getters.Add(new Getters { 
+                            Getter = g, 
+                            Name = parameterInfo.Name, 
+                            LowerCaseName = parameterInfo.Name.ToLower(),
+                            Sort = parameterInfo.MetadataToken
+                        });
                         ScanExtras(getters, g, parameterInfo);
                     }
                 }
             }
+            getters.Sort((x, y) => x.Sort.CompareTo(y.Sort));
             val = getters.ToArray();
             _getterscache.Add(type, val);
             return val;

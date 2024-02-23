@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace Symbol.Collections {
     /// <summary>
@@ -133,13 +134,13 @@ namespace Symbol.Collections {
         /// <param name="separator">分割符</param>
         public void ParseValues(string values, bool needDecode, params string[] separator) {
             if (separator == null || separator.Length == 0)
-                CommonException.ThrowArgumentNull("separator");
+                Throw.ArgumentNull("separator");
 
             if (string.IsNullOrEmpty(values))
                 return;
             if (values.StartsWith("?"))
                 values = values.Substring(1);
-            var keys = new Symbol.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (string item in values.Split(separator, StringSplitOptions.None)) {
                 string key = string.Empty;
                 string value = string.Empty;
@@ -229,8 +230,8 @@ namespace Symbol.Collections {
         /// <param name="nameSpliter">多个分割符。</param>
         /// <returns></returns>
         public string ToString(string valueSpliter, string nameSpliter) {
-            CommonException.CheckArgumentNull(valueSpliter, "valueSpliter");
-            CommonException.CheckArgumentNull(nameSpliter, "nameSpliter");
+            Throw.CheckArgumentNull(valueSpliter, "valueSpliter");
+            Throw.CheckArgumentNull(nameSpliter, "nameSpliter");
 
             System.Text.StringBuilder builder = new System.Text.StringBuilder();
 

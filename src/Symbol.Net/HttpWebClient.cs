@@ -3,7 +3,7 @@
  *  e-mail：symbolspace@outlook.com
  */
 
- using System;
+using System;
 using System.Net;
 
 namespace Symbol.Net {
@@ -77,7 +77,7 @@ namespace Symbol.Net {
         /// <summary>
         /// 创建 HttpWebClient 的实例。
         /// </summary>
-#if net60
+#if NET6_0 || NET7_0 || NET8_0
 #pragma warning disable SYSLIB0014 // 类型或成员已过时
 #endif
         public HttpWebClient() {
@@ -99,7 +99,7 @@ namespace Symbol.Net {
             Credentials = CredentialCache.DefaultCredentials;
             //Headers.Add( HttpRequestHeader.KeepAlive,"TRUE");
         }
-#if net60
+#if NET6_0 || NET7_0 || NET8_0
 #pragma warning restore SYSLIB0014 // 类型或成员已过时
 #endif
         #endregion

@@ -7,8 +7,9 @@ using System;
 namespace Symbol.Formatting {
 
     /// <summary>
-    /// 标记在序列化时将值按指定定格式串输出。
+    /// 特性：格式化。
     /// </summary>
+    /// <remarks>标记在序列化时将值按指定定格式串输出。</remarks>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class FormatAttribute : Attribute {
         /// <summary>

@@ -419,7 +419,7 @@ namespace Symbol.Net {
         /// <exception cref="System.ArgumentOutOfRangeException">count不能小于1。</exception>
         public void NextPeek(int count) {
             if (count < 1)
-                CommonException.ThrowArgumentOutOfRange("count", "数量不能小于1。");
+                Throw.ArgumentOutOfRange("count", "数量不能小于1。");
             _nextPeekHandler.BeginInvoke(count, null, null);
         }
         delegate void NextPeekDelegate(int count);

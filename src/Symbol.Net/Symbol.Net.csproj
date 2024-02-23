@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="NuGet">
-    <TargetFrameworks>net6.0;net5.0;netcoreapp3.1;net48;net47;net461;net46;net452;net45;net4;net35</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0;net5.0;netcoreapp3.1;netstandard2.0;net48;net47;net461;net46;net452;net45;net4;net35</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -12,7 +12,7 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Net</AssemblyTitle>
     <AssemblyName>Symbol.Net</AssemblyName>
-    <VersionPrefix>4.0.0.7</VersionPrefix>
+    <VersionPrefix>4.0.0.8</VersionPrefix>
     <Title>Symbol.Net</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
@@ -135,9 +135,6 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'net4' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="System\Net\Sockets\.enum\IPProtectionLevel.cs" />
   </ItemGroup>
 
   <ItemGroup>

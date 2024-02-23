@@ -64,6 +64,7 @@
 **    about managed weak table consistency. Native handles reclamation
 **    may be delayed until appdomain shutdown.
 ===========================================================*/
+using Symbol;
 
 namespace System.Runtime.CompilerServices
 {
@@ -107,7 +108,7 @@ namespace System.Runtime.CompilerServices
         [System.Security.SecuritySafeCritical]
         public bool TryGetValue(TKey key, out TValue value)
         {
-            Symbol.CommonException.CheckArgumentNull(key, "key");
+            Throw.CheckArgumentNull(key, "key");
             
             lock(_lock)
             {
@@ -129,7 +130,7 @@ namespace System.Runtime.CompilerServices
         [System.Security.SecuritySafeCritical]
         public void Add(TKey key, TValue value)
         {
-            Symbol.CommonException.CheckArgumentNull(key, "key");
+            Throw.CheckArgumentNull(key, "key");
 
             lock (_lock)
             {
@@ -140,7 +141,7 @@ namespace System.Runtime.CompilerServices
                 if (entryIndex != -1)
                 {
                     _invalid = false;
-                    Symbol.CommonException.ThrowArgumentNull("key Adding Duplicate");
+                    Throw.ArgumentNull("key Adding Duplicate");
 
                 }
 
@@ -162,7 +163,7 @@ namespace System.Runtime.CompilerServices
         [System.Security.SecuritySafeCritical]
         public bool Remove(TKey key)
         {
-            Symbol.CommonException.CheckArgumentNull(key, "key");
+            Throw.CheckArgumentNull(key, "key");
 
             lock (_lock)
             {
@@ -226,7 +227,7 @@ namespace System.Runtime.CompilerServices
             //  {
             //      ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             //  }
-            Symbol.CommonException.CheckArgumentNull(createValueCallback, "createValueCallback");
+            Throw.CheckArgumentNull(createValueCallback, "createValueCallback");
 
             TValue existingValue;
             if (TryGetValue(key, out existingValue))
@@ -575,7 +576,7 @@ namespace System.Runtime.CompilerServices
         {
             if (_invalid)
             {
-                Symbol.CommonException.ThrowInvalidOperation("CollectionCorrupted");
+                Throw.InvalidOperation("CollectionCorrupted");
             }
         }
 

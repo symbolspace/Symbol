@@ -188,7 +188,7 @@ namespace Symbol.Encryption {
             if (string.IsNullOrEmpty(text))
                 return text;
             if (text.Length % 2 != 0)
-                CommonException.ThrowArgument("text");
+                Throw.Argument("text");
                 //throw new EncryptTextNotSymmetryException();
 
             //byte[] array = new byte[text.Length / 2];

@@ -34,7 +34,7 @@ namespace Symbol.IO.Packing {
         /// <param name="instance">需要保存的实例，没有null的情况。</param>
         /// <returns>返回打包后的数据。</returns>
         public byte[] Save(object instance) {
-            return ((ICustomPackage)FastWrapper.CreateInstance(CustomPackageType)).Save(instance);
+            return ((ICustomPackage)FastObject.CreateInstance(CustomPackageType)).Save(instance);
         }
         /// <summary>
         /// 从byte[]中加载对象。
@@ -42,7 +42,7 @@ namespace Symbol.IO.Packing {
         /// <param name="buffer">对象的数据。</param>
         /// <returns>返回解析后的对象。</returns>
         public object Load(byte[] buffer) {
-            return ((ICustomPackage)FastWrapper.CreateInstance(CustomPackageType)).Load(buffer);
+            return ((ICustomPackage)FastObject.CreateInstance(CustomPackageType)).Load(buffer);
         }
     }
 }

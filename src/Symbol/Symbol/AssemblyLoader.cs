@@ -80,22 +80,18 @@ namespace Symbol {
                         } catch (System.Exception) {
                             continue;
                         }
-                        if(assembly!=null)
+                        if (assembly != null)
                             yield return assembly;
                     }
                 }
-                yield break;
             }
-#else
+#endif
             {
                 foreach (var p in System.AppDomain.CurrentDomain.GetAssemblies()) {
                     if (predicate == null || predicate(p.GetName().Name, p.GetName().Version.ToString()))
                         yield return p;
                 }
-                yield break;
             }
-#endif
-
         }
 
         #endregion

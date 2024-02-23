@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="NuGet">
-    <TargetFrameworks>net6.0;net5.0;netcoreapp3.1;net48;net47;net461;net46;net452;net45;net4;net35;net2</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0;net5.0;netcoreapp3.1;netstandard2.0;net48;net47;net461;net46;net452;net45;net4;net35;net2</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -12,7 +12,7 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol.Web</AssemblyTitle>
     <AssemblyName>Symbol.Web</AssemblyName>
-    <VersionPrefix>4.1.0.6</VersionPrefix>
+    <VersionPrefix>4.1.0.7</VersionPrefix>
     <Title>Symbol.Web</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
@@ -150,24 +150,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 	</ItemGroup>
-  <ItemGroup>
-    <Compile Include=".enum\Verbs.cs" />
-    <Compile Include=".extension\HttpContextExtensions.cs" />
-    <Compile Include=".extension\HttpRequestExtension.cs" />
-    <Compile Include=".extension\HttpResponseExtensions.cs" />
-    <Compile Include=".extension\ServiceProviderExtensions.cs" />
-    <Compile Include=".implement\HttpApplicationState.cs" />
-    <Compile Include=".implement\HttpConnection.cs" />
-    <Compile Include=".implement\HttpCookie.cs" />
-    <Compile Include=".implement\HttpCookieCollection.cs" />
-    <Compile Include=".implement\HttpFileCollection.cs" />
-    <Compile Include=".implement\HttpListenerContext.cs" />
-    <Compile Include=".implement\HttpListenerRequest.cs" />
-    <Compile Include=".implement\HttpListenerResponse.cs" />
-    <Compile Include=".implement\HttpOutputStream.cs" />
-    <Compile Include=".implement\HttpPostedFile.cs" />
-    <Compile Include=".implement\HttpSessionState.cs" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.txt">
       <Pack>True</Pack>

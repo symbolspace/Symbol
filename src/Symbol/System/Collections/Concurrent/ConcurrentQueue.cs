@@ -28,6 +28,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
+using Symbol;
 
 namespace System.Collections.Concurrent
 {
@@ -105,7 +106,7 @@ namespace System.Collections.Concurrent
         /// null.</exception>
         public ConcurrentQueue(IEnumerable<T> collection)
         {
-            Symbol.CommonException.CheckArgumentNull(collection, "collection");
+            Throw.CheckArgumentNull(collection, "collection");
 
             InitializeFromCollection(collection);
         }

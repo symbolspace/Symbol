@@ -152,7 +152,7 @@ namespace Symbol.Net {
         /// </summary>
         /// <param name="setting">设置项。</param>
         public TcpListener(ServerSetting setting) {
-            CommonException.CheckArgumentNull(setting, "setting");
+            Throw.CheckArgumentNull(setting, "setting");
             _serverSetting = setting;
             setting.Readonly = true;
 
@@ -393,7 +393,7 @@ namespace Symbol.Net {
         /// <param name="level">参数。</param>
         public static void SetIPProtectionLevel(System.Net.Sockets.Socket socket, System.Net.Sockets.IPProtectionLevel level) {
             if (level == System.Net.Sockets.IPProtectionLevel.Unspecified) {
-                CommonException.ThrowArgument("无效的level参数：" + level);
+                Throw.Argument("无效的level参数：" + level);
             }
             if (socket.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
 #if net20 || net35
@@ -403,7 +403,7 @@ namespace Symbol.Net {
 #endif
             } else {
                 if (socket.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork) {
-                    CommonException.ThrowNotSupported("暂不支持此网络地址类型：" + socket.AddressFamily);
+                    Throw.NotSupported("暂不支持此网络地址类型：" + socket.AddressFamily);
                 }
 #if net20 || net35
                 socket.SetSocketOption(System.Net.Sockets.SocketOptionLevel.IP, (System.Net.Sockets.SocketOptionName)23, (int)level);

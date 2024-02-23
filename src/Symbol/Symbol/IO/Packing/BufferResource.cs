@@ -564,7 +564,7 @@ namespace Symbol.IO.Packing {
                     }
                     string json = System.Text.Encoding.UTF8.GetString(buffer);
                     object root = JSON.Parse(json);
-                    _version = TypeExtensions.Convert(FastObject.Path(root, "version"), -1);
+                    _version = ConvertExtensions.Convert(FastObject.Path(root, "version"), -1);
                     if (_version < 1)
                         _version = 1;
                     items = FastObject.Path(root, "items") as System.Collections.Generic.IDictionary<string, object>;
@@ -574,8 +574,8 @@ namespace Symbol.IO.Packing {
                 foreach (System.Collections.Generic.KeyValuePair<string, object> item in items) {
                     Resource o = new Resource() {
                         Name = item.Key,
-                        Offset = TypeExtensions.Convert(FastObject.Path(item.Value, "[0]"), -1),
-                        Length = TypeExtensions.Convert(FastObject.Path(item.Value, "[1]"), -1),
+                        Offset = ConvertExtensions.Convert(FastObject.Path(item.Value, "[0]"), -1),
+                        Length = ConvertExtensions.Convert(FastObject.Path(item.Value, "[1]"), -1),
                     };
                     if (string.IsNullOrEmpty(o.Name) || o.Offset < 0 || o.Length < 0)
                         continue;

@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 namespace Symbol.Routing {
 
@@ -162,47 +163,47 @@ namespace Symbol.Routing {
         /// </summary>
         /// <param name="url">需要匹配的url。</param>
         /// <returns>任何匹配不成功时都返回null。</returns>
-        public Symbol.Collections.Generic.NameValueCollection<object> Match(string url) {
+        public IDictionary<string, object> Match(string url) {
             if (string.IsNullOrEmpty(url))
                 return null;
             System.Text.RegularExpressions.Match match = _regex.Match(url);
             if (!match.Success) {
                 return null;
             }
-            Symbol.Collections.Generic.NameValueCollection<object> values = new Collections.Generic.NameValueCollection<object>();
+            var values = new Dictionary<string, object>();
             foreach (var item in _list_type) {
                 string value = match.Groups[item.Key]?.Value;
                 if (string.IsNullOrEmpty(value))
                     return null;
                 if (item.Value == "byte") {
-                    byte? v= TypeExtensions.Convert<byte?>(value);
+                    byte? v= ConvertExtensions.Convert<byte?>(value);
                     if (v == null)
                         return null;
-                    values[item.Key] = v.Value;
+                    IDictionaryExtensions.SetValue(values, item.Key, v.Value);
                     continue;
                 } else if (item.Value == "date") {
-                    DateTime? v = TypeExtensions.Convert<DateTime?>(value);
+                    DateTime? v = ConvertExtensions.Convert<DateTime?>(value);
                     if (v == null || v.Value.Year < 1970)
                         return null;
-                    values[item.Key] = v.Value;
+                    IDictionaryExtensions.SetValue(values, item.Key, v.Value);
                     continue;
                 } else if (item.Value == "datetime") {
-                    DateTime? v = TypeExtensions.Convert<DateTime?>(value);
+                    DateTime? v = ConvertExtensions.Convert<DateTime?>(value);
                     if (v == null || v.Value.Year < 1970)
                         return null;
-                    values[item.Key] = v.Value;
+                    IDictionaryExtensions.SetValue(values, item.Key, v.Value);
                     continue;
                 } else if (item.Value == "time") {
-                    TimeSpan? v = TypeExtensions.Convert<TimeSpan?>(value);
+                    TimeSpan? v = ConvertExtensions.Convert<TimeSpan?>(value);
                     if (v == null || v.Value.TotalMilliseconds<0)
                         return null;
-                    values[item.Key] = v.Value;
+                    IDictionaryExtensions.SetValue(values, item.Key, v.Value);
                     continue;
                 } else if (item.Value == "guid") {
-                    Guid? v = TypeExtensions.Convert<Guid?>(value);
+                    Guid? v = ConvertExtensions.Convert<Guid?>(value);
                     if (v == null)
                         return null;
-                    values[item.Key] = v.Value;
+                    IDictionaryExtensions.SetValue(values, item.Key, v.Value);
                     continue;
                 }
                 values[item.Key] = value;
@@ -221,7 +222,7 @@ namespace Symbol.Routing {
             if (values == null)
                 return _url;
 
-            var vars = Symbol.Collections.Generic.NameValueCollection<object>.As(values);
+            var vars = FastObject.As(values);
             string url = _url;
             foreach (var item in vars) {
                 url = StringExtensions.Replace(url, "{" + item.Key + "}", item.Value == null ? "" : item.Value.ToString(), true);

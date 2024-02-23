@@ -22,6 +22,7 @@ using System.Security.Permissions;
 using System.Threading;
 //using System.Diagnostics.Contracts;
 using System.Diagnostics.CodeAnalysis;
+using Symbol;
 
 namespace System.Threading
 {
@@ -254,7 +255,7 @@ namespace System.Threading
             }
             if (condition == null)
             {
-                Symbol.CommonException.ThrowArgumentNull("condition");
+                Throw.ArgumentNull("condition");
                 //throw new ArgumentNullException("condition", "SpinWait_SpinUntil_ArgumentNull");
             }
             uint startTime = 0;

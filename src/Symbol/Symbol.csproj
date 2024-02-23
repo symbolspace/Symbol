@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="NuGet">
-    <TargetFrameworks>net7.0;net6.0;net5.0;netcoreapp3.1;netcoreapp2.0;net48;net47;net461;net46;net452;net45;net40;net35;net2</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0;net5.0;netcoreapp3.1;netstandard2.0;net48;net47;net461;net46;net452;net45;net40;net35;net2</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -12,7 +12,7 @@
     <NeutralLanguage>zh-CN</NeutralLanguage>
     <AssemblyTitle>Symbol</AssemblyTitle>
     <AssemblyName>Symbol</AssemblyName>
-    <VersionPrefix>4.0.1.38</VersionPrefix>
+    <VersionPrefix>4.1.0.1</VersionPrefix>
     <Title>Symbol</Title>
     <Authors>symbolspace</Authors>
     <Company>symbolspace</Company>
@@ -103,6 +103,7 @@
     <DefineConstants>net20</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
+    <DelaySign>False</DelaySign>
   </PropertyGroup>
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
 		<Reference Include="System" />
@@ -132,38 +133,14 @@
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
-
-
-
   <ItemGroup>
-    <Compile Remove="System\Reflection\ICustomAttributeProvider.cs" />
+    <Compile Remove="System\Reflection\**" />
+    <EmbeddedResource Remove="System\Reflection\**" />
+    <None Remove="System\Reflection\**" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <Compile Include=".extension\CloneExtensions.cs" />
-    <Compile Include=".extension\EnumExtensions.cs" />
-    <Compile Include=".extension\Json.cs" />
-    <Compile Include=".extension\StringExtensions.cs" />
-    <Compile Include=".extension\ByteExtensions.cs" />
-    <Compile Include=".global\AppHelper.cs" />
-    <Compile Include=".global\ConstAttribute.cs" />
-    <Compile Include=".global\EnumPropertyAttribute.cs" />
-    <Compile Include=".global\FastObject.cs" />
-    <Compile Include=".global\FastWrapper.cs" />
-    <Compile Include=".global\HttpUtility.cs" />
-    <Compile Include=".global\ILog.cs" />
-    <Compile Include=".global\LinqHelper.cs" />
-    <Compile Include=".global\LogHelper.cs" />
-    <Compile Include=".global\StringRandomizer.cs" />
-    <Compile Include=".global\ThreadHelper.cs" />
-    <Compile Include=".extension\TypeExtensions.cs" />
-    <Compile Include="Symbol\.exception\CommonException.cs" />
-    <Compile Include="Symbol\.exception\DisposedException.cs" />
-    <Compile Include="Symbol\.exception\ExistedException.cs" />
-    <Compile Include="Symbol\.exception\NotFoundException.cs" />
-    <Compile Include="Symbol\.exception\TypeMismatchException.cs" />
-    <Compile Include="Symbol\.extension\AttributeExtensions.cs" />
     <Compile Include="Symbol\Encryption\.enum\SHALevels.cs" />
     <Compile Include="Symbol\IO\Packing\.attribute\CustomPackageAttribute.cs" />
     <Compile Include="Symbol\IO\Packing\.attribute\FieldPackageAttribute.cs" />
@@ -174,16 +151,6 @@
     <Compile Include="Symbol\IO\Packing\.enum\PackageEncryptTypes.cs" />
     <Compile Include="Symbol\IO\Packing\.enum\PackageValueAsTypes.cs" />
     <Compile Include="Symbol\IO\Packing\.enum\PackageValueTypes.cs" />
-    <Compile Include="System\.extension\DateTimeExtensions.cs" />
-    <Compile Include="System\.extension\TimeSpanExtensions.cs" />
-    <Compile Include="System\Collections\Generic\.extension\HashSetExtensions.cs" />
-    <Compile Include="System\Collections\Generic\.extension\ICollectionExtensions.cs" />
-    <Compile Include="System\Collections\Generic\.extension\QueueExtensions.cs" />
-    <Compile Include="System\IO\.extension\StreamExtensions.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="System\Reflection\" />
   </ItemGroup>
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
