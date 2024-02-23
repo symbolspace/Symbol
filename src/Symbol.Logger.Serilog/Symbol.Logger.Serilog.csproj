@@ -1,0 +1,93 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+		<TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.0;net4.8;net4.6.2;net4.5;net4.0;</TargetFrameworks>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<LangVersion>10.0</LangVersion>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+		<GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
+		<VersionPrefix>1.0.1.1</VersionPrefix>
+		<PackageTags>logger;serilog;</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<AssemblyTitle>Symbol.Logger.Serilog</AssemblyTitle>
+		<AssemblyName>Symbol.Logger.Serilog</AssemblyName>
+		<Title>Symbol.Logger.Serilog</Title>
+		<Authors>symbolspace</Authors>
+		<Company>symbolspace</Company>
+		<PublisherName></PublisherName>
+		<Description>基础设施: Symbol.Logger.Serilog。详细使用手册查看项目URL。</Description>
+		<IsPackable>true</IsPackable>
+		<PackageProjectUrl>https://github.com/symbolspace/Symbol/tree/master/src/Symbol.Logger.Serilog/</PackageProjectUrl>
+		<PackageReleaseNotes>Infrastructure: Symbol.Logger.Serilog</PackageReleaseNotes>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<!--<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>-->
+		<NoWarn>NU1803</NoWarn>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\..\Symbol.snk</AssemblyOriginatorKeyFile>
+		<Configurations>Debug;Release;Testing</Configurations>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'" Label="NuGet">
+		<OutputPath>bin\Debug</OutputPath>
+		<DefineConstants></DefineConstants>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Optimize>false</Optimize>
+		<PackageId>Symbol.Logger.Serilog-devel</PackageId>
+		<IncludeSymbols>true</IncludeSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Testing|AnyCPU'" Label="NuGet">
+	  <OutputPath>bin\Debug</OutputPath>
+	  <DefineConstants />
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <Optimize>false</Optimize>
+	  <PackageId>Symbol.Logger.Serilog-devel</PackageId>
+	  <IncludeSymbols>true</IncludeSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" Label="NuGet">
+		<OutputPath>bin\Release</OutputPath>
+		<DefineConstants></DefineConstants>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Optimize>true</Optimize>
+		<PackageId>Symbol.Logger.Serilog</PackageId>
+		<IncludeSymbols>false</IncludeSymbols>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Link="Resources\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net4.0'">
+		<PackageReference Include="Serilog" Version="1.5.14" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net4.5'">
+		<PackageReference Include="Serilog" Version="2.12.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net4.6.2'">
+		<PackageReference Include="Serilog" Version="3.1.1" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net4.8'">
+		<PackageReference Include="Serilog" Version="3.1.1" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="Serilog" Version="3.1.1" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="Serilog" Version="3.1.1" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+		<PackageReference Include="Serilog" Version="3.1.1" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<PackageReference Include="Serilog" Version="3.1.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Symbol\Symbol.csproj" />
+	</ItemGroup>
+	
+	
+</Project>
