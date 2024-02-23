@@ -68,6 +68,7 @@ namespace Symbol {
         /// <returns>返回匹配的程序集集合。</returns>
         /// <remarks>.net framework: System.AppDomain.CurrentDomain.GetAssemblies(), .net core: DependencyContext.Default.CompileLibraries</remarks>
         public static System.Collections.Generic.IEnumerable<System.Reflection.Assembly> GetAssemblies(AssemblyPredicate predicate) {
+            var list = new HashSet<string>();
 #if netcore
             {
                 var deps = Microsoft.Extensions.DependencyModel.DependencyContext.Default;
@@ -80,7 +81,7 @@ namespace Symbol {
                         } catch (System.Exception) {
                             continue;
                         }
-                        if (assembly != null)
+                        if (assembly != null && list.Add(assembly.FullName))
                             yield return assembly;
                     }
                 }
@@ -88,7 +89,7 @@ namespace Symbol {
 #endif
             {
                 foreach (var p in System.AppDomain.CurrentDomain.GetAssemblies()) {
-                    if (predicate == null || predicate(p.GetName().Name, p.GetName().Version.ToString()))
+                    if (list.Add(p.FullName) && (predicate == null || predicate(p.GetName().Name, p.GetName().Version.ToString())))
                         yield return p;
                 }
             }
