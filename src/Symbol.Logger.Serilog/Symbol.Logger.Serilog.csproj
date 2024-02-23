@@ -15,6 +15,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<AssemblyTitle>Symbol.Logger.Serilog</AssemblyTitle>
 		<AssemblyName>Symbol.Logger.Serilog</AssemblyName>
+		<PackageId>Symbol.Logger.Serilog</PackageId>
 		<Title>Symbol.Logger.Serilog</Title>
 		<Authors>symbolspace</Authors>
 		<Company>symbolspace</Company>
@@ -35,7 +36,6 @@
 		<DefineConstants></DefineConstants>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Optimize>false</Optimize>
-		<PackageId>Symbol.Logger.Serilog-devel</PackageId>
 		<IncludeSymbols>true</IncludeSymbols>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Testing|AnyCPU'" Label="NuGet">
@@ -43,7 +43,6 @@
 	  <DefineConstants />
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <Optimize>false</Optimize>
-	  <PackageId>Symbol.Logger.Serilog-devel</PackageId>
 	  <IncludeSymbols>true</IncludeSymbols>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" Label="NuGet">
@@ -51,7 +50,6 @@
 		<DefineConstants></DefineConstants>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Optimize>true</Optimize>
-		<PackageId>Symbol.Logger.Serilog</PackageId>
 		<IncludeSymbols>false</IncludeSymbols>
 	</PropertyGroup>
 
