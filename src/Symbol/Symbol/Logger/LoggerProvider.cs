@@ -14,7 +14,11 @@ namespace Symbol.Logger
 
         static LoggerProvider()
         {
+            TypeImplementMap.MapType(typeof(ILoggerProvider), typeof(ConsoleLoggerProvider), "Console");
             TypeImplementMap.Scan("*.Logger.*.dll");
+#if DEBUG || TESTING
+            SetProvider("Console");
+#endif
         }
 
         /// <summary>
@@ -72,7 +76,7 @@ namespace Symbol.Logger
         {
             public static readonly ILoggerProvider EmptyInstance = new EmptyLoggerProvider();
 
-            public override string Name { get { return "empty"; } }
+            public override string Name { get { return "Empty"; } }
 
             public override ILogger GetLogger(string name)
             {
